@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Chess</title>
+<title>LuaChess</title>
 <style>
 :root{--frame:#5d4037;--light:#f0d9b5;--dark:#b58863;--bs:min(94vw,calc(100vh - 170px),700px);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html,body{height:100%;margin:0;background:#302e2b;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
@@ -9,7 +9,7 @@ body{display:flex;align-items:center;justify-content:center}
 #col{width:var(--bs);display:flex;flex-direction:column;gap:8px}
 .bar{display:flex;align-items:center;gap:10px;height:44px}
 .av{width:40px;height:40px;border-radius:4px;background:#4b4847;flex:none;padding:3px;box-sizing:border-box}
-.av svg{width:100%;height:100%;display:block}
+.av svg,.av img{width:100%;height:100%;display:block}
 .who{display:flex;flex-direction:column;justify-content:center;min-width:0;flex:1;gap:2px}
 .line{display:flex;align-items:baseline;gap:6px;font-size:15px}
 .line b{font-weight:700}
@@ -40,9 +40,6 @@ body{display:flex;align-items:center;justify-content:center}
 #fm.hand .a{display:none}
 #fm.hand .h{display:block}
 #fm.press svg{transform:scale(.8)}
-#fm i{position:absolute;left:-14px;top:-14px;width:28px;height:28px;border-radius:50%;border:2px solid #fff;opacity:0}
-#fm.press i{animation:ring .35s ease-out}
-@keyframes ring{from{opacity:.9;transform:scale(.2)}to{opacity:0;transform:scale(1.2)}}
 #prof{position:fixed;inset:0;z-index:60;background:#302e2b;overflow-y:auto;display:none}
 .pw{width:min(94vw,640px);margin:0 auto;padding:20px 0 40px;box-sizing:border-box}
 .ph{display:flex;align-items:center;gap:14px;margin-bottom:18px}
@@ -73,12 +70,13 @@ body{display:flex;align-items:center;justify-content:center}
 .nm{font:inherit;font-weight:700;background:#262421;color:#fff;border:1px solid #81b64c;border-radius:3px;padding:0 4px;width:110px;outline:none}
 .caps{display:flex;align-items:center;height:18px;color:#a7a6a2;font-size:13px;font-weight:600}
 .cpc{display:block;width:18px;height:18px;margin-right:-6px;flex:none}
-.cpc svg{width:100%;height:100%;display:block}
+.cpc svg,.cpc img{width:100%;height:100%;display:block}
 .adv{margin-left:12px}
 .rnd,#rs{color:#a7a6a2;font-size:13px;text-decoration:none;cursor:pointer}
 #rs:hover{color:#fff}
 #wrap{position:relative;width:100%;border:6px solid var(--frame);box-sizing:border-box;border-radius:3px}
-#board{display:grid;grid-template:repeat(8,1fr)/repeat(8,1fr);width:100%;aspect-ratio:1}
+#board{display:grid;grid-template:repeat(8,1fr)/repeat(8,1fr);width:100%;aspect-ratio:1;touch-action:none;user-select:none;-webkit-user-select:none}
+body.drag,body.drag *{cursor:grabbing!important}
 #pcs{position:absolute;inset:0;pointer-events:none;z-index:1}
 #arr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
 .sq{position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -89,10 +87,10 @@ body{display:flex;align-items:center;justify-content:center}
 .sq.mv::after{content:"";width:28%;height:28%;border-radius:50%;background:rgba(0,0,0,.25)}
 .sq.cp::after{width:86%;height:86%;background:none;border:6px solid rgba(0,0,0,.25);box-sizing:border-box}
 .pc{position:absolute;left:0;top:0;width:12.5%;height:12.5%;transition:transform .2s cubic-bezier(.3,.7,.3,1),opacity .18s;animation:in .35s both}
-.pc svg{width:100%;height:100%;display:block;transition:transform .18s}
-.pc.gone{opacity:0}.pc.gone svg{transform:scale(.4)}
-.pc.pop svg{animation:pop .3s}
-.pc.dead svg{animation:fall 1.1s forwards}
+.pc svg,.pc img{width:100%;height:100%;display:block;transition:transform .18s;-webkit-user-drag:none;user-select:none}
+.pc.gone{opacity:0}.pc.gone svg,.pc.gone img{transform:scale(.4)}
+.pc.pop svg,.pc.pop img{animation:pop .3s}
+.pc.dead svg,.pc.dead img{animation:fall 1.1s forwards}
 @keyframes in{from{opacity:0}to{opacity:1}}
 @keyframes pop{50%{transform:scale(1.4)}}
 @keyframes fall{25%{transform:rotate(-12deg) scale(1.15)}100%{transform:rotate(90deg) translateX(12%) scale(.9)}}
@@ -106,7 +104,7 @@ body{display:flex;align-items:center;justify-content:center}
 .pl{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0}
 .pav{width:76px;height:76px;border-radius:6px;background:#4b4847;padding:6px;box-sizing:border-box;overflow:hidden}
 .pav.img{padding:0}
-.pav svg{width:100%;height:100%;display:block}
+.pav svg,.pav img{width:100%;height:100%;display:block}
 .pav img{width:100%;height:100%;object-fit:cover;display:block}
 .pn{font-weight:700;font-size:16px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pe{font-size:14px;color:#a7a6a2}
@@ -116,13 +114,50 @@ body{display:flex;align-items:center;justify-content:center}
 #sub{font-size:14px;color:#a7a6a2}
 #next{font:inherit;font-weight:700;font-size:16px;padding:10px 28px;border:0;border-radius:6px;background:#81b64c;color:#fff;cursor:pointer}
 #next:hover{background:#95c15f}
+
+.gear{background:none;border:0;padding:0;cursor:pointer;color:#a7a6a2;display:flex;align-self:center;margin-right:2px;transition:color .15s,transform .35s}
+.gear:hover{color:#fff;transform:rotate(60deg)}
+.gear svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#set{position:fixed;inset:0;z-index:70;background:rgba(20,19,17,.74);display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
+.sbox{background:#262421;border-radius:12px;width:min(94vw,460px);max-height:92vh;overflow-y:auto;padding:20px 22px 24px;box-sizing:border-box;box-shadow:0 16px 48px rgba(0,0,0,.55);animation:pup .25s both}
+.sh{display:flex;align-items:center;justify-content:space-between}
+.sh b{font-size:21px}
+.sx{background:#3d3a37;border:0;border-radius:6px;width:32px;height:32px;cursor:pointer;color:#a7a6a2;display:flex;align-items:center;justify-content:center;padding:0}
+.sx:hover{background:#4b4847;color:#fff}
+.sx svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.st{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#81b64c;margin:22px 0 10px}
+.bgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.bo,.po{background:#302e2b;border:2px solid transparent;border-radius:9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:#c9c8c5;font-weight:600;box-sizing:border-box;position:relative;transition:background .12s,border-color .12s}
+.bo{padding:6px 6px 8px}
+.po{padding:10px 8px 10px;font-size:13px}
+.bo:hover,.po:hover{background:#3a3835}
+.bo.on,.po.on{border-color:#81b64c;color:#fff;background:#34382f}
+.po.on::after,.bo.on::after{content:"";position:absolute;top:5px;right:5px;width:16px;height:16px;border-radius:50%;background:#81b64c url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5 9-10'/%3E%3C/svg%3E") center/10px no-repeat}
+.mini{width:100%;aspect-ratio:1;border-radius:5px;display:grid;grid-template:repeat(4,1fr)/repeat(4,1fr);overflow:hidden}
+.mini i{display:block}
+.crow{display:flex;gap:8px;margin-top:10px}
+.cp2{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#302e2b;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:600;color:#c9c8c5;cursor:pointer}
+.cp2 input{width:38px;height:28px;border:0;padding:0;background:none;cursor:pointer;border-radius:4px}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pprev{display:flex;border-radius:6px;overflow:hidden;width:100%}
+.pprev span{flex:1;aspect-ratio:1;display:block}
+.pprev svg,.pprev img{width:100%;height:100%;display:block}
+#promo{position:fixed;inset:0;z-index:55;background:rgba(20,19,17,.62);display:none;align-items:center;justify-content:center}
+.pcard{background:#262421;border-radius:12px;padding:16px 18px 18px;text-align:center;animation:pup .2s both;box-shadow:0 16px 48px rgba(0,0,0,.55);max-width:94vw;box-sizing:border-box}
+.pcard .t{font-weight:700;font-size:16px;margin-bottom:12px}
+.popts{display:flex;gap:8px}
+.popt{width:min(19vw,86px);background:#3d3a37;border:0;border-radius:9px;cursor:pointer;padding:6px 4px 8px;color:#c9c8c5;font:inherit;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px;transition:background .12s,transform .12s}
+.popt:hover{background:#81b64c;color:#fff;transform:translateY(-2px)}
+.popt .pi{width:100%;aspect-ratio:1}
+.popt .pi svg,.popt .pi img{width:100%;height:100%;display:block}
 </style></head><body>
 <div id="col">
 <div class="bar"><div class="av" id="avA"></div><div class="who"><div class="line"><b>Bot</b><span class="rk" id="rkA"></span><span class="elo" id="eloA"></span></div><div class="caps" id="capA"></div></div><div id="tabs"></div><div class="clk" id="clkA">0:00</div></div>
 <div id="wrap"><div id="board"></div><div id="pcs"></div><svg id="arr" viewBox="0 0 800 800"></svg></div>
 <div id="ov"><div class="card"><div id="msg"></div><div id="sub"></div><div class="vs"><div class="pl"><div class="pav" id="ovP"></div><div class="pn" id="ovPn"></div><div class="pe" id="ovPe"></div></div><div class="vsx">vs</div><div class="pl"><div class="pav" id="ovA"></div><div class="pn">Bot</div><div class="pe" id="ovAe"></div></div></div><button id="next">Next round</button></div></div>
-<div class="bar"><div class="av" id="avP" title="Change picture"><div id="avI"></div><div class="ov2"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div></div><input type="file" id="file" accept="image/*" hidden><div class="who"><div class="line"><b id="nameP">You</b><span class="rk" id="rkP"></span><button class="pen" id="pen" title="Edit name"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button><span class="elo" id="eloP"></span></div><div class="caps" id="capP"></div></div><a id="rs">Resign</a><div class="clk" id="clkP">0:00</div></div>
+<div class="bar"><div class="av" id="avP" title="Change picture"><div id="avI"></div><div class="ov2"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div></div><input type="file" id="file" accept="image/*" hidden><div class="who"><div class="line"><b id="nameP">You</b><span class="rk" id="rkP"></span><button class="pen" id="pen" title="Edit name"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button><span class="elo" id="eloP"></span></div><div class="caps" id="capP"></div></div><button class="gear" id="gear" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><a id="rs">Resign</a><div class="clk" id="clkP">0:00</div></div>
 </div>
+<div id="promo"><div class="pcard"><div class="t">Promote pawn to</div><div class="popts" id="popts"></div></div></div>
 <script>
 const V={p:100,n:320,b:330,r:500,q:900,k:0};
 const isW=p=>p&&p<'a';
@@ -173,7 +208,17 @@ function aiMove(){const ms=legal(S);const depth=aiElo<500?1:aiElo<1200?2:3;
 const noise=Math.max(0,(1600-aiElo)/1600)*320;let best=null,bs=-Infinity;
 for(const m of ms){const v=-search(apply(S,m),depth-1,-1e9,1e9)+Math.random()*noise;if(v>bs){bs=v;best=m}}return best}
 const PIECES={"wP": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><path fill=\"#fff\" stroke=\"#000\" stroke-linecap=\"round\" stroke-width=\"1.5\" d=\"M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z\"/></svg>", "wN": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path fill=\"#fff\" d=\"M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21\"/><path fill=\"#fff\" d=\"M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3\"/><path fill=\"#000\" d=\"M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5\"/></g></svg>", "wB": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><g fill=\"#fff\" stroke-linecap=\"butt\"><path d=\"M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.35.49-2.32.47-3-.5 1.35-1.94 3-2 3-2z\"/><path d=\"M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z\"/><path d=\"M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z\"/></g><path stroke-linejoin=\"miter\" d=\"M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5\"/></g></svg>", "wR": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"#fff\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path stroke-linecap=\"butt\" d=\"M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5\"/><path d=\"m34 14-3 3H14l-3-3\"/><path stroke-linecap=\"butt\" stroke-linejoin=\"miter\" d=\"M31 17v12.5H14V17\"/><path d=\"m31 29.5 1.5 2.5h-20l1.5-2.5\"/><path fill=\"none\" stroke-linejoin=\"miter\" d=\"M11 14h23\"/></g></svg>", "wQ": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"#fff\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path d=\"M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0m16.5-4.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0M41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0M16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0M33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0\"/><path stroke-linecap=\"butt\" d=\"M9 26c8.5-1.5 21-1.5 27 0l2-12-7 11V11l-5.5 13.5-3-15-3 15-5.5-14V25L7 14z\"/><path stroke-linecap=\"butt\" d=\"M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z\"/><path fill=\"none\" d=\"M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0\"/></g></svg>", "wK": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path stroke-linejoin=\"miter\" d=\"M22.5 11.63V6M20 8h5\"/><path fill=\"#fff\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" d=\"M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5\"/><path fill=\"#fff\" d=\"M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10z\"/><path d=\"M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0\"/></g></svg>", "bP": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><path stroke=\"#000\" stroke-linecap=\"round\" stroke-width=\"1.5\" d=\"M22.5 9a4 4 0 0 0-3.22 6.38 6.48 6.48 0 0 0-.87 10.65c-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47a6.46 6.46 0 0 0-.87-10.65A4.01 4.01 0 0 0 22.5 9z\"/></svg>", "bN": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path fill=\"#000\" d=\"M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21\"/><path fill=\"#000\" d=\"M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.04-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-1-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-2 2.5-3c1 0 1 3 1 3\"/><path fill=\"#ececec\" stroke=\"#ececec\" d=\"M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.43-9.75a.5 1.5 30 1 1-.86-.5.5 1.5 30 1 1 .86.5\"/><path fill=\"#ececec\" stroke=\"none\" d=\"m24.55 10.4-.45 1.45.5.15c3.15 1 5.65 2.49 7.9 6.75S35.75 29.06 35.25 39l-.05.5h2.25l.05-.5c.5-10.06-.88-16.85-3.25-21.34s-5.79-6.64-9.19-7.16z\"/></g></svg>", "bB": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><g fill=\"#000\" stroke-linecap=\"butt\"><path d=\"M9 36c3.4-1 10.1.4 13.5-2 3.4 2.4 10.1 1 13.5 2 0 0 1.6.5 3 2-.7 1-1.6 1-3 .5-3.4-1-10.1.5-13.5-1-3.4 1.5-10.1 0-13.5 1-1.4.5-2.3.5-3-.5 1.4-2 3-2 3-2z\"/><path d=\"M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z\"/><path d=\"M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z\"/></g><path stroke=\"#ececec\" stroke-linejoin=\"miter\" d=\"M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5\"/></g></svg>", "bR": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path stroke-linecap=\"butt\" d=\"M9 39h27v-3H9zm3.5-7 1.5-2.5h17l1.5 2.5zm-.5 4v-4h21v4z\"/><path stroke-linecap=\"butt\" stroke-linejoin=\"miter\" d=\"M14 29.5v-13h17v13z\"/><path stroke-linecap=\"butt\" d=\"M14 16.5 11 14h23l-3 2.5zM11 14V9h4v2h5V9h5v2h5V9h4v5z\"/><path fill=\"none\" stroke=\"#ececec\" stroke-linejoin=\"miter\" stroke-width=\"1\" d=\"M12 35.5h21m-20-4h19m-18-2h17m-17-13h17M11 14h23\"/></g></svg>", "bQ": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><g stroke=\"none\"><circle cx=\"6\" cy=\"12\" r=\"2.75\"/><circle cx=\"14\" cy=\"9\" r=\"2.75\"/><circle cx=\"22.5\" cy=\"8\" r=\"2.75\"/><circle cx=\"31\" cy=\"9\" r=\"2.75\"/><circle cx=\"39\" cy=\"12\" r=\"2.75\"/></g><path stroke-linecap=\"butt\" d=\"M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5z\"/><path stroke-linecap=\"butt\" d=\"M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z\"/><path fill=\"none\" stroke-linecap=\"butt\" d=\"M11 38.5a35 35 1 0 0 23 0\"/><path fill=\"none\" stroke=\"#ececec\" d=\"M11 29a35 35 1 0 1 23 0m-21.5 2.5h20m-21 3a35 35 1 0 0 22 0m-23 3a35 35 1 0 0 24 0\"/></g></svg>", "bK": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path stroke-linejoin=\"miter\" d=\"M22.5 11.6V6\"/><path fill=\"#000\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" d=\"M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5\"/><path fill=\"#000\" d=\"M11.5 37a22.3 22.3 0 0 0 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10z\"/><path stroke-linejoin=\"miter\" d=\"M20 8h5\"/><path stroke=\"#ececec\" d=\"M32 29.5s8.5-4 6-9.7C34.1 14 25 18 22.5 24.6v2.1-2.1C20 18 9.9 14 7 19.9c-2.5 5.6 4.8 9 4.8 9\"/><path stroke=\"#ececec\" d=\"M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0\"/></g></svg>"};
-function pieceHTML(p){return PIECES[(isW(p)?'w':'b')+p.toUpperCase()]}
+const BOARDS=[['Classic','#f0d9b5','#b58863'],['Green','#eeeed2','#769656'],['Blue','#dee3e6','#8ca2ad'],['Purple','#f0f0f0','#8877b7'],['Walnut','#e8cfa6','#8b5a3c'],['Ice','#e6eef5','#6f93b5'],['Rose','#f6e3e3','#c0788a'],['Midnight','#9aa5b8','#46506a']];
+let cfg={light:'#f0d9b5',dark:'#b58863',pieces:'classic'},setOpen=false;
+try{const c=JSON.parse(localStorage.getItem('chessSettings')||'null');if(c){if(/^#[0-9a-f]{6}$/i.test(c.light))cfg.light=c.light;if(/^#[0-9a-f]{6}$/i.test(c.dark))cfg.dark=c.dark;if(c.pieces==='neo')cfg.pieces='neo'}}catch(e){}
+function saveCfg(){try{localStorage.setItem('chessSettings',JSON.stringify(cfg))}catch(e){}}
+function frameCol(h){const n=parseInt(h.slice(1),16);return '#'+[n>>16&255,n>>8&255,n&255].map(v=>Math.round(v*.5).toString(16).padStart(2,'0')).join('')}
+function applyBoard(){const r=document.documentElement.style;r.setProperty('--light',cfg.light);r.setProperty('--dark',cfg.dark);r.setProperty('--frame',frameCol(cfg.dark))}
+applyBoard();
+const NEO=p=>'https://images.chesscomfiles.com/chess-themes/pieces/neo/300/'+(isW(p)?'w':'b')+p.toLowerCase()+'.png';
+function preload(){'KQRBNPkqrbnp'.split('').forEach(p=>{const i=new Image();i.src=NEO(p)})}
+if(cfg.pieces==='neo')preload();
+function pieceHTML(p,st){st=st||cfg.pieces;return st==='neo'?`<img src="${NEO(p)}" alt="" draggable="false">`:PIECES[(isW(p)?'w':'b')+p.toUpperCase()]}
 /* sound */
 let AC;function ac(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC}
 function noise(t,dur,f,q,g){const a=AC,n=a.sampleRate*dur|0,buf=a.createBuffer(1,n,a.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);const s=a.createBufferSource();s.buffer=buf;const bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f;bp.Q.value=q;const gn=a.createGain();gn.gain.value=g;s.connect(bp);bp.connect(gn);gn.connect(a.destination);s.start(t)}
@@ -200,7 +245,7 @@ try{const d=JSON.parse(localStorage.getItem('chessElo3')||'null');if(d){if(d.rat
 myElo=ratings[mode];
 function save(){try{localStorage.setItem('chessElo3',JSON.stringify({ratings,mode}))}catch(e){}}
 for(let i=0;i<64;i++){const d=document.createElement('div');d.className='sq '+(((i>>3)+(i&7))%2?'d':'l');d.onclick=()=>click(i);boardEl.appendChild(d);sqs.push(d)}
-{const co=document.createElement('div');co.id='co';let h='';const L='#f0d9b5',D='#b58863';
+{const co=document.createElement('div');co.id='co';let h='';const L='var(--light)',D='var(--dark)';
 for(let i=0;i<8;i++)h+=`<span style="position:absolute;left:4px;top:calc(${i*12.5}% + 2px);color:${i%2?L:D}">${8-i}</span>`;
 for(let j=0;j<8;j++)h+=`<span style="position:absolute;left:${(j+1)*12.5}%;top:100%;transform:translate(calc(-100% - 4px),calc(-100% - 2px));color:${(7+j)%2?L:D}">${'abcdefgh'[j]}</span>`;
 co.innerHTML=h;co.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:2;font-size:clamp(9px,1.8vmin,14px);font-weight:700';wrap.appendChild(co)}
@@ -242,9 +287,9 @@ function paint(){const ck=inCheck(S,S.t==='w')?kingSq(S.b,S.t==='w'):-1;
 sqs.forEach((d,i)=>{const lm=legalSel.find(m=>m.t===i);
 d.classList.toggle('last',!!last&&(i===last.f||i===last.t));d.classList.toggle('sel',i===sel);d.classList.toggle('chk',i===ck);
 d.classList.toggle('mv',!!lm);d.classList.toggle('cp',!!lm&&!!(S.b[i]||lm.ep))})}
-function click(i,f){ac();if(fakeBusy&&!f)return;if(over||thinking||S.t!=='w')return;
+function click(i,f){ac();if(fakeBusy&&!f)return;if(over||thinking||S.t!=='w'||promoOpen)return;
 const mv=legalSel.filter(m=>m.t===i);
-if(sel!==null&&mv.length){play(mv.find(m=>!m.p||m.p==='Q')||mv[0]);return}
+if(sel!==null&&mv.length){if(mv[0].p){askPromo(mv);return}play(mv.find(m=>!m.p||m.p==='Q')||mv[0]);return}
 if(S.b[i]&&isW(S.b[i])){sel=i;legalSel=legal(S).filter(m=>m.f===i)}else{sel=null;legalSel=[]}
 paint()}
 function play(m){const g=gid;thinking=true;sel=null;legalSel=[];doMove(m,()=>setTimeout(()=>{if(over||g!==gid)return;const a=aiMove();doMove(a,()=>{if(g===gid)thinking=false})},MODES[mode].d[0]+Math.random()*(MODES[mode].d[1]-MODES[mode].d[0])))}
@@ -260,7 +305,7 @@ setTimeout(()=>{
 if(!ms.length){if(chk){snd.mate();const k=els[kingSq(S.b,S.t==='w')];if(k)k.classList.add('dead');wrap.classList.add('mate')}else snd.move();setTimeout(()=>endGame(chk?(S.t==='b'?'win':'loss'):'draw',chk?'by checkmate':'by stalemate'),chk?1500:500)}
 else if(dr){snd.move();setTimeout(()=>endGame('draw',dr),500)}
 else{chk?snd.check():m.castle?snd.castle():cap?snd.cap():snd.move();done&&done()}},190)}
-function endGame(res,why){if(settled)return;settled=true;over=true;thinking=true;
+function endGame(res,why){if(settled)return;settled=true;closePromo();over=true;thinking=true;
 const E=1/(1+Math.pow(10,(aiElo-myElo)/400)),sc=res==='win'?1:res==='draw'?.5:0,old=myElo;
 myElo=Math.max(100,old+Math.round(32*(sc-E)));const d=myElo-old;ratings[mode]=myElo;save();recordGame(res,why,d);
 let t,c;if(res==='win'){t='You won';c='#81b64c'}else if(res==='loss'){t='You lost';c='#e0524a'}else{t='Draw';c='#fff'}
@@ -272,7 +317,7 @@ $('ovPe').innerHTML=`${old} \u2192 ${myElo}<span class="d" style="color:${dc}">(
 $('ovAe').textContent=aiElo;
 ov.style.display='flex';updInfo()}
 document.getElementById('next').onclick=start;
-function start(){gid++;S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
+function start(){closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
 myElo=ratings[mode];const lo=Math.max(25,Math.round(myElo*.85)),hi=Math.max(lo+1,Math.round(myElo*1.65));aiElo=lo+Math.floor(Math.random()*(hi-lo+1));
 tw=tb=MODES[mode].t*1000;lastTick=Date.now();
 ov.style.display='none';wrap.classList.remove('mate');
@@ -284,7 +329,7 @@ const p=S.b.filter(x=>x&&x.toLowerCase()!=='k');if(!p.length||(p.length===1&&'nb
 const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 function showClk(){const P=$('clkP'),A=$('clkA');P.textContent=fmt(tw);A.textContent=fmt(tb);
 P.classList.toggle('on',started&&!over&&S.t==='w');A.classList.toggle('on',started&&!over&&S.t==='b');P.classList.toggle('low',tw<10000);A.classList.toggle('low',tb<10000)}
-setInterval(()=>{const n=Date.now(),dt=n-lastTick;lastTick=n;if(!started||over||profOpen)return;
+setInterval(()=>{const n=Date.now(),dt=n-lastTick;lastTick=n;if(!started||over||profOpen||setOpen)return;
 if(S.t==='w')tw-=dt;else tb-=dt;
 if(tw<=0){tw=0;showClk();endGame('loss','on time')}else if(tb<=0){tb=0;showClk();endGame('win','on time')}else showClk()},100);
 /* profile page (#profile) */
@@ -310,13 +355,59 @@ function closeProfile(){profOpen=false;prof.style.display='none';try{if(location
 document.addEventListener('click',e=>{if(e.target.id==='nameP')openProfile()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&profOpen)closeProfile()});
 window.addEventListener('hashchange',()=>{if(location.hash==='#profile')openProfile();else if(profOpen)closeProfile()});
+/* promotion picker */
+let promoOpen=false,promoMoves=null;const PN={Q:'Queen',R:'Rook',B:'Bishop',N:'Knight'};
+function askPromo(mv){promoMoves=mv;promoOpen=true;$('popts').innerHTML=['Q','R','B','N'].map(q=>`<button class="popt" data-p="${q}" title="${PN[q]}"><div class="pi">${pieceHTML(q)}</div><span>${PN[q]}</span></button>`).join('');$('promo').style.display='flex'}
+function closePromo(){promoOpen=false;promoMoves=null;$('promo').style.display='none'}
+$('promo').onclick=e=>{const b=e.target.closest('.popt');if(!b){if(e.target.id==='promo')closePromo();return}
+const m=promoMoves&&promoMoves.find(x=>x.p===b.dataset.p);closePromo();if(m)play(m)};
+/* settings */
+const setEl=document.createElement('div');setEl.id='set';document.body.appendChild(setEl);
+const sameC=(a,b)=>a.toLowerCase()===b.toLowerCase();
+function applyPieces(){for(let i=0;i<64;i++)if(els[i]&&S.b[i])els[i].innerHTML=pieceHTML(S.b[i]);
+$('avA').innerHTML=pieceHTML('k');if(!myPic)showPic();updInfo();if(profOpen)renderProfile()}
+function renderSet(){
+const mini=(l,d)=>`<div class="mini">${Array.from({length:16},(_,i)=>`<i style="background:${((i>>2)+(i&3))%2?d:l}"></i>`).join('')}</div>`;
+const pv=st=>['K','q','N','r'].map((p,i)=>`<span style="background:${i%2?'var(--dark)':'var(--light)'}">${pieceHTML(p,st)}</span>`).join('');
+setEl.innerHTML=`<div class="sbox"><div class="sh"><b>Settings</b><button class="sx" id="sx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`+
+`<div class="st">Board colors</div><div class="bgrid">${BOARDS.map(([n,l,d],i)=>`<div class="bo${sameC(cfg.light,l)&&sameC(cfg.dark,d)?' on':''}" data-i="${i}">${mini(l,d)}<span>${n}</span></div>`).join('')}</div>`+
+`<div class="crow"><label class="cp2">Light square<input type="color" id="cl" value="${cfg.light}"></label><label class="cp2">Dark square<input type="color" id="cd" value="${cfg.dark}"></label></div>`+
+`<div class="st">Piece style</div><div class="pgrid">${[['classic','Classic'],['neo','Chess.com']].map(([k,n])=>`<div class="po${cfg.pieces===k?' on':''}" data-s="${k}"><div class="pprev">${pv(k)}</div><span>${n}</span></div>`).join('')}</div></div>`}
+function openSet(){renderSet();setOpen=true;setEl.style.display='flex';preload()}
+function closeSet(){setOpen=false;setEl.style.display='none'}
+setEl.addEventListener('click',e=>{
+if(e.target===setEl||e.target.closest('#sx')){closeSet();return}
+const b=e.target.closest('.bo'),p=e.target.closest('.po');
+if(b){const x=BOARDS[+b.dataset.i];cfg.light=x[1];cfg.dark=x[2];applyBoard();saveCfg();renderSet()}
+else if(p&&p.dataset.s!==cfg.pieces){cfg.pieces=p.dataset.s;saveCfg();applyPieces();renderSet()}});
+setEl.addEventListener('input',e=>{const id=e.target.id;if(id!=='cl'&&id!=='cd')return;
+if(id==='cl')cfg.light=e.target.value;else cfg.dark=e.target.value;applyBoard();saveCfg();
+setEl.querySelectorAll('.bo').forEach((el,i)=>el.classList.toggle('on',sameC(cfg.light,BOARDS[i][1])&&sameC(cfg.dark,BOARDS[i][2])))});
+$('gear').onclick=openSet;
+document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(setOpen)closeSet();else if(promoOpen)closePromo()});
+/* drag & drop with the real mouse / finger */
+let drag=null;
+function dragXY(e){const r=boardEl.getBoundingClientRect(),s=r.width/8;drag.el.style.transform=`translate(${(e.clientX-r.left)/s*100-50}%,${(e.clientY-r.top)/s*100-50}%)`}
+boardEl.addEventListener('pointerdown',e=>{if(e.button!==0||drag)return;if(over||thinking||S.t!=='w'||promoOpen||fakeBusy||setOpen)return;
+const i=sqAt(e);if(i<0||!S.b[i]||!isW(S.b[i])||!els[i])return;
+click(i);drag={i,el:els[i],x:e.clientX,y:e.clientY,on:false,id:e.pointerId}});
+window.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;
+if(!drag.on){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<5)return;drag.on=true;drag.el.style.transition='none';drag.el.style.zIndex=++z;document.body.classList.add('drag')}
+dragXY(e)});
+function endDrag(e,cancel){if(!drag||e.pointerId!==drag.id)return;const d=drag;drag=null;document.body.classList.remove('drag');if(!d.on)return;
+d.el.style.transition='';
+const t=cancel?-1:sqAt(e),mv=legalSel.filter(m=>m.t===t);
+if(mv.length&&!over&&!thinking&&S.t==='w'&&!promoOpen){if(mv[0].p){place(d.el,d.i);askPromo(mv)}else play(mv[0])}
+else place(d.el,d.i)}
+window.addEventListener('pointerup',e=>endDrag(e,false));
+window.addEventListener('pointercancel',e=>endDrag(e,true));
 /* admin / cheat panel: type admin('kingbeat') in the browser console */
 const ADMIN_CODE='kingbeat';
 function bestMove(){let b=null,bs=-1e9;for(const m of legal(S)){const v=-search(apply(S,m),2,-1e9,1e9);if(v>bs){bs=v;b=m}}return b}
 function forceEnd(win){endGame(win?'win':'loss','by admin')}
 let fakeOn=true,fakeBusy=false,fmPos=null,fmLoop=false;
 function getFM(){let fm=$('fm');if(!fm){fm=document.createElement('div');fm.id='fm';
-fm.innerHTML='<i></i><svg class="a" viewBox="0 0 24 24"><path d="M3 2l17 8-7 2-3 7z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/></svg><svg class="h" viewBox="0 0 24 24"><path d="M9 4.500a1.500 1.500 0 0 1 3 0V11h1V9.500a1.500 1.500 0 0 1 3 0V11h.5v-.5a1.500 1.500 0 0 1 3 0V16c0 3.500-2.500 6-6 6h-1c-2.500 0-4-1-5-3l-2.500-4.500a1.300 1.300 0 0 1 2.200-1.300L9 14z" fill="#fff" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/></svg>';document.body.appendChild(fm)}return fm}
+fm.innerHTML='<svg class="a" viewBox="0 0 24 24"><path d="M3 2l17 8-7 2-3 7z" fill="#fff" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/></svg><svg class="h" viewBox="0 0 24 24"><path d="M9 4.500a1.500 1.500 0 0 1 3 0V11h1V9.500a1.500 1.500 0 0 1 3 0V11h.5v-.5a1.500 1.500 0 0 1 3 0V16c0 3.500-2.500 6-6 6h-1c-2.500 0-4-1-5-3l-2.500-4.500a1.300 1.300 0 0 1 2.200-1.300L9 14z" fill="#fff" stroke="#000" stroke-width="1.3" stroke-linejoin="round"/></svg>';document.body.appendChild(fm)}return fm}
 function fmHover(){const fm=$('fm');if(!fm||fm.style.display==='none'||!fmPos){fmLoop=false;return}
 const el=document.elementFromPoint(fmPos[0],fmPos[1]);fm.classList.toggle('hand',!!el&&getComputedStyle(el).cursor==='pointer');requestAnimationFrame(fmHover)}
 const fmEase=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
@@ -337,7 +428,8 @@ const away=p=>{const r=R();let x,y,n=0;do{x=r.left+Math.random()*r.width;y=r.top
 const press=()=>{fm.classList.remove('press');void fm.offsetWidth;fm.classList.add('press')};
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 try{await fmGlide(fm,pt(m.f));if(g!==gid)throw 0;press();await wait(60);click(m.f,true);await wait(90);
-const to=pt(m.t);await fmGlide(fm,to);if(g!==gid)throw 0;press();await wait(60);click(m.t,true);await wait(120);
+let to=pt(m.t);await fmGlide(fm,to);if(g!==gid)throw 0;press();await wait(60);click(m.t,true);await wait(120);
+if(promoOpen){const qb=document.querySelector('#popts .popt[data-p="Q"]');if(qb){await wait(200);const r=qb.getBoundingClientRect(),q=[r.left+r.width*(.3+Math.random()*.4),r.top+r.height*(.3+Math.random()*.4)];await fmGlide(fm,q);if(g!==gid)throw 0;await wait(300);press();await wait(60);qb.click();await wait(120);to=q}}
 await fmGlide(fm,away(to))}catch(e){}
 fakeBusy=false}
 function openPanel(){if($('adm'))return;const p=document.createElement('div');p.id='adm';
