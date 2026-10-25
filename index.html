@@ -599,7 +599,7 @@ else if(dr){snd.move();setTimeout(()=>endGame('draw',dr),500)}
 else{chk?snd.check():m.castle?snd.castle():cap?snd.cap():snd.move();done&&done()}},190)}
 function endGame(res,why){if(settled)return;settled=true;played++;closePromo();try{localStorage.removeItem('chessGame')}catch(e){}over=true;thinking=true;
 const E=1/(1+Math.pow(10,(aiElo-myElo)/400)),sc=res==='win'?1:res==='draw'?.5:0,old=myElo;
-myElo=Math.max(100,old+Math.round(32*(sc-E)));const d=myElo-old;ratings[mode]=myElo;save();recordGame(res,why,d);
+myElo=Math.max(100,old+Math.round(32*(sc-E)));if(res==='win'&&aiElo>old)myElo=Math.max(100,aiElo+Math.max(1,Math.round(32*(sc-E))));const d=myElo-old;ratings[mode]=myElo;save();recordGame(res,why,d);
 let t,c;if(res==='win'){t='You won';c='#81b64c'}else if(res==='loss'){t='You lost';c='#e0524a'}else{t='Draw';c='#fff'}
 const m=$('msg');m.textContent=t;m.style.color=c;$('sub').textContent=why;
 $('ovP').className='pav'+(myPic?' img':'');$('ovP').innerHTML=$('avI').innerHTML;$('ovPn').innerHTML=esc(myName)+nameBadge(myName);
@@ -608,11 +608,11 @@ const dc=d>0?'#81b64c':d<0?'#e0524a':'#a7a6a2';
 $('ovPe').innerHTML=`${old} \u2192 ${myElo}<span class="d" style="color:${dc}">(${d>0?'+':''}${d})</span>`;
 $('ovAe').textContent=aiElo;
 ov.style.display='flex';updInfo()}
-document.getElementById('next').onclick=start;document.getElementById('ovx').onclick=()=>{ov.style.display='none';if(settled)$('nxt').style.display='flex'};$('nxt').onclick=start;
+document.getElementById('next').onclick=start;document.getElementById('ovx').onclick=()=>{ov.style.display='none';if(settled){$('nxt').style.display='flex';$('rs').style.display='none'}};$('nxt').onclick=start;
 function start(){closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;mvs=[];renderMoves();S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
-myElo=ratings[mode];const lo=Math.max(25,Math.round(myElo*.85)),hi=Math.max(lo+1,Math.round(myElo*1.65));aiElo=lo+Math.floor(Math.random()*(hi-lo+1));
+myElo=ratings[mode];const lo=Math.max(100,Math.round(myElo*.85)),hi=Math.max(lo+1,Math.round(myElo*1.65));aiElo=lo+Math.floor(Math.random()*(hi-lo+1));
 tw=tb=MODES[mode].t*1000;lastTick=Date.now();
-ov.style.display='none';$('nxt').style.display='none';clearFX();meW=played===0||forceWhite?true:Math.random()<.5;forceWhite=false;applyFlip();
+ov.style.display='none';$('nxt').style.display='none';$('rs').style.display='';clearFX();meW=played===0||forceWhite?true:Math.random()<.5;forceWhite=false;applyFlip();
 pcs.innerHTML='';els=[];caps={w:[],b:[]};arrows=[];drawArrows();for(let i=0;i<64;i++)if(S.b[i])els[i]=mk(S.b[i],i);paint();updInfo();showClk();saveGame();
 if(!meW){const g=gid;thinking=true;setTimeout(()=>{if(over||g!==gid)return;const a=aiMove();doMove(a,()=>{if(g===gid)thinking=false})},2000+Math.random()*1000)}}/* clocks, draw rules */
 let forceWhite=false,gid=0,tw=0,tb=0,started=false,lastTick=0,settled=false,hist=[];
