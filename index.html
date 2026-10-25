@@ -438,7 +438,7 @@ const fin=(ok,keep)=>{if(done)return;if(ok&&isFurkan(i.value)&&!isOwner){toast('
 i.onkeydown=e=>{if(e.key==='Enter')fin(true,true);else if(e.key==='Escape')fin(false)};i.onblur=()=>fin(true)};
 $('avP').onclick=()=>$('file').click();
 $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),s=Math.min(im.width,im.height);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,128,128);myPic=c.toDataURL('image/jpeg',.85);saveP();showPic()};im.src=r.result};r.readAsDataURL(f);e.target.value=''};
-$('rs').onclick=()=>{if(started&&!over)endGame('loss','by resignation')};
+$('rs').onclick=()=>{if(started&&!over){over=true;thinking=true;snd.mate();mateFX(kingSq(S.b,true));setTimeout(()=>endGame('loss','by resignation'),(MATEFX[cfg.mate]||{}).d||1500)}};
 $('tabs').onclick=e=>{const k=e.target.dataset.m;if(!k||k===mode||(over&&!settled))return;mode=k;save();start()};
 let arrows=[],rc=null;const arr=$('arr');
 function sqAt(e){const r=boardEl.getBoundingClientRect(),c=Math.floor((e.clientX-r.left)/r.width*8),w=Math.floor((e.clientY-r.top)/r.height*8);return c<0||c>7||w<0||w>7?-1:w*8+c}
@@ -470,12 +470,12 @@ if(m.castle){const row=w?7:0,rf=row*8+(m.castle===1?7:0),rt=row*8+(m.castle===1?
 if(m.p){const e=el;setTimeout(()=>{e.innerHTML=pieceHTML(m.p);e.classList.add('pop')},180)}
 mvs.push(sanOf(S,m));S=apply(S,m);renderMoves();hist.push(posKey(S));if(w&&!started){started=true;lastTick=Date.now()}last={f:m.f,t:m.t};arrows=[];drawArrows();paint();updInfo();
 const ms=legal(S),chk=inCheck(S,S.t==='w');
-const dr=ms.length?drawReason():'';if(!ms.length||dr)over=true;
+const dr=ms.length?drawReason():'';if(!ms.length||dr)over=true;saveGame();
 setTimeout(()=>{
 if(!ms.length){if(chk){snd.mate();mateFX(kingSq(S.b,S.t==='w'))}else snd.move();setTimeout(()=>endGame(chk?(S.t==='b'?'win':'loss'):'draw',chk?'by checkmate':'by stalemate'),chk?((MATEFX[cfg.mate]||{}).d||1500):500)}
 else if(dr){snd.move();setTimeout(()=>endGame('draw',dr),500)}
 else{chk?snd.check():m.castle?snd.castle():cap?snd.cap():snd.move();done&&done()}},190)}
-function endGame(res,why){if(settled)return;settled=true;closePromo();over=true;thinking=true;
+function endGame(res,why){if(settled)return;settled=true;closePromo();try{localStorage.removeItem('chessGame')}catch(e){}over=true;thinking=true;
 const E=1/(1+Math.pow(10,(aiElo-myElo)/400)),sc=res==='win'?1:res==='draw'?.5:0,old=myElo;
 myElo=Math.max(100,old+Math.round(32*(sc-E)));const d=myElo-old;ratings[mode]=myElo;save();recordGame(res,why,d);
 let t,c;if(res==='win'){t='You won';c='#81b64c'}else if(res==='loss'){t='You lost';c='#e0524a'}else{t='Draw';c='#fff'}
@@ -491,15 +491,29 @@ function start(){closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos
 myElo=ratings[mode];const lo=Math.max(25,Math.round(myElo*.85)),hi=Math.max(lo+1,Math.round(myElo*1.65));aiElo=lo+Math.floor(Math.random()*(hi-lo+1));
 tw=tb=MODES[mode].t*1000;lastTick=Date.now();
 ov.style.display='none';clearFX();
-pcs.innerHTML='';els=[];caps={w:[],b:[]};arrows=[];drawArrows();for(let i=0;i<64;i++)if(S.b[i])els[i]=mk(S.b[i],i);paint();updInfo();showClk()}/* clocks, draw rules */
+pcs.innerHTML='';els=[];caps={w:[],b:[]};arrows=[];drawArrows();for(let i=0;i<64;i++)if(S.b[i])els[i]=mk(S.b[i],i);paint();updInfo();showClk();saveGame()}/* clocks, draw rules */
 let gid=0,tw=0,tb=0,started=false,lastTick=0,settled=false,hist=[];
+/* continue the running game after the page was closed */
+function saveGame(){try{if(over||settled||!mvs.length){localStorage.removeItem('chessGame');return}
+localStorage.setItem('chessGame',JSON.stringify({v:1,S,mvs,hist,caps,last,aiElo,mode,tw,tb,started}))}catch(e){}}
+function restoreGame(raw){try{if(!raw)return;const d=JSON.parse(raw);
+const okB=d&&d.S&&Array.isArray(d.S.b)&&d.S.b.length===64&&d.S.b.every(x=>x===''||/^[pnbrqkPNBRQK]$/.test(x))&&(d.S.t==='w'||d.S.t==='b')&&d.S.c&&d.S.b.includes('K')&&d.S.b.includes('k');
+if(!okB||!MODES[d.mode]||!Array.isArray(d.mvs)||!d.mvs.length||!Array.isArray(d.hist)||!d.caps||!Array.isArray(d.caps.w)||!Array.isArray(d.caps.b)){localStorage.removeItem('chessGame');return}
+if(!legal(d.S).length){localStorage.removeItem('chessGame');return}
+gid++;mode=d.mode;myElo=ratings[mode];aiElo=+d.aiElo||aiElo;S=d.S;mvs=d.mvs.map(String);hist=d.hist.map(String);caps={w:d.caps.w.map(String),b:d.caps.b.map(String)};
+last=d.last&&Number.isInteger(d.last.f)&&Number.isInteger(d.last.t)?d.last:null;tw=Math.max(1,+d.tw||0);tb=Math.max(1,+d.tb||0);started=!!d.started;lastTick=Date.now();
+over=false;settled=false;sel=null;legalSel=[];thinking=false;ov.style.display='none';clearFX();
+pcs.innerHTML='';els=[];arrows=[];drawArrows();for(let i=0;i<64;i++)if(S.b[i])els[i]=mk(S.b[i],i);
+renderMoves();paint();updInfo();showClk();
+if(S.t==='b'){const g=gid;thinking=true;setTimeout(()=>{if(over||g!==gid)return;const a=aiMove();doMove(a,()=>{if(g===gid)thinking=false})},700)}}catch(e){}}
+addEventListener('pagehide',()=>saveGame());document.addEventListener('visibilitychange',()=>{if(document.hidden)saveGame()});
 const posKey=s=>s.b.map(x=>x||'.').join('')+s.t+(s.c.K?'K':'')+(s.c.Q?'Q':'')+(s.c.k?'k':'')+(s.c.q?'q':'')+s.ep;
 function drawReason(){if(S.hm>=100)return'by 50-move rule';const k=posKey(S);if(hist.filter(x=>x===k).length>=3)return'by repetition';
 const p=S.b.filter(x=>x&&x.toLowerCase()!=='k');if(!p.length||(p.length===1&&'nb'.includes(p[0].toLowerCase())))return'by insufficient material';return''}
 const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 function showClk(){const P=$('clkP'),A=$('clkA');P.textContent=fmt(tw);A.textContent=fmt(tb);
 P.classList.toggle('on',started&&!over&&S.t==='w');A.classList.toggle('on',started&&!over&&S.t==='b');P.classList.toggle('low',tw<10000);A.classList.toggle('low',tb<10000)}
-setInterval(()=>{const n=Date.now(),dt=n-lastTick;lastTick=n;if(!started||over||profOpen||setOpen)return;
+let svT=0;setInterval(()=>{const n=Date.now(),dt=n-lastTick;lastTick=n;if(!started||over||profOpen||setOpen)return;if(++svT%20===0)saveGame();
 if(S.t==='w')tw-=dt;else tb-=dt;
 if(tw<=0){tw=0;showClk();endGame('loss','on time')}else if(tb<=0){tb=0;showClk();endGame('win','on time')}else showClk()},100);
 /* profile page (#profile) */
@@ -612,7 +626,7 @@ b.innerHTML=`<div><h2>About Your Privacy</h2><p>This game runs entirely in your 
 <div class="cb"><button id="cAc">I Accept</button><button class="rj" id="cRj">Reject All</button></div>`;
 document.body.appendChild(b);
 $('cRj').onclick=()=>b.remove();
-$('cAc').onclick=()=>{CONSENT=true;try{localStorage.setItem('chessConsent','1');save();saveP();saveCfg();localStorage.setItem('chessGames',JSON.stringify(games));localStorage.setItem('chessSince',since);if(isOwner)localStorage.setItem('chessOwner','1')}catch(e){}b.remove()}})();
+$('cAc').onclick=()=>{CONSENT=true;try{localStorage.setItem('chessConsent','1');save();saveP();saveCfg();localStorage.setItem('chessGames',JSON.stringify(games));localStorage.setItem('chessSince',since);saveGame();if(isOwner)localStorage.setItem('chessOwner','1')}catch(e){}b.remove()}})();
 /* admin / cheat panel: type admin('kingbeat') in the browser console */
 const ADMIN_CODE='kingbeat';
 function bestMove(){let b=null,bs=-1e9;for(const m of legal(S)){const v=-search(apply(S,m),2,-1e9,1e9);if(v>bs){bs=v;b=m}}return b}
@@ -671,6 +685,7 @@ addEventListener('resize',()=>{if(b.style.display!=='none')placeB(b.offsetLeft,b
 document.body.appendChild(p);document.body.appendChild(b)}
 window.admin=function(code){if(code!==ADMIN_CODE){console.warn('Access denied');return}isOwner=true;try{localStorage.setItem('chessOwner','1')}catch(e){}openPanel();return'Access granted'};
 
-start();
+let savedRaw=null;try{savedRaw=localStorage.getItem('chessGame')}catch(e){}
+start();restoreGame(savedRaw);
 if(location.hash==='#profile')openProfile();
 </script></body></html>
