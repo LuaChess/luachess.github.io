@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<link rel="icon" type="image/x-icon" href="/assets/favico.ico">
 <title>LuaChess</title>
 <style>
 :root{--frame:#5d4037;--light:#f0d9b5;--dark:#b58863;--bs:min(94vw,calc(100vh - 170px),700px);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -34,7 +33,7 @@ body{display:flex;align-items:center;justify-content:center}
 .clk.on{background:#fff;color:#262421}
 .clk.low{color:#e0524a}
 #ownB{display:flex;align-self:center}#ownB:empty{display:none}
-.own{width:18px;height:18px;flex:none;vertical-align:-4px;margin-left:5px}
+.own{width:18px;height:18px;flex:none;vertical-align:-4px;margin-left:5px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
 #ownB .own{margin-left:0}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-8px);background:#262421;border:1px solid #e0524a;color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;z-index:120;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 8px 24px rgba(0,0,0,.45);max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -121,11 +120,15 @@ body.drag,body.drag *{cursor:grabbing!important}
 #next{font:inherit;font-weight:700;font-size:16px;padding:10px 28px;border:0;border-radius:6px;background:#81b64c;color:#fff;cursor:pointer}
 #next:hover{background:#95c15f}
 
+img.t3{position:absolute!important;left:0;bottom:0;width:100%!important;height:auto!important}
+.cpc,.popt .pi,.pprev span,.av,.pav{position:relative}
+body.blind #pcs .pc svg,body.blind #pcs .pc img{opacity:0}
 .gear{background:none;border:0;padding:0;cursor:pointer;color:#a7a6a2;display:flex;align-self:center;margin-right:2px;transition:color .15s,transform .35s}
 .gear:hover{color:#fff;transform:rotate(60deg)}
 .gear svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #set{position:fixed;inset:0;z-index:70;background:rgba(20,19,17,.74);display:none;align-items:center;justify-content:center;padding:12px;box-sizing:border-box}
-.sbox{background:#262421;border-radius:12px;width:min(94vw,460px);max-height:92vh;overflow-y:auto;padding:20px 22px 24px;box-sizing:border-box;box-shadow:0 16px 48px rgba(0,0,0,.55);animation:pup .25s both}
+.sbox{background:#262421;border-radius:12px;width:min(94vw,460px);max-height:92vh;overflow-y:auto;padding:20px 22px 24px;box-sizing:border-box}
+.sbox.anim{animation:pup .25s both}
 .sh{display:flex;align-items:center;justify-content:space-between}
 .sh b{font-size:21px}
 .sx{background:#3d3a37;border:0;border-radius:6px;width:32px;height:32px;cursor:pointer;color:#a7a6a2;display:flex;align-items:center;justify-content:center;padding:0}
@@ -156,13 +159,75 @@ body.drag,body.drag *{cursor:grabbing!important}
 .popt:hover{background:#81b64c;color:#fff;transform:translateY(-2px)}
 .popt .pi{width:100%;aspect-ratio:1}
 .popt .pi svg,.popt .pi img{width:100%;height:100%;display:block}
+#logo{position:fixed;top:14px;left:16px;z-index:30;height:56px;width:auto;display:block;-webkit-user-drag:none;user-select:none;pointer-events:none}
+#mv{position:fixed;top:50%;transform:translateY(-50%);left:calc(50% + var(--bs)/2 + 18px);width:min(300px,calc(50vw - var(--bs)/2 - 34px));height:min(var(--bs),calc(100vh - 40px));background:#262421;border-radius:8px;display:flex;flex-direction:column;overflow:hidden;z-index:20}
+#mvh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #3a3835;font-size:15px;font-weight:600;color:#e9e8e6;background:#2a2825;flex:none}
+#mvh svg{width:18px;height:18px;flex:none;fill:none;stroke:#a7a6a2;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#mvh span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#mvl{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#4b4847 transparent}
+#mvl::-webkit-scrollbar{width:8px}#mvl::-webkit-scrollbar-thumb{background:#4b4847;border-radius:4px}
+.mr{display:grid;grid-template-columns:44px 1fr 1fr;align-items:center;height:36px;font-size:15px}
+.mr:nth-child(even){background:#2b2927}
+.mr i{font-style:normal;color:#8b8987;font-weight:600;padding-left:16px}
+.mr b{font-weight:700;color:#c3d4e0;padding:3px 7px;margin-left:-7px;border-radius:4px;justify-self:start}
+.mr b.cur{background:#454240;color:#fff}
+.mre{color:#8b8987;font-size:14px;padding:14px 16px}
+
+.plogo{position:absolute;top:14px;left:16px;height:56px;width:auto;display:block;pointer-events:none;user-select:none}
+@media (max-width:1150px){
+body{height:auto;min-height:100%;flex-direction:column;justify-content:center;gap:12px;padding:12px 0;box-sizing:border-box}
+#mv{display:flex;position:static;transform:none;order:98;width:var(--bs);height:230px;flex:none}
+#mvh{padding:11px 14px;font-size:14px}
+.mr{height:32px;font-size:14px}
+#logo{position:static;order:99;height:34px;margin:2px 0 4px;flex:none}
+.plogo{position:static;height:34px;margin:0 auto 24px}
+}
+
+#adm{max-height:calc(100vh - 16px);overflow-y:auto;box-sizing:border-box;-webkit-overflow-scrolling:touch}
+#adm input{font-size:16px!important}
+#admb{position:fixed;z-index:99;width:46px;height:46px;border-radius:50%;background:#262421;border:1.5px solid #81b64c;color:#81b64c;display:flex;align-items:center;justify-content:center;padding:0;cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none}
+#admb:active{cursor:grabbing}
+#admb svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+
+.ph{background:#262421;border-radius:8px;padding:16px;margin-bottom:10px}
+.pw .back{align-items:center;gap:4px;font:inherit;font-size:14px;font-weight:600;padding:6px 10px 6px 4px;margin:0 0 12px -4px;border-radius:6px}
+.pw .back:hover{background:#262421}
+.pw .back svg{width:18px;height:18px}
+.pav2{width:76px;height:76px}
+.pnm{flex-wrap:wrap}
+.pst{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.pst span{font-size:12px;font-weight:600;color:#c9c8c5;background:#302e2b;border-radius:4px;padding:3px 8px}
+.rc{border:1px solid transparent}
+.rc.on{border-color:#81b64c}
+.rg{font-size:12px;color:#8b8987;font-weight:600}
+.rec{background:#262421;border-radius:8px;padding:14px 16px;margin-bottom:8px}
+.rech{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px}
+.rech b{font-size:15px}
+.rech span{font-size:13px;color:#a7a6a2;font-weight:600}
+.rech span em{font-style:normal;color:#fff;font-size:20px;font-weight:700;margin-right:4px}
+.bar3{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#3d3a37}
+.bar3 i{display:block;height:100%}
+.leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:#a7a6a2}
+.leg div{display:flex;align-items:center;gap:6px}
+.leg b{color:#fff}
+.leg i{width:9px;height:9px;border-radius:50%;display:block}
+.ftabs{display:flex;gap:4px;margin:0 0 8px}
+.ftabs a{font-size:13px;font-weight:600;color:#a7a6a2;padding:6px 12px;border-radius:5px;cursor:pointer;background:#262421}
+.ftabs a:hover{color:#fff}
+.ftabs a.on{background:#81b64c;color:#fff}
+.gr{border-radius:6px;transition:background .12s}
+.gr:hover{background:#2d2b28}
+.gd{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
+.gd b{font-size:13px;padding:2px 8px;border-radius:10px;background:color-mix(in srgb,var(--rc) 16%,transparent)}
 </style></head><body>
+<img id="logo" src="https://luachess.github.io/assets/luachess.png" alt="LuaChess">
 <div id="col">
 <div class="bar"><div class="av" id="avA"></div><div class="who"><div class="line"><b>Bot</b><span class="rk" id="rkA"></span><span class="elo" id="eloA"></span></div><div class="caps" id="capA"></div></div><div id="tabs"></div><div class="clk" id="clkA">0:00</div></div>
 <div id="wrap"><div id="board"></div><div id="pcs"></div><svg id="arr" viewBox="0 0 800 800"></svg></div>
 <div id="ov"><div class="card"><div id="msg"></div><div id="sub"></div><div class="vs"><div class="pl"><div class="pav" id="ovP"></div><div class="pn" id="ovPn"></div><div class="pe" id="ovPe"></div></div><div class="vsx">vs</div><div class="pl"><div class="pav" id="ovA"></div><div class="pn">Bot</div><div class="pe" id="ovAe"></div></div></div><button id="next">Next round</button></div></div>
 <div class="bar"><div class="av" id="avP" title="Change picture"><div id="avI"></div><div class="ov2"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div></div><input type="file" id="file" accept="image/*" hidden><div class="who"><div class="line"><b id="nameP">You</b><span id="ownB"></span><span class="rk" id="rkP"></span><button class="pen" id="pen" title="Edit name"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button><span class="elo" id="eloP"></span></div><div class="caps" id="capP"></div></div><button class="gear" id="gear" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><a id="rs">Resign</a><div class="clk" id="clkP">0:00</div></div>
 </div>
+<div id="mv"><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
 <div id="promo"><div class="pcard"><div class="t">Promote pawn to</div><div class="popts" id="popts"></div></div></div>
 <script>
 const V={p:100,n:320,b:330,r:500,q:900,k:0};
@@ -216,15 +281,16 @@ for(const m of ms){const v=-search(apply(S,m),depth-1,-1e9,1e9)+Math.random()*no
 const PIECES={"wP": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><path fill=\"#fff\" stroke=\"#000\" stroke-linecap=\"round\" stroke-width=\"1.5\" d=\"M22.5 9c-2.21 0-4 1.79-4 4 0 .89.29 1.71.78 2.38C17.33 16.5 16 18.59 16 21c0 2.03.94 3.84 2.41 5.03-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47 1.47-1.19 2.41-3 2.41-5.03 0-2.41-1.33-4.5-3.28-5.62.49-.67.78-1.49.78-2.38 0-2.21-1.79-4-4-4z\"/></svg>", "wN": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path fill=\"#fff\" d=\"M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21\"/><path fill=\"#fff\" d=\"M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.042-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4.003 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-.994-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-1.992 2.5-3c1 0 1 3 1 3\"/><path fill=\"#000\" d=\"M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.433-9.75a.5 1.5 30 1 1-.866-.5.5 1.5 30 1 1 .866.5\"/></g></svg>", "wB": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><g fill=\"#fff\" stroke-linecap=\"butt\"><path d=\"M9 36c3.39-.97 10.11.43 13.5-2 3.39 2.43 10.11 1.03 13.5 2 0 0 1.65.54 3 2-.68.97-1.65.99-3 .5-3.39-.97-10.11.46-13.5-1-3.39 1.46-10.11.03-13.5 1-1.35.49-2.32.47-3-.5 1.35-1.94 3-2 3-2z\"/><path d=\"M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z\"/><path d=\"M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z\"/></g><path stroke-linejoin=\"miter\" d=\"M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5\"/></g></svg>", "wR": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"#fff\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path stroke-linecap=\"butt\" d=\"M9 39h27v-3H9zm3-3v-4h21v4zm-1-22V9h4v2h5V9h5v2h5V9h4v5\"/><path d=\"m34 14-3 3H14l-3-3\"/><path stroke-linecap=\"butt\" stroke-linejoin=\"miter\" d=\"M31 17v12.5H14V17\"/><path d=\"m31 29.5 1.5 2.5h-20l1.5-2.5\"/><path fill=\"none\" stroke-linejoin=\"miter\" d=\"M11 14h23\"/></g></svg>", "wQ": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"#fff\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path d=\"M8 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0m16.5-4.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0M41 12a2 2 0 1 1-4 0 2 2 0 1 1 4 0M16 8.5a2 2 0 1 1-4 0 2 2 0 1 1 4 0M33 9a2 2 0 1 1-4 0 2 2 0 1 1 4 0\"/><path stroke-linecap=\"butt\" d=\"M9 26c8.5-1.5 21-1.5 27 0l2-12-7 11V11l-5.5 13.5-3-15-3 15-5.5-14V25L7 14z\"/><path stroke-linecap=\"butt\" d=\"M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z\"/><path fill=\"none\" d=\"M11.5 30c3.5-1 18.5-1 22 0M12 33.5c6-1 15-1 21 0\"/></g></svg>", "wK": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path stroke-linejoin=\"miter\" d=\"M22.5 11.63V6M20 8h5\"/><path fill=\"#fff\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" d=\"M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5\"/><path fill=\"#fff\" d=\"M11.5 37c5.5 3.5 15.5 3.5 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10z\"/><path d=\"M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0\"/></g></svg>", "bP": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><path stroke=\"#000\" stroke-linecap=\"round\" stroke-width=\"1.5\" d=\"M22.5 9a4 4 0 0 0-3.22 6.38 6.48 6.48 0 0 0-.87 10.65c-3 1.06-7.41 5.55-7.41 13.47h23c0-7.92-4.41-12.41-7.41-13.47a6.46 6.46 0 0 0-.87-10.65A4.01 4.01 0 0 0 22.5 9z\"/></svg>", "bN": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path fill=\"#000\" d=\"M22 10c10.5 1 16.5 8 16 29H15c0-9 10-6.5 8-21\"/><path fill=\"#000\" d=\"M24 18c.38 2.91-5.55 7.37-8 9-3 2-2.82 4.34-5 4-1.04-.94 1.41-3.04 0-3-1 0 .19 1.23-1 2-1 0-4 1-4-4 0-2 6-12 6-12s1.89-1.9 2-3.5c-.73-1-.5-2-.5-3 1-1 3 2.5 3 2.5h2s.78-2 2.5-3c1 0 1 3 1 3\"/><path fill=\"#ececec\" stroke=\"#ececec\" d=\"M9.5 25.5a.5.5 0 1 1-1 0 .5.5 0 1 1 1 0m5.43-9.75a.5 1.5 30 1 1-.86-.5.5 1.5 30 1 1 .86.5\"/><path fill=\"#ececec\" stroke=\"none\" d=\"m24.55 10.4-.45 1.45.5.15c3.15 1 5.65 2.49 7.9 6.75S35.75 29.06 35.25 39l-.05.5h2.25l.05-.5c.5-10.06-.88-16.85-3.25-21.34s-5.79-6.64-9.19-7.16z\"/></g></svg>", "bB": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><g fill=\"#000\" stroke-linecap=\"butt\"><path d=\"M9 36c3.4-1 10.1.4 13.5-2 3.4 2.4 10.1 1 13.5 2 0 0 1.6.5 3 2-.7 1-1.6 1-3 .5-3.4-1-10.1.5-13.5-1-3.4 1.5-10.1 0-13.5 1-1.4.5-2.3.5-3-.5 1.4-2 3-2 3-2z\"/><path d=\"M15 32c2.5 2.5 12.5 2.5 15 0 .5-1.5 0-2 0-2 0-2.5-2.5-4-2.5-4 5.5-1.5 6-11.5-5-15.5-11 4-10.5 14-5 15.5 0 0-2.5 1.5-2.5 4 0 0-.5.5 0 2z\"/><path d=\"M25 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 1 1 5 0z\"/></g><path stroke=\"#ececec\" stroke-linejoin=\"miter\" d=\"M17.5 26h10M15 30h15m-7.5-14.5v5M20 18h5\"/></g></svg>", "bR": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path stroke-linecap=\"butt\" d=\"M9 39h27v-3H9zm3.5-7 1.5-2.5h17l1.5 2.5zm-.5 4v-4h21v4z\"/><path stroke-linecap=\"butt\" stroke-linejoin=\"miter\" d=\"M14 29.5v-13h17v13z\"/><path stroke-linecap=\"butt\" d=\"M14 16.5 11 14h23l-3 2.5zM11 14V9h4v2h5V9h5v2h5V9h4v5z\"/><path fill=\"none\" stroke=\"#ececec\" stroke-linejoin=\"miter\" stroke-width=\"1\" d=\"M12 35.5h21m-20-4h19m-18-2h17m-17-13h17M11 14h23\"/></g></svg>", "bQ": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><g stroke=\"none\"><circle cx=\"6\" cy=\"12\" r=\"2.75\"/><circle cx=\"14\" cy=\"9\" r=\"2.75\"/><circle cx=\"22.5\" cy=\"8\" r=\"2.75\"/><circle cx=\"31\" cy=\"9\" r=\"2.75\"/><circle cx=\"39\" cy=\"12\" r=\"2.75\"/></g><path stroke-linecap=\"butt\" d=\"M9 26c8.5-1.5 21-1.5 27 0l2.5-12.5L31 25l-.3-14.1-5.2 13.6-3-14.5-3 14.5-5.2-13.6L14 25 6.5 13.5z\"/><path stroke-linecap=\"butt\" d=\"M9 26c0 2 1.5 2 2.5 4 1 1.5 1 1 .5 3.5-1.5 1-1.5 2.5-1.5 2.5-1.5 1.5.5 2.5.5 2.5 6.5 1 16.5 1 23 0 0 0 1.5-1 0-2.5 0 0 .5-1.5-1-2.5-.5-2.5-.5-2 .5-3.5 1-2 2.5-2 2.5-4-8.5-1.5-18.5-1.5-27 0z\"/><path fill=\"none\" stroke-linecap=\"butt\" d=\"M11 38.5a35 35 1 0 0 23 0\"/><path fill=\"none\" stroke=\"#ececec\" d=\"M11 29a35 35 1 0 1 23 0m-21.5 2.5h20m-21 3a35 35 1 0 0 22 0m-23 3a35 35 1 0 0 24 0\"/></g></svg>", "bK": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 45 45\"><g fill=\"none\" fill-rule=\"evenodd\" stroke=\"#000\" stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"1.5\"><path stroke-linejoin=\"miter\" d=\"M22.5 11.6V6\"/><path fill=\"#000\" stroke-linecap=\"butt\" stroke-linejoin=\"miter\" d=\"M22.5 25s4.5-7.5 3-10.5c0 0-1-2.5-3-2.5s-3 2.5-3 2.5c-1.5 3 3 10.5 3 10.5\"/><path fill=\"#000\" d=\"M11.5 37a22.3 22.3 0 0 0 21 0v-7s9-4.5 6-10.5c-4-6.5-13.5-3.5-16 4V27v-3.5c-3.5-7.5-13-10.5-16-4-3 6 5 10 5 10z\"/><path stroke-linejoin=\"miter\" d=\"M20 8h5\"/><path stroke=\"#ececec\" d=\"M32 29.5s8.5-4 6-9.7C34.1 14 25 18 22.5 24.6v2.1-2.1C20 18 9.9 14 7 19.9c-2.5 5.6 4.8 9 4.8 9\"/><path stroke=\"#ececec\" d=\"M11.5 30c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0m-21 3.5c5.5-3 15.5-3 21 0\"/></g></svg>"};
 const BOARDS=[['Classic','#f0d9b5','#b58863'],['Green','#eeeed2','#769656'],['Blue','#dee3e6','#8ca2ad'],['Purple','#f0f0f0','#8877b7'],['Walnut','#e8cfa6','#8b5a3c'],['Ice','#e6eef5','#6f93b5'],['Rose','#f6e3e3','#c0788a'],['Midnight','#9aa5b8','#46506a']];
 let cfg={light:'#f0d9b5',dark:'#b58863',pieces:'classic'},setOpen=false;
-try{const c=JSON.parse(localStorage.getItem('chessSettings')||'null');if(c){if(/^#[0-9a-f]{6}$/i.test(c.light))cfg.light=c.light;if(/^#[0-9a-f]{6}$/i.test(c.dark))cfg.dark=c.dark;if(c.pieces==='neo')cfg.pieces='neo'}}catch(e){}
+try{const c=JSON.parse(localStorage.getItem('chessSettings')||'null');if(c){if(/^#[0-9a-f]{6}$/i.test(c.light))cfg.light=c.light;if(/^#[0-9a-f]{6}$/i.test(c.dark))cfg.dark=c.dark;if(['neo','staunton','blind'].includes(c.pieces))cfg.pieces=c.pieces}}catch(e){}
 function saveCfg(){try{localStorage.setItem('chessSettings',JSON.stringify(cfg))}catch(e){}}
 function frameCol(h){const n=parseInt(h.slice(1),16);return '#'+[n>>16&255,n>>8&255,n&255].map(v=>Math.round(v*.5).toString(16).padStart(2,'0')).join('')}
-function applyBoard(){const r=document.documentElement.style;r.setProperty('--light',cfg.light);r.setProperty('--dark',cfg.dark);r.setProperty('--frame',frameCol(cfg.dark))}
+function applyBoard(){const r=document.documentElement.style;r.setProperty('--light',cfg.light);r.setProperty('--dark',cfg.dark);r.setProperty('--frame',frameCol(cfg.dark));document.body.classList.toggle('blind',cfg.pieces==='blind')}
 applyBoard();
 const NEO=p=>'https://images.chesscomfiles.com/chess-themes/pieces/neo/300/'+(isW(p)?'w':'b')+p.toLowerCase()+'.png';
-function preload(){'KQRBNPkqrbnp'.split('').forEach(p=>{const i=new Image();i.src=NEO(p)})}
-if(cfg.pieces==='neo')preload();
-function pieceHTML(p,st){st=st||cfg.pieces;return st==='neo'?`<img src="${NEO(p)}" alt="" draggable="false">`:PIECES[(isW(p)?'w':'b')+p.toUpperCase()]}
+const STA=p=>'https://images.chesscomfiles.com/chess-themes/pieces/3d_staunton/150/'+(isW(p)?'w':'b')+p.toLowerCase()+'.png';
+function preload(){'KQRBNPkqrbnp'.split('').forEach(p=>{let i=new Image();i.src=NEO(p);i=new Image();i.src=STA(p)})}
+if(cfg.pieces==='neo'||cfg.pieces==='staunton')preload();
+function pieceHTML(p,st){st=st||cfg.pieces;return st==='neo'?`<img src="${NEO(p)}" alt="" draggable="false">`:st==='staunton'?`<img class="t3" src="${STA(p)}" alt="" draggable="false">`:PIECES[(isW(p)?'w':'b')+p.toUpperCase()]}
 /* sound */
 let AC;function ac(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC}
 function noise(t,dur,f,q,g){const a=AC,n=a.sampleRate*dur|0,buf=a.createBuffer(1,n,a.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);const s=a.createBufferSource();s.buffer=buf;const bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f;bp.Q.value=q;const gn=a.createGain();gn.gain.value=g;s.connect(bp);bp.connect(gn);gn.connect(a.destination);s.start(t)}
@@ -311,7 +377,7 @@ if(cap&&els[cs]){caps[w?'w':'b'].push(S.b[cs]);const c=els[cs];els[cs]=null;c.cl
 els[m.f]=null;els[m.t]=el;el.style.zIndex=++z;place(el,m.t);
 if(m.castle){const row=w?7:0,rf=row*8+(m.castle===1?7:0),rt=row*8+(m.castle===1?5:3);els[rt]=els[rf];els[rf]=null;place(els[rt],rt)}
 if(m.p){const e=el;setTimeout(()=>{e.innerHTML=pieceHTML(m.p);e.classList.add('pop')},180)}
-S=apply(S,m);hist.push(posKey(S));if(w&&!started){started=true;lastTick=Date.now()}last={f:m.f,t:m.t};arrows=[];drawArrows();paint();updInfo();
+mvs.push(sanOf(S,m));S=apply(S,m);renderMoves();hist.push(posKey(S));if(w&&!started){started=true;lastTick=Date.now()}last={f:m.f,t:m.t};arrows=[];drawArrows();paint();updInfo();
 const ms=legal(S),chk=inCheck(S,S.t==='w');
 const dr=ms.length?drawReason():'';if(!ms.length||dr)over=true;
 setTimeout(()=>{
@@ -330,7 +396,7 @@ $('ovPe').innerHTML=`${old} \u2192 ${myElo}<span class="d" style="color:${dc}">(
 $('ovAe').textContent=aiElo;
 ov.style.display='flex';updInfo()}
 document.getElementById('next').onclick=start;
-function start(){closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
+function start(){closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;mvs=[];renderMoves();S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
 myElo=ratings[mode];const lo=Math.max(25,Math.round(myElo*.85)),hi=Math.max(lo+1,Math.round(myElo*1.65));aiElo=lo+Math.floor(Math.random()*(hi-lo+1));
 tw=tb=MODES[mode].t*1000;lastTick=Date.now();
 ov.style.display='none';wrap.classList.remove('mate');
@@ -355,13 +421,19 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const fd=t=>new Date(t).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
 let profOpen=false;const prof=document.createElement('div');prof.id='prof';document.body.appendChild(prof);
 function rkHTML(elo){const r=RANKS.find(x=>elo>=x[0]);return r?`<span class="rk" style="background:${r[2]};border-color:${r[3]}">${r[1]}</span>`:''}
-function renderProfile(){const cnt={win:0,loss:0,draw:0};games.forEach(g=>{if(cnt[g.r]!==undefined)cnt[g.r]++});
-const lbl={win:'Won',loss:'Lost',draw:'Draw'},col=v=>v>0?'#81b64c':v<0?'#e0524a':'#a7a6a2';
-const row=g=>`<div class="gr">${ICO[g.r]||''}<div class="gm"><div><b>${lbl[g.r]||''}</b> vs Bot (${g.o})</div><div class="gs">${MODES[g.m]?MODES[g.m].n:g.m} · in ${g.mv} ${g.mv===1?'move':'moves'} · ${esc(g.w)}</div></div><div class="gd"><b style="color:${col(g.d)}">${g.d>0?'+':''}${g.d}</b><div class="gs">${fd(g.t)}</div></div></div>`;
-prof.innerHTML=`<div class="pw"><div class="ph"><button class="back" id="pback" title="Back to game"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><div class="pav2">${$('avI').innerHTML}</div><div><div class="pnm">${esc(myName)}${nameBadge(myName)} ${rkHTML(ratings[mode])}</div><div class="psn">Playing since ${fd(since)}</div></div></div>`+
-`<div class="rt">${Object.keys(MODES).map(k=>`<div class="rc"><div class="rl">${MODES[k].n}</div><div class="rv">${ratings[k]}</div>${rkHTML(ratings[k])}</div>`).join('')}</div>`+
-`<div class="sm">${['win','loss','draw'].map(k=>`<div class="sc">${ICO[k]}<div><b>${cnt[k]}</b><span>${lbl[k]==='Draw'?'Drawn':lbl[k]}</span></div></div>`).join('')}</div>`+
-`<div class="gh">Games (${games.length})</div><div class="gl">${games.length?games.map(row).join(''):'<div class="ge">No games yet</div>'}</div></div>`;
+let pf='all';
+function renderProfile(){const G=pf==='all'?games:games.filter(g=>g.m===pf);const cnt={win:0,loss:0,draw:0};G.forEach(g=>{if(cnt[g.r]!==undefined)cnt[g.r]++});
+const lbl={win:'Won',loss:'Lost',draw:'Draw'},col=v=>v>0?'#81b64c':v<0?'#e0524a':'#a7a6a2',rcol={win:'#81b64c',loss:'#e0524a',draw:'#8b8987'};
+const row=g=>`<div class="gr" style="--rc:${col(g.d)}">${ICO[g.r]||''}<div class="gm"><div><b>${lbl[g.r]||''}</b> vs Bot (${g.o})</div><div class="gs">${MODES[g.m]?MODES[g.m].n:g.m} · in ${g.mv} ${g.mv===1?'move':'moves'} · ${esc(g.w)}</div></div><div class="gd"><b style="color:${col(g.d)}">${g.d>0?'+':''}${g.d}</b><div class="gs">${fd(g.t)}</div></div></div>`;
+const tot=G.length,wr=tot?Math.round(cnt.win/tot*100):0,pc=k=>tot?cnt[k]/tot*100:0;
+let st=0,sk=G.length?G[0].r:'';for(const g of G){if(g.r===sk)st++;else break}
+const stk=st>1&&sk!=='draw'?`<span>${st} ${sk==='win'?'win':'loss'} streak</span>`:'';
+const all=games.length,tabs=[['all','All'],...Object.keys(MODES).map(k=>[k,MODES[k].n])];
+prof.innerHTML=`<div class="pw"><button class="back" id="pback" title="Back to game"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>Back to game</button><div class="ph"><div class="pav2">${$('avI').innerHTML}</div><div><div class="pnm">${esc(myName)}${nameBadge(myName)} ${rkHTML(ratings[mode])}</div><div class="psn">Playing since ${fd(since)}</div><div class="pst"><span>${all} ${all===1?'game':'games'} played</span><span>Best rating ${Math.max(...Object.values(ratings))}</span>${stk}</div></div></div>`+
+`<div class="rt">${Object.keys(MODES).map(k=>`<div class="rc${k===mode?' on':''}"><div class="rl">${MODES[k].n}</div><div class="rv">${ratings[k]}</div>${rkHTML(ratings[k])}<div class="rg">${(n=>n+(n===1?' game':' games'))(games.filter(g=>g.m===k).length)}</div></div>`).join('')}</div>`+
+`<div class="rec"><div class="rech"><b>Record</b><span><em>${wr}%</em>win rate</span></div><div class="bar3"><i style="width:${pc('win')}%;background:#81b64c"></i><i style="width:${pc('draw')}%;background:#8b8987"></i><i style="width:${pc('loss')}%;background:#e0524a"></i></div><div class="leg"><div><i style="background:#81b64c"></i><b>${cnt.win}</b> Won</div><div><i style="background:#8b8987"></i><b>${cnt.draw}</b> Drawn</div><div><i style="background:#e0524a"></i><b>${cnt.loss}</b> Lost</div></div></div>`+
+`<div class="gh">Games (${tot})</div><div class="ftabs" id="ftabs">${tabs.map(([k,n])=>`<a data-f="${k}"${k===pf?' class="on"':''}>${n}</a>`).join('')}</div><div class="gl">${tot?G.map(row).join(''):'<div class="ge">No games yet</div>'}</div></div>`+'<img class="plogo" src="https://luachess.github.io/assets/luachess.png" alt="LuaChess">';
+$('ftabs').onclick=e=>{const a=e.target.closest('a');if(!a)return;pf=a.dataset.f;renderProfile()};
 $('pback').onclick=closeProfile}
 function openProfile(){renderProfile();profOpen=true;prof.style.display='block';prof.scrollTop=0;try{if(location.hash!=='#profile')location.hash='profile'}catch(e){}}
 function closeProfile(){profOpen=false;prof.style.display='none';try{if(location.hash==='#profile')history.replaceState(null,'',location.pathname+location.search)}catch(e){}}
@@ -377,16 +449,16 @@ const m=promoMoves&&promoMoves.find(x=>x.p===b.dataset.p);closePromo();if(m)play
 /* settings */
 const setEl=document.createElement('div');setEl.id='set';document.body.appendChild(setEl);
 const sameC=(a,b)=>a.toLowerCase()===b.toLowerCase();
-function applyPieces(){for(let i=0;i<64;i++)if(els[i]&&S.b[i])els[i].innerHTML=pieceHTML(S.b[i]);
+function applyPieces(){document.body.classList.toggle('blind',cfg.pieces==='blind');for(let i=0;i<64;i++)if(els[i]&&S.b[i])els[i].innerHTML=pieceHTML(S.b[i]);
 $('avA').innerHTML=pieceHTML('k');if(!myPic)showPic();updInfo();if(profOpen)renderProfile()}
 function renderSet(){
 const mini=(l,d)=>`<div class="mini">${Array.from({length:16},(_,i)=>`<i style="background:${((i>>2)+(i&3))%2?d:l}"></i>`).join('')}</div>`;
-const pv=st=>['K','q','N','r'].map((p,i)=>`<span style="background:${i%2?'var(--dark)':'var(--light)'}">${pieceHTML(p,st)}</span>`).join('');
+const pv=st=>st==='blind'?['K','q','N','r'].map((p,i)=>`<span style="background:${i%2?'var(--dark)':'var(--light)'}"></span>`).join(''):['K','q','N','r'].map((p,i)=>`<span style="background:${i%2?'var(--dark)':'var(--light)'}">${pieceHTML(p,st)}</span>`).join('');
 setEl.innerHTML=`<div class="sbox"><div class="sh"><b>Settings</b><button class="sx" id="sx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`+
 `<div class="st">Board colors</div><div class="bgrid">${BOARDS.map(([n,l,d],i)=>`<div class="bo${sameC(cfg.light,l)&&sameC(cfg.dark,d)?' on':''}" data-i="${i}">${mini(l,d)}<span>${n}</span></div>`).join('')}</div>`+
 `<div class="crow"><label class="cp2">Light square<input type="color" id="cl" value="${cfg.light}"></label><label class="cp2">Dark square<input type="color" id="cd" value="${cfg.dark}"></label></div>`+
-`<div class="st">Piece style</div><div class="pgrid">${[['classic','Classic'],['neo','Chess.com']].map(([k,n])=>`<div class="po${cfg.pieces===k?' on':''}" data-s="${k}"><div class="pprev">${pv(k)}</div><span>${n}</span></div>`).join('')}</div></div>`}
-function openSet(){renderSet();setOpen=true;setEl.style.display='flex';preload()}
+`<div class="st">Piece style</div><div class="pgrid">${[['classic','Classic'],['neo','Chess.com'],['staunton','3D'],['blind','Blindfold']].map(([k,n])=>`<div class="po${cfg.pieces===k?' on':''}" data-s="${k}"><div class="pprev">${pv(k)}</div><span>${n}</span></div>`).join('')}</div></div>`}
+function openSet(){renderSet();setEl.firstElementChild.classList.add('anim');setOpen=true;setEl.style.display='flex';preload()}
 function closeSet(){setOpen=false;setEl.style.display='none'}
 setEl.addEventListener('click',e=>{
 if(e.target===setEl||e.target.closest('#sx')){closeSet();return}
@@ -414,6 +486,28 @@ if(mv.length&&!over&&!thinking&&S.t==='w'&&!promoOpen){if(mv[0].p){place(d.el,d.
 else place(d.el,d.i)}
 window.addEventListener('pointerup',e=>endDrag(e,false));
 window.addEventListener('pointercancel',e=>endDrag(e,true));
+/* move list + opening name */
+const OPN=[['e4','King\'s Pawn Opening'],['e4 e5','King\'s Pawn Game'],['e4 e5 Nf3','King\'s Knight Opening'],['e4 e5 Nf3 Nc6','King\'s Knight Opening: Normal Variation'],['e4 e5 Nf3 Nc6 Bb5','Ruy Lopez'],['e4 e5 Nf3 Nc6 Bb5 a6','Ruy Lopez: Morphy Defense'],['e4 e5 Nf3 Nc6 Bc4','Italian Game'],['e4 e5 Nf3 Nc6 Bc4 Bc5','Italian Game: Giuoco Piano'],['e4 e5 Nf3 Nc6 Bc4 Nf6','Italian Game: Two Knights Defense'],['e4 e5 Nf3 Nc6 d4','Scotch Game'],['e4 e5 Nf3 Nc6 Nc3 Nf6','Four Knights Game'],['e4 e5 Nf3 Nf6','Petrov\'s Defense'],['e4 e5 Nf3 d6','Philidor Defense'],['e4 e5 f4','King\'s Gambit'],['e4 e5 Nc3','Vienna Game'],['e4 e5 Bc4','Bishop\'s Opening'],['e4 e5 d4','Center Game'],['e4 e5 Qh5','Parham Attack'],['e4 c5','Sicilian Defense'],['e4 c5 Nf3','Sicilian Defense: Open'],['e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6','Sicilian Defense: Najdorf Variation'],['e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 g6','Sicilian Defense: Accelerated Dragon'],['e4 c5 Nc3','Sicilian Defense: Closed'],['e4 c5 c3','Sicilian Defense: Alapin Variation'],['e4 e6','French Defense'],['e4 e6 d4 d5','French Defense: Normal Variation'],['e4 e6 d4 d5 e5','French Defense: Advance Variation'],['e4 c6','Caro-Kann Defense'],['e4 c6 d4 d5 e5','Caro-Kann Defense: Advance Variation'],['e4 d5','Scandinavian Defense'],['e4 d6','Pirc Defense'],['e4 g6','Modern Defense'],['e4 Nf6','Alekhine\'s Defense'],['e4 f5','Duras Gambit'],['e4 Nc6','Nimzowitsch Defense'],['e4 b6','Owen\'s Defense'],['e4 a6','St. George Defense'],['e4 g5','Borg Defense'],
+['d4','Queen\'s Pawn Opening'],['d4 d5','Queen\'s Pawn Game'],['d4 d5 c4','Queen\'s Gambit'],['d4 d5 c4 dxc4','Queen\'s Gambit Accepted'],['d4 d5 c4 e6','Queen\'s Gambit Declined'],['d4 d5 c4 c6','Slav Defense'],['d4 d5 Bf4','London System'],['d4 d5 Nf3 Nf6 Bf4','London System'],['d4 Nf6','Indian Defense'],['d4 Nf6 Bf4','London System'],['d4 Nf6 c4 e6 Nc3 Bb4','Nimzo-Indian Defense'],['d4 Nf6 c4 e6 Nf3 b6','Queen\'s Indian Defense'],['d4 Nf6 c4 g6','King\'s Indian Defense'],['d4 Nf6 c4 g6 Nc3 d5','Grünfeld Defense'],['d4 f5','Dutch Defense'],['d4 e6','Queen\'s Pawn: Franco-Indian'],['d4 d6','Queen\'s Pawn: Old Indian'],
+['c4','English Opening'],['c4 e5','English Opening: Reversed Sicilian'],['c4 c5','English Opening: Symmetrical Variation'],['Nf3','Réti Opening'],['Nf3 d5','Réti Opening: Queen\'s Pawn'],['Nf3 d5 g3','Réti Opening: King\'s Indian Attack'],['f4','Bird\'s Opening'],['b3','Nimzo-Larsen Attack'],['g3','King\'s Fianchetto Opening'],['b4','Polish Opening'],['Nc3','Van Geest Opening'],['e3','Van\'t Kruijs Opening'],['a3','Anderssen\'s Opening'],['d3','Mieses Opening'],['c3','Saragossa Opening'],['h3','Clemenz Opening'],['g4','Grob Opening'],['f3','Barnes Opening'],['Nh3','Amar Opening'],['a4','Ware Opening'],['h4','Kadas Opening']];
+let mvs=[];
+const SQN=i=>'abcdefgh'[i&7]+(8-(i>>3));
+function sanOf(s,m){const p=s.b[m.f],l=p.toLowerCase();let t;
+if(m.castle)t=m.castle===1?'O-O':'O-O-O';
+else{const cap=!!s.b[m.t]||m.ep;
+if(l==='p')t=(cap?'abcdefgh'[m.f&7]+'x':'')+SQN(m.t)+(m.p?'='+m.p.toUpperCase():'');
+else{let d='';const o=legal(s).filter(x=>x.t===m.t&&x.f!==m.f&&s.b[x.f]===p);
+if(o.length){const sf=o.every(x=>(x.f&7)!==(m.f&7)),sr=o.every(x=>(x.f>>3)!==(m.f>>3));d=sf?'abcdefgh'[m.f&7]:sr?String(8-(m.f>>3)):SQN(m.f)}
+t=l.toUpperCase()+d+(cap?'x':'')+SQN(m.t)}}
+const n=apply(s,m),w=s.t==='w';
+if(inCheck(n,!w))t+=legal(n).length?'+':'#';return t}
+function openingName(){const j=mvs.join(' ');let n='',len=0;for(const[k,v]of OPN){const c=k.split(' ').length;if(c>=len&&(j===k||j.startsWith(k+' '))){n=v;len=c}}return n}
+function renderMoves(){const L=$('mvl');if(!L)return;
+let nm='Starting Position';if(mvs.length){nm=openingName()||'Uncommon Opening'}
+$('mvn').textContent=nm;
+if(!mvs.length){L.innerHTML='<div class="mre">Make a move to begin.</div>';return}
+let h='';for(let i=0;i<mvs.length;i+=2){const c=k=>mvs[k]?`<b${k===mvs.length-1?' class="cur"':''}>${mvs[k]}</b>`:'<b></b>';h+=`<div class="mr"><i>${i/2+1}.</i>${c(i)}${c(i+1)}</div>`}
+L.innerHTML=h;L.scrollTop=L.scrollHeight}
 /* admin / cheat panel: type admin('kingbeat') in the browser console */
 const ADMIN_CODE='kingbeat';
 function bestMove(){let b=null,bs=-1e9;for(const m of legal(S)){const v=-search(apply(S,m),2,-1e9,1e9);if(v>bs){bs=v;b=m}}return b}
@@ -446,7 +540,7 @@ if(promoOpen){const qb=document.querySelector('#popts .popt[data-p="Q"]');if(qb)
 await fmGlide(fm,away(to))}catch(e){}
 fakeBusy=false}
 function openPanel(){if($('adm'))return;const p=document.createElement('div');p.id='adm';
-p.style.cssText='position:fixed;top:12px;right:12px;z-index:99;background:#262421;border:1px solid #81b64c;border-radius:6px;padding:12px;width:190px;font:13px system-ui,sans-serif;color:#fff;display:flex;flex-direction:column;gap:8px';
+p.style.cssText='position:fixed;top:12px;left:12px;z-index:99;background:#262421;border:1px solid #81b64c;border-radius:8px;padding:12px;width:min(200px,calc(100vw - 16px));font:13px system-ui,sans-serif;color:#fff;display:none;flex-direction:column;gap:8px';
 const bt='font:inherit;font-weight:600;padding:6px;border:0;border-radius:4px;background:#3d3a37;color:#fff;cursor:pointer',inp='width:100%;box-sizing:border-box;margin-top:3px;padding:5px;background:#3d3a37;color:#fff;border:0;border-radius:4px';
 p.innerHTML=`<b style="color:#81b64c">Admin panel</b><label>Your ELO<input id="aE1" type="number" value="${myElo}" style="${inp}"></label><label>Bot ELO<input id="aE2" type="number" value="${aiElo}" style="${inp}"></label><button data-a="set" style="${bt}">Apply ELO</button><button data-a="hint" style="${bt}">Best move hint</button><button data-a="auto" style="${bt}">Play best move</button><button data-a="fm" style="${bt}">Fake mouse: ${fakeOn?'ON':'OFF'}</button><button data-a="win" style="${bt}">Instant win</button><button data-a="lose" style="${bt}">Instant loss</button><button data-a="reset" style="${bt}">Reset ratings</button><button data-a="x" style="${bt}">Close</button>`;
 p.onclick=e=>{const a=e.target.dataset.a;if(!a)return;
@@ -455,8 +549,21 @@ else if(a==='hint'){if(!over&&!thinking&&S.t==='w'){const m=bestMove();if(m){arr
 else if(a==='auto'){if(!over&&!thinking&&!fakeBusy&&S.t==='w'){const m=bestMove();if(m){if(fakeOn){const r=e.target.getBoundingClientRect();fakeMove(m,[r.left+r.width/2,r.top+r.height/2])}else play(m)}}}
 else if(a==='fm'){fakeOn=!fakeOn;e.target.textContent='Fake mouse: '+(fakeOn?'ON':'OFF');if(!fakeOn&&$('fm'))$('fm').style.display='none'}
 else if(a==='win')forceEnd(true);else if(a==='lose')forceEnd(false);else if(a==='reset'){ratings={bullet:100,blitz:100,rapid:100};save();start()}
-else if(a==='x')p.remove()};
-document.body.appendChild(p)}
+else if(a==='x'){const r=p.getBoundingClientRect();p.style.display='none';placeB(r.right-46,r.top);b.style.display='flex'}};
+const b=document.createElement('button');b.id='admb';b.title='Admin panel';
+b.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.500-3.300 8-8 9-4.700-1-8-4.500-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg>';
+const clampB=(x,y)=>[Math.min(Math.max(6,x),innerWidth-52),Math.min(Math.max(6,y),innerHeight-52)];
+function placeB(x,y){[x,y]=clampB(x,y);b.style.left=x+'px';b.style.top=y+'px'}
+placeB(innerWidth-58,12);
+let dg=null;
+b.addEventListener('pointerdown',e=>{if(e.button!==0)return;dg={id:e.pointerId,x:e.clientX,y:e.clientY,l:b.offsetLeft,t:b.offsetTop,m:false};b.setPointerCapture(e.pointerId)});
+b.addEventListener('pointermove',e=>{if(!dg||e.pointerId!==dg.id)return;const dx=e.clientX-dg.x,dy=e.clientY-dg.y;if(!dg.m&&Math.hypot(dx,dy)<5)return;dg.m=true;placeB(dg.l+dx,dg.t+dy)});
+const endB=e=>{if(!dg||e.pointerId!==dg.id)return;const m=dg.m;dg=null;if(m||e.type==='pointercancel')return;
+const l=b.offsetLeft,t=b.offsetTop;b.style.display='none';p.style.display='flex';
+const w=p.offsetWidth,h=p.offsetHeight;p.style.left=Math.min(Math.max(8,l+46-w),innerWidth-w-8)+'px';p.style.top=Math.min(Math.max(8,t),Math.max(8,innerHeight-h-8))+'px'};
+b.addEventListener('pointerup',endB);b.addEventListener('pointercancel',endB);
+addEventListener('resize',()=>{if(b.style.display!=='none')placeB(b.offsetLeft,b.offsetTop)});
+document.body.appendChild(p);document.body.appendChild(b)}
 window.admin=function(code){if(code!==ADMIN_CODE){console.warn('Access denied');return}isOwner=true;try{localStorage.setItem('chessOwner','1')}catch(e){}openPanel();return'Access granted'};
 
 start();
