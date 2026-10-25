@@ -491,7 +491,7 @@ st.className='stg';st.querySelectorAll('.fx').forEach(x=>x.remove());void st.off
 if(m.fx){const d=document.createElement('div');d.className='fx '+m.fx;st.appendChild(d)}
 if(m.ph&&c)physRun(c,m.ph,{S:64,top:0,bottom:64*2,side:64*3})}
 let setTab='board',cfg={mate:'classic',light:'#e6eef5',dark:'#6f93b5',pieces:'classic',tex:''},setOpen=false;
-try{const c=JSON.parse(localStorage.getItem('chessSettings')||'null');if(c){if(/^#[0-9a-f]{6}$/i.test(c.light))cfg.light=c.light;if(/^#[0-9a-f]{6}$/i.test(c.dark))cfg.dark=c.dark;if(['neo','staunton','paper','blind'].includes(c.pieces))cfg.pieces=c.pieces;if(MATEFX[c.mate])cfg.mate=c.mate;cfg.tex=TEX[c.tex]?c.tex:(c.paper===true?'paper':'')}}catch(e){}
+try{const c=JSON.parse(localStorage.getItem('chessSettings')||'null');if(c){if(/^#[0-9a-f]{6}$/i.test(c.light))cfg.light=c.light;if(/^#[0-9a-f]{6}$/i.test(c.dark))cfg.dark=c.dark;if(['neo','staunton','paper','luca','blind'].includes(c.pieces))cfg.pieces=c.pieces;if(MATEFX[c.mate])cfg.mate=c.mate;cfg.tex=TEX[c.tex]?c.tex:(c.paper===true?'paper':'')}}catch(e){}
 function saveCfg(){try{localStorage.setItem('chessSettings',JSON.stringify(cfg))}catch(e){}}
 function frameCol(h){const n=parseInt(h.slice(1),16);return '#'+[n>>16&255,n>>8&255,n&255].map(v=>Math.round(v*.5).toString(16).padStart(2,'0')).join('')}
 function applyBoard(){const r=document.documentElement.style;r.setProperty('--light',cfg.light);r.setProperty('--dark',cfg.dark);r.setProperty('--frame',frameCol(cfg.dark));document.body.classList.toggle('blind',cfg.pieces==='blind');document.body.classList.toggle('btex',!!cfg.tex);if(cfg.tex)r.setProperty('--tex','url('+TEX[cfg.tex]+')')}
@@ -499,9 +499,10 @@ applyBoard();
 const NEO=p=>'https://images.chesscomfiles.com/chess-themes/pieces/neo/300/'+(isW(p)?'w':'b')+p.toLowerCase()+'.png';
 const STA=p=>'https://images.chesscomfiles.com/chess-themes/pieces/3d_staunton/150/'+(isW(p)?'w':'b')+p.toLowerCase()+'.png';
 const PAP=p=>'https://images.chesscomfiles.com/chess-themes/pieces/newspaper/150/'+(isW(p)?'w':'b')+p.toLowerCase()+'.png';
-function preload(){'KQRBNPkqrbnp'.split('').forEach(p=>{let i=new Image();i.src=NEO(p);i=new Image();i.src=STA(p);i=new Image();i.src=PAP(p)})}
-if(cfg.pieces==='neo'||cfg.pieces==='staunton'||cfg.pieces==='paper')preload();
-function pieceHTML(p,st){st=st||cfg.pieces;return st==='neo'?`<img src="${NEO(p)}" alt="" draggable="false">`:st==='paper'?`<img src="${PAP(p)}" alt="" draggable="false">`:st==='staunton'?`<img class="t3" src="${STA(p)}" alt="" draggable="false">`:PIECES[(isW(p)?'w':'b')+p.toUpperCase()]}
+const LUC=p=>'https://images.chesscomfiles.com/chess-themes/pieces/luca/150/'+(isW(p)?'w':'b')+p.toLowerCase()+'.png';
+function preload(){'KQRBNPkqrbnp'.split('').forEach(p=>{let i=new Image();i.src=NEO(p);i=new Image();i.src=STA(p);i=new Image();i.src=PAP(p);i=new Image();i.src=LUC(p)})}
+if(cfg.pieces==='neo'||cfg.pieces==='staunton'||cfg.pieces==='paper'||cfg.pieces==='luca')preload();
+function pieceHTML(p,st){st=st||cfg.pieces;return st==='neo'?`<img src="${NEO(p)}" alt="" draggable="false">`:st==='paper'?`<img src="${PAP(p)}" alt="" draggable="false">`:st==='luca'?`<img src="${LUC(p)}" alt="" draggable="false">`:st==='staunton'?`<img class="t3" src="${STA(p)}" alt="" draggable="false">`:PIECES[(isW(p)?'w':'b')+p.toUpperCase()]}
 /* sound */
 let AC;function ac(){try{if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();if(AC.state==='suspended')AC.resume()}catch(e){}return AC}
 function noise(t,dur,f,q,g){const a=AC,n=a.sampleRate*dur|0,buf=a.createBuffer(1,n,a.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);const s=a.createBufferSource();s.buffer=buf;const bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=f;bp.Q.value=q;const gn=a.createGain();gn.gain.value=g;s.connect(bp);bp.connect(gn);gn.connect(a.destination);s.start(t)}
@@ -689,7 +690,7 @@ const mini=(l,d)=>`<div class="mini">${Array.from({length:16},(_,i)=>`<i style="
 const pv=st=>st==='blind'?['K','q','N','r'].map((p,i)=>`<span style="background:${i%2?'var(--dark)':'var(--light)'}"></span>`).join(''):['K','q','N','r'].map((p,i)=>`<span style="background:${i%2?'var(--dark)':'var(--light)'}">${pieceHTML(p,st)}</span>`).join('');
 const bd=`<div class="st" style="margin-top:14px">Presets</div><div class="bgrid">${BOARDS.map(([n,l,d,t],i)=>`<div class="bo${(t?cfg.tex===t:!cfg.tex&&sameC(cfg.light,l)&&sameC(cfg.dark,d))?' on':''}" data-i="${i}">${t?`<div class="mini" style="background:url(${TEX[t]}) center/50% 50%"></div>`:mini(l,d)}<span>${n}</span></div>`).join('')}</div>`+
 `<div class="st">Custom colors</div><div class="crow" style="margin-top:0"><label class="cp2">Light square<input type="color" id="cl" value="${cfg.light}"></label><label class="cp2">Dark square<input type="color" id="cd" value="${cfg.dark}"></label></div>`;
-const pc=`<div class="pgrid" style="margin-top:14px">${[['classic','Classic'],['neo','Chess.com'],['staunton','3D'],['paper','Paper'],['blind','Blindfold']].map(([k,n])=>`<div class="po${cfg.pieces===k?' on':''}" data-s="${k}"><div class="pprev">${pv(k)}</div><span>${n}</span></div>`).join('')}</div>`;
+const pc=`<div class="pgrid" style="margin-top:14px">${[['classic','Classic'],['neo','Chess.com'],['staunton','3D'],['paper','Paper'],['luca','Luca'],['blind','Blindfold']].map(([k,n])=>`<div class="po${cfg.pieces===k?' on':''}" data-s="${k}"><div class="pprev">${pv(k)}</div><span>${n}</span></div>`).join('')}</div>`;
 const mt=`<div class="pgrid" style="margin-top:14px">${MATES.map(([k,n,d])=>`<div class="mo${cfg.mate===k?' on':''}" data-m="${k}"><div class="stg"><div class="kk">${pieceHTML('k')}</div></div><span>${n}</span><small>${d}</small></div>`).join('')}</div>`;
 const keep=setEl.querySelector('.sbody'),top=keep?keep.scrollTop:0;
 setEl.innerHTML=`<div class="sbox"><div class="sh"><b>Settings</b><button class="sx" id="sx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div class="stabs">${[['board','Board'],['pieces','Pieces'],['mate','Checkmate']].map(([k,n])=>`<a data-t="${k}"${k===setTab?' class="on"':''}>${n}</a>`).join('')}</div><div class="sbody">${setTab==='board'?bd:setTab==='pieces'?pc:mt}</div></div>`;
