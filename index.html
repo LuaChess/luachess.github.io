@@ -490,7 +490,7 @@ if(c){c._ph=0;c.style.transform='';c.style.visibility='';c.style.animation=''}
 st.className='stg';st.querySelectorAll('.fx').forEach(x=>x.remove());void st.offsetWidth;if(cls.length)st.classList.add(...cls);
 if(m.fx){const d=document.createElement('div');d.className='fx '+m.fx;st.appendChild(d)}
 if(m.ph&&c)physRun(c,m.ph,{S:64,top:0,bottom:64*2,side:64*3})}
-let setTab='board',cfg={mate:'classic',light:'#f0d9b5',dark:'#b58863',pieces:'classic',tex:''},setOpen=false;
+let setTab='board',cfg={mate:'classic',light:'#e6eef5',dark:'#6f93b5',pieces:'classic',tex:''},setOpen=false;
 try{const c=JSON.parse(localStorage.getItem('chessSettings')||'null');if(c){if(/^#[0-9a-f]{6}$/i.test(c.light))cfg.light=c.light;if(/^#[0-9a-f]{6}$/i.test(c.dark))cfg.dark=c.dark;if(['neo','staunton','paper','blind'].includes(c.pieces))cfg.pieces=c.pieces;if(MATEFX[c.mate])cfg.mate=c.mate;cfg.tex=TEX[c.tex]?c.tex:(c.paper===true?'paper':'')}}catch(e){}
 function saveCfg(){try{localStorage.setItem('chessSettings',JSON.stringify(cfg))}catch(e){}}
 function frameCol(h){const n=parseInt(h.slice(1),16);return '#'+[n>>16&255,n>>8&255,n&255].map(v=>Math.round(v*.5).toString(16).padStart(2,'0')).join('')}
