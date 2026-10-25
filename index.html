@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Chess</title>
+<link rel="icon" type="image/x-icon" href="https://luachess.github.io/assets/favico.ico">
+<title>LuaChess</title>
 <style>
 :root{--frame:#5d4037;--light:#f0d9b5;--dark:#b58863;--bs:min(94vw,calc(100vh - 170px),700px);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html,body{height:100%;margin:0;background:#302e2b;color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
@@ -190,11 +191,11 @@ body.blind #pcs .pc svg,body.blind #pcs .pc img{opacity:0}
 .pprev span{flex:1;aspect-ratio:1;display:block}
 .pprev svg,.pprev img{width:100%;height:100%;display:block}
 #promo{position:fixed;inset:0;z-index:55;background:rgba(20,19,17,.62);display:none;align-items:center;justify-content:center}
-.pcard{background:#262421;border-radius:12px;padding:16px 18px 18px;text-align:center;animation:pup .2s both;box-shadow:0 16px 48px rgba(0,0,0,.55);max-width:94vw;box-sizing:border-box}
+.pcard{background:#262421;border-radius:12px;padding:16px 18px 18px;text-align:center;max-width:94vw;box-sizing:border-box}
 .pcard .t{font-weight:700;font-size:16px;margin-bottom:12px}
 .popts{display:flex;gap:8px}
-.popt{width:min(19vw,86px);background:#3d3a37;border:0;border-radius:9px;cursor:pointer;padding:6px 4px 8px;color:#c9c8c5;font:inherit;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px;transition:background .12s,transform .12s}
-.popt:hover{background:#81b64c;color:#fff;transform:translateY(-2px)}
+.popt{width:min(19vw,86px);background:#3d3a37;border:0;border-radius:9px;cursor:pointer;padding:6px 4px 8px;color:#c9c8c5;font:inherit;font-size:12px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px}
+.popt:hover{background:#81b64c;color:#fff}
 .popt .pi{width:100%;aspect-ratio:1}
 .popt .pi svg,.popt .pi img{width:100%;height:100%;display:block}
 #logo{position:fixed;top:14px;left:16px;z-index:30;height:56px;width:auto;display:block;-webkit-user-drag:none;user-select:none;pointer-events:none}
@@ -257,6 +258,20 @@ body{height:auto;min-height:100%;flex-direction:column;justify-content:center;ga
 .gr:hover{background:#2d2b28}
 .gd{display:flex;flex-direction:column;align-items:flex-end;gap:3px}
 .gd b{font-size:13px;padding:2px 8px;border-radius:10px;background:color-mix(in srgb,var(--rc) 16%,transparent)}
+
+#cons{position:fixed;left:0;right:0;bottom:0;z-index:200;background:#1f1d1b;border-top:1px solid #3a3835;color:#e9e8e6;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) auto;gap:0 36px;padding:20px 40px 22px;box-sizing:border-box;max-height:85vh;overflow-y:auto;font-size:14px;line-height:1.55}
+#cons h2{font-size:21px;margin:0 0 10px;font-weight:700}
+#cons h3{font-size:15px;margin:2px 0 10px;font-weight:700}
+#cons p{margin:0 0 8px;color:#c9c8c5}
+#cons ul{margin:0;padding-left:18px;color:#c9c8c5}
+#cons li{margin-bottom:3px}
+#cons .cc2{border-left:1px solid #3a3835;padding-left:36px}
+#cons .cb{display:flex;flex-direction:column;gap:12px;justify-content:center;min-width:150px}
+#cons button{font:inherit;font-weight:700;font-size:15px;border:0;border-radius:5px;padding:12px 20px;cursor:pointer;color:#fff;background:#81b64c;border-bottom:3px solid #5d8a35}
+#cons button:hover{background:#95c15f}
+#cons button.rj{background:#3d3a37;border-bottom-color:#2b2927}
+#cons button.rj:hover{background:#4b4847}
+@media (max-width:900px){#cons{grid-template-columns:1fr;padding:16px 18px 18px;gap:14px}#cons .cc2{border-left:0;padding-left:0;border-top:1px solid #3a3835;padding-top:14px}#cons .cb{flex-direction:row;min-width:0}#cons .cb button{flex:1}}
 </style></head><body>
 <img id="logo" src="https://luachess.github.io/assets/luachess.png" alt="LuaChess">
 <div id="col">
@@ -268,6 +283,9 @@ body{height:auto;min-height:100%;flex-direction:column;justify-content:center;ga
 <div id="mv"><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
 <div id="promo"><div class="pcard"><div class="t">Promote pawn to</div><div class="popts" id="popts"></div></div></div>
 <script>
+/* privacy: nothing is written to localStorage unless the visitor accepted */
+let CONSENT=false;try{CONSENT=localStorage.getItem('chessConsent')==='1'}catch(e){}
+try{const _si=Storage.prototype.setItem;Storage.prototype.setItem=function(k,v){if(this===window.localStorage&&k!=='chessConsent'&&!CONSENT)return;return _si.call(this,k,v)}}catch(e){}
 const V={p:100,n:320,b:330,r:500,q:900,k:0};
 const isW=p=>p&&p<'a';
 let S,sel=null,legalSel=[],last=null,over=false,thinking=false;
@@ -587,6 +605,14 @@ $('mvn').textContent=nm;
 if(!mvs.length){L.innerHTML='<div class="mre">Make a move to begin.</div>';return}
 let h='';for(let i=0;i<mvs.length;i+=2){const c=k=>mvs[k]?`<b${k===mvs.length-1?' class="cur"':''}>${mvs[k]}</b>`:'<b></b>';h+=`<div class="mr"><i>${i/2+1}.</i>${c(i)}${c(i+1)}</div>`}
 L.innerHTML=h;L.scrollTop=L.scrollHeight}
+/* privacy banner */
+(function(){if(CONSENT)return;const b=document.createElement('div');b.id='cons';
+b.innerHTML=`<div><h2>About Your Privacy</h2><p>This game runs entirely in your browser. To remember you between visits, it can store your information in your browser's <b>localStorage</b> on this device. Nothing is sent to any server, but the saved data does take up a small amount of your device's storage (SSD/HDD).</p><p>If you click <b>I Accept</b>, this notice disappears and cannot be changed again. If you click <b>Reject All</b>, nothing will be saved at all, so your progress is gone when you close or reload the page, and this notice will appear again on your next visit.</p></div>
+<div class="cc2"><h3>Data stored if you accept:</h3><ul><li>Your ELO ratings for Bullet, Blitz and Rapid</li><li>Your game history (results, opponents, moves played, dates)</li><li>Your profile: name and profile picture (pictures can use more storage)</li><li>Your settings: board colors, piece style and checkmate animation</li><li>A small note that you accepted this notice</li></ul></div>
+<div class="cb"><button id="cAc">I Accept</button><button class="rj" id="cRj">Reject All</button></div>`;
+document.body.appendChild(b);
+$('cRj').onclick=()=>b.remove();
+$('cAc').onclick=()=>{CONSENT=true;try{localStorage.setItem('chessConsent','1');save();saveP();saveCfg();localStorage.setItem('chessGames',JSON.stringify(games));localStorage.setItem('chessSince',since);if(isOwner)localStorage.setItem('chessOwner','1')}catch(e){}b.remove()}})();
 /* admin / cheat panel: type admin('kingbeat') in the browser console */
 const ADMIN_CODE='kingbeat';
 function bestMove(){let b=null,bs=-1e9;for(const m of legal(S)){const v=-search(apply(S,m),2,-1e9,1e9);if(v>bs){bs=v;b=m}}return b}
