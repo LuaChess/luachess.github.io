@@ -412,6 +412,16 @@ body{height:auto;min-height:100%;flex-direction:column;justify-content:center;ga
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#4b4847;border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:#5f5c59}
+.rvbtn{background:#3d3a37;border:0;border-radius:6px;width:32px;height:32px;padding:0;cursor:pointer;color:#a7a6a2;display:flex;align-items:center;justify-content:center;flex:none}
+.rvbtn:hover{background:#4b4847;color:#fff}
+.rvbtn svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#rvbar{display:none;flex-wrap:wrap;align-items:center;gap:6px;padding:8px 12px;border-bottom:1px solid #3a3835;background:#2a2825;flex:none}
+#rvbar .rvbtn{width:30px;height:30px}
+#rvbar .rvbtn svg{width:16px;height:16px}
+#rvt{flex:1 0 100%;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px;color:#a7a6a2}
+#rvn{font-size:13px;font-weight:600;color:#a7a6a2;flex:1;text-align:center}
+body.rvon #mvl .mr b[data-i]{cursor:pointer}
+body.rvon #mvl .mr b[data-i]:not(.cur):hover{background:#3a3835}
 </style></head><body>
 <aside id="side"><a class="sl" href="#home" data-nav="home" title="LuaChess"><img src="https://luachess.github.io/assets/luachess.png" alt="LuaChess"></a><nav id="nav"><a data-nav="home" href="#home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span>Home</span></a><a data-nav="play" href="#"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg><span>Play</span></a><a data-nav="profile" href="#profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.400 3.600-7 8-7s8 2.600 8 7"/></svg><span>Profile</span></a><a data-nav="settings" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></a></nav><a id="sp" data-nav="profile" href="#profile"></a></aside>
 <div id="home"></div>
@@ -421,7 +431,7 @@ body{height:auto;min-height:100%;flex-direction:column;justify-content:center;ga
 <div id="ov"><div class="card"><button id="ovx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="msg"></div><div id="sub"></div><div class="vs"><div class="pl"><div class="pav" id="ovP"></div><div class="pn" id="ovPn"></div><div class="pe" id="ovPe"></div></div><div class="vsx">vs</div><div class="pl"><div class="pav" id="ovA"></div><div class="pn">Bot</div><div class="pe" id="ovAe"></div></div></div><button id="next">Next round</button></div></div>
 <div class="bar"><div class="av" id="avP"><div id="avI"></div></div><input type="file" id="file" accept="image/*" hidden><div class="who"><div class="line"><b id="nameP">You</b><span id="ownB"></span><span class="rk" id="rkP"></span><span class="elo" id="eloP"></span></div><div class="caps" id="capP"></div></div><button class="gear" id="gear" title="Settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button><button id="nxt" title="Next round"><svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/></svg></button><a id="rs">Resign</a><div class="clk" id="clkP">0:00</div></div>
 </div>
-<div id="mv"><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
+<div id="mv"><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="rvbar"><span id="rvt"></span><button class="rvbtn" id="rvfirst" title="First move"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 6l-8 6 8 6"/></svg></button><button class="rvbtn" id="rvp" title="Previous move (Left arrow)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span id="rvn"></span><button class="rvbtn" id="rvnx" title="Next move (Right arrow)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button><button class="rvbtn" id="rvlast" title="Last move"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 6l8 6-8 6"/></svg></button></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
 <div id="promo"><div class="pcard"><div class="t">Promote pawn to</div><div class="popts" id="popts"></div></div></div>
 <script>
 /* privacy: nothing is written to localStorage unless the visitor accepted */
@@ -581,7 +591,7 @@ function saveP(){try{localStorage.setItem('chessProfile',JSON.stringify({name:my
 function showPic(){$('avI').className=myPic?'img':'';$('avI').innerHTML=myPic?`<img src="${myPic}" alt="">`:pieceHTML('K')}
 $('nameP').textContent=myName;showPic();updOwn();
 $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),s=Math.min(im.width,im.height);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,128,128);myPic=c.toDataURL('image/jpeg',.85);saveP();showPic();if(profOpen)renderProfile()};im.src=r.result};r.readAsDataURL(f);e.target.value=''};
-$('rs').onclick=()=>{if(started&&!over){forceWhite=true;over=true;thinking=true;snd.mate();mateFX(kingSq(S.b,meW));setTimeout(()=>endGame('loss','by resignation'),(MATEFX[cfg.mate]||{}).d||1500)}};
+$('rs').onclick=()=>{if(!rvOn&&started&&!over){forceWhite=true;over=true;thinking=true;snd.mate();mateFX(kingSq(S.b,meW));setTimeout(()=>endGame('loss','by resignation'),(MATEFX[cfg.mate]||{}).d||1500)}};
 $('tabs').onclick=e=>{const k=e.target.dataset.m;if(!k||k===mode||(over&&!settled))return;mode=k;save();start()};
 let arrows=[],rc=null;const arr=$('arr');
 function sqAt(e){const r=boardEl.getBoundingClientRect(),c=Math.floor((e.clientX-r.left)/r.width*8),w=Math.floor((e.clientY-r.top)/r.height*8);return c<0||c>7||w<0||w>7?-1:vi(w*8+c)}
@@ -600,18 +610,18 @@ function paint(){const ck=inCheck(S,S.t==='w')?kingSq(S.b,S.t==='w'):-1;
 sqs.forEach((d,i)=>{const lm=legalSel.find(m=>m.t===i);
 d.classList.toggle('last',!!last&&(i===last.f||i===last.t));d.classList.toggle('sel',i===sel);d.classList.toggle('chk',i===ck);
 d.classList.toggle('mv',!!lm);d.classList.toggle('cp',!!lm&&!!(S.b[i]||lm.ep))})}
-function click(i,f){ac();if(fakeBusy&&!f)return;if(over||thinking||S.t!==pcol()||promoOpen)return;
+function click(i,f){ac();if(fakeBusy&&!f)return;if(rvOn||over||thinking||S.t!==pcol()||promoOpen)return;
 const mv=legalSel.filter(m=>m.t===i);
 if(sel!==null&&mv.length){if(mv[0].p){askPromo(mv);return}play(mv.find(m=>!m.p||m.p==='Q')||mv[0]);return}
 if(S.b[i]&&isW(S.b[i])===meW){sel=i;legalSel=legal(S).filter(m=>m.f===i)}else{sel=null;legalSel=[]}
 paint()}
 function play(m){const g=gid;thinking=true;sel=null;legalSel=[];doMove(m,()=>setTimeout(()=>{if(over||g!==gid)return;const a=aiMove();doMove(a,()=>{if(g===gid)thinking=false})},MODES[mode].d[0]+Math.random()*(MODES[mode].d[1]-MODES[mode].d[0])))}
-function doMove(m,done){const w=S.t==='w',el=els[m.f],cs=m.ep?m.t+(w?8:-8):m.t,cap=!!S.b[cs];
+function doMove(m,done){if(rvOn){const g=gid;setTimeout(()=>{if(g===gid)doMove(m,done)},250);return}const w=S.t==='w',el=els[m.f],cs=m.ep?m.t+(w?8:-8):m.t,cap=!!S.b[cs];
 if(cap&&els[cs]){caps[w?'w':'b'].push(S.b[cs]);const c=els[cs];els[cs]=null;c.classList.add('gone');setTimeout(()=>c.remove(),220)}
 els[m.f]=null;els[m.t]=el;el.style.zIndex=++z;place(el,m.t);
 if(m.castle){const row=w?7:0,rf=row*8+(m.castle===1?7:0),rt=row*8+(m.castle===1?5:3);els[rt]=els[rf];els[rf]=null;place(els[rt],rt)}
 if(m.p){const e=el;setTimeout(()=>{e.innerHTML=pieceHTML(m.p);e.classList.add('pop')},180)}
-mvs.push(sanOf(S,m));S=apply(S,m);renderMoves();hist.push(posKey(S));if(w&&!started){started=true;lastTick=Date.now()}last={f:m.f,t:m.t};arrows=[];drawArrows();paint();updInfo();
+mvs.push(sanOf(S,m));rmv.push([m.f,m.t,m.p||'']);S=apply(S,m);renderMoves();hist.push(posKey(S));if(w&&!started){started=true;lastTick=Date.now()}last={f:m.f,t:m.t};arrows=[];drawArrows();paint();updInfo();
 const ms=legal(S),chk=inCheck(S,S.t==='w');
 const dr=ms.length?drawReason():'';if(!ms.length||dr)over=true;saveGame();
 setTimeout(()=>{
@@ -630,7 +640,7 @@ $('ovPe').innerHTML=`${old} \u2192 ${myElo}<span class="d" style="color:${dc}">(
 $('ovAe').textContent=aiElo;
 ov.style.display='flex';updInfo()}
 document.getElementById('next').onclick=start;document.getElementById('ovx').onclick=()=>{ov.style.display='none';if(settled){$('nxt').style.display='flex';$('rs').style.display='none'}};$('nxt').onclick=start;
-function start(){closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;mvs=[];renderMoves();S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
+function start(){closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;if(rvOn&&/^#review\//.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}rvOn=false;rvSw=false;rvH=false;rvSv=null;{const b=$('rvbar');if(b)b.style.display='none'}document.body.classList.remove('rvon');mvs=[];rmv=[];rvSt=null;rvIdx=0;rvCur=null;renderMoves();S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
 myElo=ratings[mode];const lo=Math.max(100,Math.round(myElo*.85)),hi=Math.max(lo+1,Math.round(myElo*1.65));aiElo=lo+Math.floor(Math.random()*(hi-lo+1));
 tw=tb=MODES[mode].t*1000;lastTick=Date.now();
 ov.style.display='none';$('nxt').style.display='none';$('rs').style.display='';clearFX();meW=played===0||forceWhite?true:Math.random()<.5;forceWhite=false;applyFlip();
@@ -638,13 +648,13 @@ pcs.innerHTML='';els=[];caps={w:[],b:[]};arrows=[];drawArrows();for(let i=0;i<64
 if(!meW){const g=gid;thinking=true;setTimeout(()=>{if(over||g!==gid)return;const a=aiMove();doMove(a,()=>{if(g===gid)thinking=false})},2000+Math.random()*1000)}}/* clocks, draw rules */
 let forceWhite=false,gid=0,tw=0,tb=0,started=false,lastTick=0,settled=false,hist=[];
 /* continue the running game after the page was closed */
-function saveGame(){try{if(over||settled||!mvs.length){localStorage.removeItem('chessGame');return}
-localStorage.setItem('chessGame',JSON.stringify({v:1,S,mvs,hist,caps,last,aiElo,mode,tw,tb,started,w:meW}))}catch(e){}}
+function saveGame(){if(rvSw)return;try{if(over||settled||!mvs.length){localStorage.removeItem('chessGame');return}
+localStorage.setItem('chessGame',JSON.stringify({v:1,S,mvs,rv:rmv.map(a=>String.fromCharCode(65+a[0],65+a[1])+(a[2]||'-')).join(''),hist,caps,last,aiElo,mode,tw,tb,started,w:meW}))}catch(e){}}
 function restoreGame(raw){try{if(!raw)return;const d=JSON.parse(raw);
 const okB=d&&d.S&&Array.isArray(d.S.b)&&d.S.b.length===64&&d.S.b.every(x=>x===''||/^[pnbrqkPNBRQK]$/.test(x))&&(d.S.t==='w'||d.S.t==='b')&&d.S.c&&d.S.b.includes('K')&&d.S.b.includes('k');
 if(!okB||!MODES[d.mode]||!Array.isArray(d.mvs)||!d.mvs.length||!Array.isArray(d.hist)||!d.caps||!Array.isArray(d.caps.w)||!Array.isArray(d.caps.b)){localStorage.removeItem('chessGame');return}
 if(!legal(d.S).length){localStorage.removeItem('chessGame');return}
-gid++;mode=d.mode;myElo=ratings[mode];aiElo=+d.aiElo||aiElo;S=d.S;mvs=d.mvs.map(String);hist=d.hist.map(String);caps={w:d.caps.w.map(String),b:d.caps.b.map(String)};
+gid++;mode=d.mode;myElo=ratings[mode];aiElo=+d.aiElo||aiElo;S=d.S;mvs=d.mvs.map(String);rmv=[];rvSt=null;rvIdx=0;rvCur=null;{const q=typeof d.rv==='string'?d.rv:'';for(let i=0;i+2<q.length;i+=3){const c=q[i+2];rmv.push([q.charCodeAt(i)-65,q.charCodeAt(i+1)-65,c==='-'?'':c])}}hist=d.hist.map(String);caps={w:d.caps.w.map(String),b:d.caps.b.map(String)};
 last=d.last&&Number.isInteger(d.last.f)&&Number.isInteger(d.last.t)?d.last:null;tw=Math.max(1,+d.tw||0);tb=Math.max(1,+d.tb||0);started=!!d.started;lastTick=Date.now();
 over=false;settled=false;sel=null;legalSel=[];thinking=false;ov.style.display='none';clearFX();meW=d.w!==false;applyFlip();
 pcs.innerHTML='';els=[];arrows=[];drawArrows();for(let i=0;i<64;i++)if(S.b[i])els[i]=mk(S.b[i],i);
@@ -657,13 +667,13 @@ const p=S.b.filter(x=>x&&x.toLowerCase()!=='k');if(!p.length||(p.length===1&&'nb
 const fmt=ms=>{const s=Math.max(0,Math.ceil(ms/1000));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')};
 function showClk(){const P=$('clkP'),A=$('clkA'),mt=meW?tw:tb,ot=meW?tb:tw;P.textContent=fmt(mt);A.textContent=fmt(ot);
 P.classList.toggle('on',started&&!over&&S.t===pcol());A.classList.toggle('on',started&&!over&&S.t!==pcol());P.classList.toggle('low',mt<10000);A.classList.toggle('low',ot<10000)}
-let svT=0;setInterval(()=>{const n=Date.now(),dt=n-lastTick;lastTick=n;if(!started||over||profOpen||setOpen)return;if(++svT%20===0)saveGame();
+let svT=0;setInterval(()=>{const n=Date.now(),dt=n-lastTick;lastTick=n;if(!started||over||profOpen||setOpen||rvOn)return;if(++svT%20===0)saveGame();
 if(S.t==='w')tw-=dt;else tb-=dt;
 if(tw<=0){tw=0;showClk();endGame(meW?'loss':'win','on time')}else if(tb<=0){tb=0;showClk();endGame(meW?'win':'loss','on time')}else showClk()},100);
 /* profile page (#profile) */
 let games=[];try{games=JSON.parse(localStorage.getItem('chessGames')||'[]')||[]}catch(e){}
 let since=0;try{since=+localStorage.getItem('chessSince')||0;if(!since){since=Date.now();localStorage.setItem('chessSince',since)}}catch(e){since=Date.now()}
-function recordGame(res,why,d){games.unshift({r:res,m:mode,mv:Math.ceil((hist.length-1)/2),o:aiElo,d,w:why,t:Date.now()});games=games.slice(0,150);try{localStorage.setItem('chessGames',JSON.stringify(games))}catch(e){}}
+function recordGame(res,why,d){games.unshift({r:res,m:mode,mv:Math.ceil((hist.length-1)/2),o:aiElo,d,w:why,t:Date.now(),rv:rvEnc(),cw:meW?1:0});games=games.slice(0,150);try{localStorage.setItem('chessGames',JSON.stringify(games))}catch(e){}}
 const sq=(c,p)=>`<svg class="ic" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="${c}"/><path d="${p}" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`;
 const ICO={win:sq('#81b64c','M12 6v12M6 12h12'),loss:sq('#e0524a','M6 12h12'),draw:sq('#8b8987','M6 9h12M6 15h12')};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -673,7 +683,7 @@ function rkHTML(elo){const r=RANKS.find(x=>elo>=x[0]);return r?`<span class="rk"
 let pf='all';
 function renderProfile(){const G=pf==='all'?games:games.filter(g=>g.m===pf);const cnt={win:0,loss:0,draw:0};G.forEach(g=>{if(cnt[g.r]!==undefined)cnt[g.r]++});
 const lbl={win:'Won',loss:'Lost',draw:'Draw'},col=v=>v>0?'#81b64c':v<0?'#e0524a':'#a7a6a2',rcol={win:'#81b64c',loss:'#e0524a',draw:'#8b8987'};
-const row=g=>`<div class="gr" style="--rc:${col(g.d)}">${ICO[g.r]||''}<div class="gm"><div><b>${lbl[g.r]||''}</b> vs Bot (${g.o})</div><div class="gs">${MODES[g.m]?MODES[g.m].n:g.m} · in ${g.mv} ${g.mv===1?'move':'moves'} · ${esc(g.w)}</div></div><div class="gd"><b style="color:${col(g.d)}">${g.d>0?'+':''}${g.d}</b><div class="gs">${fd(g.t)}</div></div></div>`;
+const row=g=>`<div class="gr" style="--rc:${col(g.d)}">${ICO[g.r]||''}<div class="gm"><div><b>${lbl[g.r]||''}</b> vs Bot (${g.o})</div><div class="gs">${MODES[g.m]?MODES[g.m].n:g.m} · in ${g.mv} ${g.mv===1?'move':'moves'} · ${esc(g.w)}</div></div><div class="gd"><b style="color:${col(g.d)}">${g.d>0?'+':''}${g.d}</b><div class="gs">${fd(g.t)}</div></div>${g.rv?`<button class="rvbtn" data-rv="${games.indexOf(g)}" title="Review game"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>`:''}</div>`;
 const tot=G.length,wr=tot?Math.round(cnt.win/tot*100):0,pc=k=>tot?cnt[k]/tot*100:0;
 let st=0,sk=G.length?G[0].r:'';for(const g of G){if(g.r===sk)st++;else break}
 const stk=st>1&&sk!=='draw'?`<span>${st} ${sk==='win'?'win':'loss'} streak</span>`:'';
@@ -703,7 +713,7 @@ const m=promoMoves&&promoMoves.find(x=>x.p===b.dataset.p);closePromo();if(m)play
 /* settings */
 const setEl=document.createElement('div');setEl.id='set';document.body.appendChild(setEl);
 const sameC=(a,b)=>a.toLowerCase()===b.toLowerCase();
-function applyPieces(){document.body.classList.toggle('blind',cfg.pieces==='blind');for(let i=0;i<64;i++)if(els[i]&&S.b[i])els[i].innerHTML=pieceHTML(S.b[i]);
+function applyPieces(){document.body.classList.toggle('blind',cfg.pieces==='blind');for(let i=0;i<64;i++){const B=rvOn?rvSt.L[rvIdx].b:S.b;if(els[i]&&B[i])els[i].innerHTML=pieceHTML(B[i])}
 $('avA').innerHTML=pieceHTML('k');if(!myPic)showPic();updInfo();if(profOpen)renderProfile();{const hb=homeEl.querySelector('.hbd');if(hb)hb.innerHTML=homeBoard()}}
 function renderSet(){
 const mini=(l,d)=>`<div class="mini">${Array.from({length:16},(_,i)=>`<i style="background:${((i>>2)+(i&3))%2?d:l}"></i>`).join('')}</div>`;
@@ -733,7 +743,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(setOpen)cl
 /* drag & drop with the real mouse / finger */
 let drag=null;
 function dragXY(e){const r=boardEl.getBoundingClientRect(),s=r.width/8;drag.el.style.transform=`translate(${(e.clientX-r.left)/s*100-50}%,${(e.clientY-r.top)/s*100-50}%)`}
-boardEl.addEventListener('pointerdown',e=>{if(e.button!==0||drag)return;if(over||thinking||S.t!==pcol()||promoOpen||fakeBusy||setOpen)return;
+boardEl.addEventListener('pointerdown',e=>{if(e.button!==0||drag)return;if(rvOn||over||thinking||S.t!==pcol()||promoOpen||fakeBusy||setOpen)return;
 const i=sqAt(e);if(i<0||!S.b[i]||isW(S.b[i])!==meW||!els[i])return;
 click(i);drag={i,el:els[i],x:e.clientX,y:e.clientY,on:false,id:e.pointerId}});
 window.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;
@@ -750,7 +760,7 @@ window.addEventListener('pointercancel',e=>endDrag(e,true));
 const OPN=[['e4','King\'s Pawn Opening'],['e4 e5','King\'s Pawn Game'],['e4 e5 Nf3','King\'s Knight Opening'],['e4 e5 Nf3 Nc6','King\'s Knight Opening: Normal Variation'],['e4 e5 Nf3 Nc6 Bb5','Ruy Lopez'],['e4 e5 Nf3 Nc6 Bb5 a6','Ruy Lopez: Morphy Defense'],['e4 e5 Nf3 Nc6 Bc4','Italian Game'],['e4 e5 Nf3 Nc6 Bc4 Bc5','Italian Game: Giuoco Piano'],['e4 e5 Nf3 Nc6 Bc4 Nf6','Italian Game: Two Knights Defense'],['e4 e5 Nf3 Nc6 d4','Scotch Game'],['e4 e5 Nf3 Nc6 Nc3 Nf6','Four Knights Game'],['e4 e5 Nf3 Nf6','Petrov\'s Defense'],['e4 e5 Nf3 d6','Philidor Defense'],['e4 e5 f4','King\'s Gambit'],['e4 e5 Nc3','Vienna Game'],['e4 e5 Bc4','Bishop\'s Opening'],['e4 e5 d4','Center Game'],['e4 e5 Qh5','Parham Attack'],['e4 c5','Sicilian Defense'],['e4 c5 Nf3','Sicilian Defense: Open'],['e4 c5 Nf3 d6 d4 cxd4 Nxd4 Nf6 Nc3 a6','Sicilian Defense: Najdorf Variation'],['e4 c5 Nf3 Nc6 d4 cxd4 Nxd4 g6','Sicilian Defense: Accelerated Dragon'],['e4 c5 Nc3','Sicilian Defense: Closed'],['e4 c5 c3','Sicilian Defense: Alapin Variation'],['e4 e6','French Defense'],['e4 e6 d4 d5','French Defense: Normal Variation'],['e4 e6 d4 d5 e5','French Defense: Advance Variation'],['e4 c6','Caro-Kann Defense'],['e4 c6 d4 d5 e5','Caro-Kann Defense: Advance Variation'],['e4 d5','Scandinavian Defense'],['e4 d6','Pirc Defense'],['e4 g6','Modern Defense'],['e4 Nf6','Alekhine\'s Defense'],['e4 f5','Duras Gambit'],['e4 Nc6','Nimzowitsch Defense'],['e4 b6','Owen\'s Defense'],['e4 a6','St. George Defense'],['e4 g5','Borg Defense'],
 ['d4','Queen\'s Pawn Opening'],['d4 d5','Queen\'s Pawn Game'],['d4 d5 c4','Queen\'s Gambit'],['d4 d5 c4 dxc4','Queen\'s Gambit Accepted'],['d4 d5 c4 e6','Queen\'s Gambit Declined'],['d4 d5 c4 c6','Slav Defense'],['d4 d5 Bf4','London System'],['d4 d5 Nf3 Nf6 Bf4','London System'],['d4 Nf6','Indian Defense'],['d4 Nf6 Bf4','London System'],['d4 Nf6 c4 e6 Nc3 Bb4','Nimzo-Indian Defense'],['d4 Nf6 c4 e6 Nf3 b6','Queen\'s Indian Defense'],['d4 Nf6 c4 g6','King\'s Indian Defense'],['d4 Nf6 c4 g6 Nc3 d5','Grünfeld Defense'],['d4 f5','Dutch Defense'],['d4 e6','Queen\'s Pawn: Franco-Indian'],['d4 d6','Queen\'s Pawn: Old Indian'],
 ['c4','English Opening'],['c4 e5','English Opening: Reversed Sicilian'],['c4 c5','English Opening: Symmetrical Variation'],['Nf3','Réti Opening'],['Nf3 d5','Réti Opening: Queen\'s Pawn'],['Nf3 d5 g3','Réti Opening: King\'s Indian Attack'],['f4','Bird\'s Opening'],['b3','Nimzo-Larsen Attack'],['g3','King\'s Fianchetto Opening'],['b4','Polish Opening'],['Nc3','Van Geest Opening'],['e3','Van\'t Kruijs Opening'],['a3','Anderssen\'s Opening'],['d3','Mieses Opening'],['c3','Saragossa Opening'],['h3','Clemenz Opening'],['g4','Grob Opening'],['f3','Barnes Opening'],['Nh3','Amar Opening'],['a4','Ware Opening'],['h4','Kadas Opening']];
-let mvs=[];
+let mvs=[],rmv=[],rvSt=null,rvIdx=0,rvCur=null,rvOn=false,rvSw=false,rvH=false,rvSv=null,rvReady=false;
 const SQN=i=>'abcdefgh'[i&7]+(8-(i>>3));
 function sanOf(s,m){const p=s.b[m.f],l=p.toLowerCase();let t;
 if(m.castle)t=m.castle===1?'O-O':'O-O-O';
@@ -766,8 +776,72 @@ function renderMoves(){const L=$('mvl');if(!L)return;
 let nm='Starting Position';if(mvs.length){nm=openingName()||'Uncommon Opening'}
 $('mvn').textContent=nm;
 if(!mvs.length){L.innerHTML='<div class="mre">Make a move to begin.</div>';return}
-let h='';for(let i=0;i<mvs.length;i+=2){const c=k=>mvs[k]?`<b${k===mvs.length-1?' class="cur"':''}>${mvs[k]}</b>`:'<b></b>';h+=`<div class="mr"><i>${i/2+1}.</i>${c(i)}${c(i+1)}</div>`}
-L.innerHTML=h;L.scrollTop=L.scrollHeight}
+let h='';for(let i=0;i<mvs.length;i+=2){const c=k=>mvs[k]?`<b data-i="${k+1}"${k===(rvCur===null?mvs.length-1:rvCur)?' class="cur"':''}>${mvs[k]}</b>`:'<b></b>';h+=`<div class="mr"><i>${i/2+1}.</i>${c(i)}${c(i+1)}</div>`}
+L.innerHTML=h;if(rvCur===null)L.scrollTop=L.scrollHeight;else{const c=L.querySelector('b.cur');if(c)L.scrollTop+=c.getBoundingClientRect().top-L.getBoundingClientRect().top-L.clientHeight/2;else L.scrollTop=0}}
+/* game review on the main board: ← / → with tweening. Opened after a game ends, or from #profile via #review/<id> */
+const REV=/^#review\/(\d+)$/;
+function rvEnc(){return rmv.length&&rmv.length===mvs.length?rmv.map(a=>String.fromCharCode(65+a[0],65+a[1])+(a[2]||'-')).join(''):''}
+function rvDec(q){const a=[];for(let i=0;i+2<q.length;i+=3){const c=q[i+2];a.push([q.charCodeAt(i)-65,q.charCodeAt(i+1)-65,c==='-'?'':c])}return a}
+function rvBuild(mv){mv=mv||rmv;let s=newState(),L=[s],M=[null],N=[],V=[],cp={w:[],b:[]},C=[cp];
+for(const[f,t,p]of mv){const m=legal(s).find(x=>x.f===f&&x.t===t&&(x.p||'')===p);if(!m)return null;
+const w=s.t==='w',cs=m.ep?m.t+(w?8:-8):m.t;cp={w:cp.w.slice(),b:cp.b.slice()};if(s.b[cs])cp[w?'w':'b'].push(s.b[cs]);
+N.push(sanOf(s,m));V.push(m);s=apply(s,m);L.push(s);M.push({f,t});C.push(cp)}
+return{L,M,C,N,V}}
+function rvDecor(){const R=rvSt,i=rvIdx,s=R.L[i];last=R.M[i];arrows=[];drawArrows();
+const ck=inCheck(s,s.t==='w')?kingSq(s.b,s.t==='w'):-1;
+sqs.forEach((d,k)=>{d.classList.toggle('last',!!last&&(k===last.f||k===last.t));d.classList.toggle('sel',false);d.classList.toggle('chk',k===ck);d.classList.remove('mv','cp')});
+const sv=caps;caps=R.C[i];updInfo();caps=sv;rvCur=i-1;renderMoves();$('rvn').textContent=i+' / '+(R.L.length-1)}
+function rvRender(){const s=rvSt.L[rvIdx];clearFX();pcs.innerHTML='';els=[];
+for(let k=0;k<64;k++)if(s.b[k]){els[k]=mk(s.b[k],k);els[k].style.animation='none'}
+rvReady=true;rvDecor()}
+/* animate a single step (from -> to, |from-to| = 1) by sliding the existing pieces */
+function rvTween(from,to){const R=rvSt,a=Math.min(from,to),m=R.V[a],ms=R.L[a],w=ms.t==='w',cs=m.ep?m.t+(w?8:-8):m.t,cap=ms.b[cs],row=w?7:0,rf=row*8+(m.castle===1?7:0),rt=row*8+(m.castle===1?5:3);
+if(to>from){const el=els[m.f];if(!el)return false;
+if(cap&&els[cs]){const c=els[cs];els[cs]=null;c.classList.add('gone');setTimeout(()=>c.remove(),220)}
+els[m.f]=null;els[m.t]=el;el.style.zIndex=++z;place(el,m.t);
+if(m.castle&&els[rf]){els[rt]=els[rf];els[rf]=null;place(els[rt],rt)}
+if(m.p)el._pt=setTimeout(()=>{el.innerHTML=pieceHTML(m.p);el.classList.add('pop')},180)}
+else{const el=els[m.t];if(!el)return false;
+if(m.p){clearTimeout(el._pt);el.innerHTML=pieceHTML(w?'P':'p');el.classList.remove('pop')}
+els[m.t]=null;els[m.f]=el;el.style.zIndex=++z;place(el,m.f);
+if(m.castle&&els[rt]){els[rf]=els[rt];els[rt]=null;place(els[rf],rf)}
+if(cap)els[cs]=mk(cap,cs)}
+return true}
+/* slide pieces from one position to any other (used for jumps of more than one move) */
+function rvSlide(from,to){const R=rvSt,A=R.L[from].b,B=R.L[to].b,ne=[],pool=[],need=[],fresh=new Set();
+for(let k=0;k<64;k++)if(A[k]&&els[k]){clearTimeout(els[k]._pt);pool.push({k,p:A[k],el:els[k]})}
+for(let k=0;k<64;k++){const p=B[k];if(!p)continue;const i=pool.findIndex(x=>x.k===k&&x.p===p);if(i>=0){ne[k]=pool[i].el;pool.splice(i,1)}else need.push(k)}
+for(const k of need){const p=B[k];let bi=-1,bd=1e9;pool.forEach((x,i)=>{if(x.p!==p)return;const d=Math.hypot((x.k>>3)-(k>>3),(x.k&7)-(k&7));if(d<bd){bd=d;bi=i}});
+if(bi>=0){ne[k]=pool[bi].el;pool.splice(bi,1)}else{ne[k]=mk(p,k);fresh.add(k)}}
+for(let k=0;k<64;k++){const el=ne[k];if(!el||fresh.has(k))continue;el.innerHTML=pieceHTML(B[k]);el.classList.remove('pop');el.style.transition='transform .35s cubic-bezier(.3,.7,.3,1)';el.style.zIndex=++z;place(el,k);setTimeout(()=>{el.style.transition=''},400)}
+for(const x of pool){x.el.classList.add('gone');setTimeout(()=>x.el.remove(),220)}
+els=ne}
+function rvGo(ni){if(!rvOn)return;const n=rvSt.L.length-1;ni=Math.min(n,Math.max(0,ni));if(ni===rvIdx)return;
+const from=rvIdx;rvIdx=ni;if(rvReady&&Math.abs(ni-from)===1&&rvTween(from,ni))rvDecor();else if(rvReady){rvSlide(from,ni);rvDecor()}else rvRender();snd.move()}
+$('mvl').addEventListener('click',e=>{if(!rvOn)return;const b=e.target.closest('b[data-i]');if(b)rvGo(+b.dataset.i)});
+function rvStart(R,w,lbl,fh){if(homeOpen)closeHome();if(profOpen)closeProfile();if(nfOpen)closeNF();closePromo();
+if(!rvOn)rvSv={mvs,meW,last};
+rvOn=true;rvSw=true;rvH=!!fh;rvSt=R;rvIdx=R.L.length-1;sel=null;legalSel=[];meW=w;applyFlip();mvs=R.N;
+if(ov.style.display!=='none')ov.style.display='none';if(settled){$('nxt').style.display='flex';$('rs').style.display='none'}
+$('rvt').textContent=lbl;$('rvbar').style.display='flex';document.body.classList.add('rvon');rvRender();navSync()}
+/* leave the review and put the real game back exactly as it was */
+function rvExit(ch){if(!rvOn)return;const v=rvSv;rvOn=false;rvSw=false;rvH=false;rvSt=null;rvCur=null;rvSv=null;
+mvs=v.mvs;meW=v.meW;last=v.last;applyFlip();clearFX();pcs.innerHTML='';els=[];
+for(let k=0;k<64;k++)if(S.b[k]){els[k]=mk(S.b[k],k);els[k].style.animation='none'}
+$('rvbar').style.display='none';document.body.classList.remove('rvon');arrows=[];drawArrows();renderMoves();paint();updInfo();showClk();lastTick=Date.now();
+if(ch&&/^#review\//.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}navSync()}
+function rvOpenId(id){const g=games.find(x=>x.t===id&&x.rv);if(!g)return false;const R=rvBuild(rvDec(String(g.rv)));if(!R||R.L.length<2)return false;
+rvStart(R,g.cw!==0,({win:'Won',loss:'Lost',draw:'Draw'}[g.r]||'')+' vs Bot ('+g.o+')',true);return true}
+$('rvfirst').onclick=()=>rvGo(0);$('rvlast').onclick=()=>rvGo(1e9);$('rvp').onclick=()=>rvGo(rvIdx-1);$('rvnx').onclick=()=>rvGo(rvIdx+1);function rvLeave(){const fh=rvH;rvExit(!fh);if(fh)openProfile()}
+
+prof.addEventListener('click',e=>{const b=e.target.closest('.rvbtn');if(!b)return;const g=games[+b.dataset.rv];if(!g||!g.rv)return;const h='#review/'+g.t;if(location.hash!==h)location.hash=h;else rvOpenId(g.t)});
+window.addEventListener('hashchange',()=>{const m=location.hash.match(REV);if(m){if(!rvOpenId(+m[1]))openNF()}else if(rvOn&&rvH)rvExit(false)});
+document.addEventListener('keydown',e=>{const k=e.key;if(k!=='ArrowLeft'&&k!=='ArrowRight'&&k!=='Escape')return;
+if(profOpen||homeOpen||nfOpen||setOpen||promoOpen||e.ctrlKey||e.metaKey||e.altKey)return;
+const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
+if(k==='Escape'){if(rvOn)rvLeave();return}
+if(!rvOn){if(!settled||k!=='ArrowLeft'||!rmv.length||rmv.length!==mvs.length)return;const R=rvBuild();if(!R)return;rvStart(R,meW,'Finished game',false)}
+e.preventDefault();rvGo(rvIdx+(k==='ArrowLeft'?-1:1))});
 /* privacy banner */
 (function(){if(CONSENT)return;const b=document.createElement('div');b.id='cons';
 b.innerHTML=`<div><h2>About Your Privacy</h2><p>This game runs entirely in your browser. To remember you between visits, it can store your information in your browser's <b>localStorage</b> on this device. Nothing is sent to any server, but the saved data does take up a small amount of your device's storage (SSD/HDD).</p><p>If you click <b>I Accept</b>, this notice disappears and cannot be changed again. If you click <b>Reject All</b>, nothing will be saved at all, so your progress is gone when you close or reload the page, and this notice will appear again on your next visit.</p><a class="rm" id="cRm">Read more</a></div>
@@ -869,13 +943,13 @@ function renderNF(){let sq='';for(let i=0;i<16;i++)sq+=`<i class="${((i>>2)+(i&3
 nfEl.innerHTML=`<div class="nfw"><div class="nf4"><span>4</span><div class="nfk">${pieceHTML('K')}</div><span>4</span></div><div class="nfb">${sq}<div class="nfn"><div>${pieceHTML('N')}</div></div></div><div class="nft">Checkmate. This page doesn't exist.</div><p class="nfs">The link you followed leads to an empty square. The knight is still looking for it.</p><div class="hbtns" style="justify-content:center"><button class="hb" data-nav="home">Back to home</button><button class="hb o" data-nav="play">Play now</button></div></div>`}
 function openNF(){if(homeOpen)closeHome();if(profOpen)closeProfile();renderNF();nfOpen=true;nfEl.style.display='block';nfEl.scrollTop=0;try{if(location.hash!=='#404')history.replaceState(null,'',location.pathname+location.search+'#404')}catch(e){}navSync()}
 function closeNF(){nfOpen=false;nfEl.style.display='none';try{if(location.hash==='#404')history.replaceState(null,'',location.pathname+location.search)}catch(e){}navSync()}
-window.addEventListener('hashchange',()=>{const h=location.hash;if(h==='#404'||!KNOWN_HASH.includes(h))openNF();else if(nfOpen)closeNF()});
+window.addEventListener('hashchange',()=>{const h=location.hash;if(h==='#404'||!(KNOWN_HASH.includes(h)||REV.test(h)))openNF();else if(nfOpen)closeNF()});
 /* sidebar + home */
 let homeOpen=false;const homeEl=$('home');
 function navSync(){const k=homeOpen?'home':profOpen?'profile':nfOpen?'':'play';document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('on',a.dataset.nav===k));const sc=$('sp');if(sc)sc.classList.toggle('on',k==='profile')}
 function openHome(){if(profOpen)closeProfile();if(nfOpen)closeNF();renderHome();homeOpen=true;homeEl.style.display='block';homeEl.scrollTop=0;try{if(location.hash!=='#home')location.hash='home'}catch(e){}navSync()}
 function closeHome(){homeOpen=false;homeEl.style.display='none';try{if(location.hash==='#home')history.replaceState(null,'',location.pathname+location.search)}catch(e){}navSync()}
-document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-nav]');if(!a)return;e.preventDefault();const k=a.dataset.nav;if(k==='home')openHome();else if(k==='profile')openProfile();else if(k==='settings')openSet();else{closeHome();closeProfile();closeNF()}});
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('[data-nav]');if(!a)return;e.preventDefault();const k=a.dataset.nav;if(k==='home')openHome();else if(k==='profile')openProfile();else if(k==='settings')openSet();else{closeHome();closeProfile();closeNF();if(rvOn)rvExit(true)}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&homeOpen)closeHome()});
 window.addEventListener('hashchange',()=>{if(location.hash==='#home')openHome();else if(homeOpen)closeHome()});
 
@@ -903,5 +977,5 @@ navSync();
 let seenBefore=false;try{seenBefore=localStorage.getItem('chessConsent')==='1'||sessionStorage.getItem('chessSeen')==='1';sessionStorage.setItem('chessSeen','1')}catch(e){}
 if(location.hash==='#home'||(!seenBefore&&!location.hash))openHome();
 if(location.hash==='#profile')openProfile();
-if(location.hash==='#404'||!KNOWN_HASH.includes(location.hash))openNF();
+{const rm=location.hash.match(REV);if(rm){if(!rvOpenId(+rm[1]))openNF()}else if(location.hash==='#404'||!KNOWN_HASH.includes(location.hash))openNF()}
 </script></body></html>
