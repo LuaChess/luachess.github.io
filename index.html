@@ -613,7 +613,8 @@ const nameBadge=n=>isFurkan(n)?BADGE:'';
 function updOwn(){$('ownB').innerHTML=nameBadge(myName)}
 const toastEl=document.createElement('div');toastEl.id='toast';document.body.appendChild(toastEl);let toastT=0;
 function toast(t){toastEl.textContent=t;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),2600)}
-let myName='You',myPic=null;
+function randName(){const W=['Cake','Runner','Panda','Falcon','Maple','Tiger','Cloud','Rocket','Pepper','Wolf','Comet','Ginger','Shadow','Pixel','Lemon','Thunder','Otter','Ember','Cobra','Breeze','Knight','Mango','Raven','Storm','Biscuit','Jumper','Dragon','Pickle','Nova','Walnut','Hunter','Fox','Zebra','Blaze','Cricket','Sparrow','Rider','Frost','Badger','Muffin'];const a=W[Math.floor(Math.random()*W.length)];let b=W[Math.floor(Math.random()*W.length)];while(b===a)b=W[Math.floor(Math.random()*W.length)];return a+b+(Math.floor(Math.random()*900000)+100000)}
+let myName=randName(),myPic=null;
 try{const p=JSON.parse(localStorage.getItem('chessProfile')||'null');if(p){myName=p.name||'You';myPic=p.pic||null}}catch(e){}
 function saveP(){try{localStorage.setItem('chessProfile',JSON.stringify({name:myName,pic:myPic}))}catch(e){}}
 const NOAVATAR='https://luachess.github.io/assets/noavatar.png';
