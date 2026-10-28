@@ -1120,6 +1120,8 @@ $('cAc').onclick=()=>{CONSENT=true;try{localStorage.setItem('chessConsent','1');
 /* admin / cheat panel: type admin('kingbeat') in the browser console */
 const ADMIN_CODE='kingbeat';
 function bestMove(){let b=null,bs=-1e9;for(const m of legal(S)){const v=-search(apply(S,m),2,-1e9,1e9);if(v>bs){bs=v;b=m}}return b}
+const PNM={p:'Pawn',n:'Knight',b:'Bishop',r:'Rook',q:'Queen',k:'King'};
+function speakBest(){if(over||thinking||S.t!==pcol()||!('speechSynthesis' in window))return;const m=bestMove();if(!m)return;const t='Move '+PNM[S.b[m.f].toLowerCase()]+' from '+SQN(m.f).toUpperCase()+' to '+SQN(m.t).toUpperCase()+(m.p?' and promote to '+PNM[m.p.toLowerCase()]:'');const u=new SpeechSynthesisUtterance(t);u.lang='en-US';speechSynthesis.cancel();speechSynthesis.speak(u)}
 function forceEnd(win){endGame(win?'win':'loss','by admin')}
 let fakeOn=true,fakeBusy=false,fmPos=null,fmLoop=false;
 /* autoplay: plays the whole current match with best moves; pace depends on the mode; turns itself off when the next match starts */
@@ -1159,11 +1161,12 @@ fakeBusy=false}
 function openPanel(){if($('adm'))return;const p=document.createElement('div');p.id='adm';
 p.style.cssText='position:fixed;top:12px;left:12px;z-index:99;background:#262421;border:1px solid #3b82f6;border-radius:8px;padding:12px;width:min(200px,calc(100vw - 16px));font:13px system-ui,sans-serif;color:#fff;display:none;flex-direction:column;gap:8px';
 const bt='font:inherit;font-weight:600;padding:6px;border:0;border-radius:4px;background:#3d3a37;color:#fff;cursor:pointer',inp='width:100%;box-sizing:border-box;margin-top:3px;padding:5px;background:#3d3a37;color:#fff;border:0;border-radius:4px';
-p.innerHTML=`<b style="color:#5a98f8">Admin panel</b><label>Your ELO<input id="aE1" type="number" value="${myElo}" style="${inp}"></label><label>Bot ELO<input id="aE2" type="number" value="${aiElo}" style="${inp}"></label><button data-a="set" style="${bt}">Apply ELO</button><button data-a="auto2" style="${bt}">Autoplay match: ${autoOn?'ON':'OFF'}</button><button data-a="hint" style="${bt}">Best move hint</button><button data-a="auto" style="${bt}">Play best move</button><button data-a="fm" style="${bt}">Fake mouse: ${fakeOn?'ON':'OFF'}</button><button data-a="hk" style="${bt}">Hotkeys: ${hkOn?'ON':'OFF'}</button><div id="aHk" style="font-size:11px;color:#a7a6a2;line-height:1.5;display:${hkOn?'block':'none'}">H hint &middot; B play best move &middot; F fake mouse &middot; W instant win &middot; L instant loss &middot; Shift+R reset ratings &middot; A show/hide admin UI</div><button data-a="win" style="${bt}">Instant win</button><button data-a="lose" style="${bt}">Instant loss</button><button data-a="reset" style="${bt}">Reset ratings</button><button data-a="hide" style="${bt}">Hide admin UI</button><button data-a="x" style="${bt}">Close</button>`;
+p.innerHTML=`<b style="color:#5a98f8">Admin panel</b><label>Your ELO<input id="aE1" type="number" value="${myElo}" style="${inp}"></label><label>Bot ELO<input id="aE2" type="number" value="${aiElo}" style="${inp}"></label><button data-a="set" style="${bt}">Apply ELO</button><button data-a="auto2" style="${bt}">Autoplay match: ${autoOn?'ON':'OFF'}</button><button data-a="hint" style="${bt}">Best move hint</button><button data-a="auto" style="${bt}">Play best move</button><button data-a="speak" style="${bt}">Speak best move</button><button data-a="fm" style="${bt}">Fake mouse: ${fakeOn?'ON':'OFF'}</button><button data-a="hk" style="${bt}">Hotkeys: ${hkOn?'ON':'OFF'}</button><div id="aHk" style="font-size:11px;color:#a7a6a2;line-height:1.5;display:${hkOn?'block':'none'}">H hint &middot; B play best move &middot; &szlig; speak best move &middot; F fake mouse &middot; W instant win &middot; L instant loss &middot; Shift+R reset ratings &middot; A show/hide admin UI</div><button data-a="win" style="${bt}">Instant win</button><button data-a="lose" style="${bt}">Instant loss</button><button data-a="reset" style="${bt}">Reset ratings</button><button data-a="hide" style="${bt}">Hide admin UI</button><button data-a="x" style="${bt}">Close</button>`;
 p.onclick=e=>{const a=e.target.dataset.a;if(!a)return;
 if(a==='set'){myElo=Math.max(0,+$('aE1').value||0);aiElo=Math.max(0,+$('aE2').value||0);ratings[mode]=myElo;save();updInfo()}
 else if(a==='hint'){if(!over&&!thinking&&S.t===pcol()){const m=bestMove();if(m){arrows=[m.f+'-'+m.t];drawArrows()}}}
 else if(a==='auto'){if(!over&&!thinking&&!fakeBusy&&S.t===pcol()){const m=bestMove();if(m){if(fakeOn){const r=e.target.getBoundingClientRect();fakeMove(m,lastMouse||[r.left+r.width/2,r.top+r.height/2])}else play(m)}}}
+else if(a==='speak')speakBest();
 else if(a==='auto2'){autoOn=!autoOn;autoDue=0;autoBtn();toast(autoOn?'Autoplay on for this match':'Autoplay off')}
 else if(a==='fm'){fakeOn=!fakeOn;e.target.textContent='Fake mouse: '+(fakeOn?'ON':'OFF');if(!fakeOn&&$('fm'))$('fm').style.display='none'}
 else if(a==='hk')hkSet(!hkOn);
@@ -1198,6 +1201,7 @@ const lg=$('aHk');if(lg)lg.style.display=hkOn?'block':'none';toast('Admin hotkey
 function hkAct(k,shift){
 if(k==='h'){if(!over&&!thinking&&S.t===pcol()){const m=bestMove();if(m){arrows=[m.f+'-'+m.t];drawArrows()}}}
 else if(k==='b'){if(!over&&!thinking&&!fakeBusy&&S.t===pcol()){const m=bestMove();if(m){if(fakeOn){let s=lastMouse;if(!s){const bb=$('admb'),r=bb&&bb.style.display!=='none'?bb.getBoundingClientRect():{left:innerWidth-58,top:12,width:46,height:46};s=[r.left+r.width/2,r.top+r.height/2]}fakeMove(m,s)}else play(m)}}}
+else if(k==='ß')speakBest();
 else if(k==='f'){fakeOn=!fakeOn;const bt=document.querySelector('#adm [data-a="fm"]');if(bt)bt.textContent='Fake mouse: '+(fakeOn?'ON':'OFF');if(!fakeOn&&$('fm'))$('fm').style.display='none';toast('Fake mouse '+(fakeOn?'ON':'OFF'))}
 else if(k==='w'){if(!over)forceEnd(true)}
 else if(k==='l'){if(!over)forceEnd(false)}
@@ -1205,7 +1209,7 @@ else if(k==='a'){hideUI(!adminHidden);toast('Admin UI '+(adminHidden?'hidden':'s
 else if(k==='r'&&shift){ratings={bullet:100,blitz:100,rapid:100};save();start();toast('Ratings reset')}}
 document.addEventListener('keydown',e=>{if(!hkOn||!$('adm')||e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;
 const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
-const k=e.key.length===1?e.key.toLowerCase():'';if(!k||!'hbfwlra'.includes(k))return;
+const k=e.key.length===1?e.key.toLowerCase():'';if(!k||!'hbfwlraß'.includes(k))return;
 if(k==='r'&&!e.shiftKey)return;e.preventDefault();hkAct(k,e.shiftKey)});
 window.admin=function(code){if(code!==ADMIN_CODE){console.warn('Access denied');return}isOwner=true;try{localStorage.setItem('chessOwner','1')}catch(e){}openPanel();hideUI(false);return'Access granted'};
 
