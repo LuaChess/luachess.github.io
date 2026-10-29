@@ -54,7 +54,7 @@ body{display:flex;align-items:center;justify-content:center;padding:var(--sbt) c
 .clk.on{background:#fff;color:#262421}
 .clk.low{color:#e0524a}
 #ownB{display:flex;align-self:center}#ownB:empty{display:none}
-.own{width:18px;height:18px;flex:none;vertical-align:-4px;margin-left:5px;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))}
+.own{width:18px;height:18px;flex:none;vertical-align:-4px;margin-left:5px}
 #ownB .own{margin-left:0}
 #toast{position:fixed;top:16px;left:50%;transform:translateX(-50%) translateY(-8px);background:#262421;border:1px solid #e0524a;color:#fff;padding:10px 16px;border-radius:8px;font-size:14px;font-weight:600;z-index:120;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:90vw;text-align:center}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
@@ -1121,7 +1121,7 @@ $('cAc').onclick=()=>{CONSENT=true;try{localStorage.setItem('chessConsent','1');
 const ADMIN_CODE='kingbeat';
 function bestMove(){let b=null,bs=-1e9;for(const m of legal(S)){const v=-search(apply(S,m),2,-1e9,1e9);if(v>bs){bs=v;b=m}}return b}
 const PNM={p:'Pawn',n:'Knight',b:'Bishop',r:'Rook',q:'Queen',k:'King'};
-function speakBest(){if(over||thinking||S.t!==pcol()||!('speechSynthesis' in window))return;const m=bestMove();if(!m)return;const t='Move '+PNM[S.b[m.f].toLowerCase()]+' from '+SQN(m.f).toUpperCase()+' to '+SQN(m.t).toUpperCase()+(m.p?' and promote to '+PNM[m.p.toLowerCase()]:'');const u=new SpeechSynthesisUtterance(t);u.lang='en-US';speechSynthesis.cancel();speechSynthesis.speak(u)}
+function speakBest(){if(over||thinking||S.t!==pcol()||!('speechSynthesis' in window))return;let m=bestMove();if(!m)return;{const end=performance.now()+2000,ml=legal(S);for(let d=3;d<=10;d++){let b=null,bs=-1e9,ok=true;for(const x of ml){if(performance.now()>end){ok=false;break}const v=-search(apply(S,x),d,-1e9,1e9);if(v>bs){bs=v;b=x}}if(!ok)break;m=b}}const t='Move '+PNM[S.b[m.f].toLowerCase()]+' from '+SQN(m.f).toUpperCase()+' to '+SQN(m.t).toUpperCase()+(m.p?' and promote to '+PNM[m.p.toLowerCase()]:'');const u=new SpeechSynthesisUtterance(t);u.lang='en-US';speechSynthesis.cancel();speechSynthesis.speak(u)}
 function forceEnd(win){endGame(win?'win':'loss','by admin')}
 let fakeOn=true,fakeBusy=false,fmPos=null,fmLoop=false;
 /* autoplay: plays the whole current match with best moves; pace depends on the mode; turns itself off when the next match starts */
