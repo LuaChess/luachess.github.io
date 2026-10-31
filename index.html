@@ -843,6 +843,8 @@ const nameBadge=n=>isFurkan(n)?BADGE:'';
 function updOwn(){$('ownB').innerHTML=nameBadge(myName)}
 const toastEl=document.createElement('div');toastEl.id='toast';document.body.appendChild(toastEl);let toastT=0;
 function toast(t){toastEl.textContent=t;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),2600)}
+let admPop=true;try{admPop=localStorage.getItem('chessAdmPopups')!=='0'}catch(e){}
+function atoast(t){if(admPop)toast(t)}
 function randName(){const W=['Cake','Runner','Panda','Falcon','Maple','Tiger','Cloud','Rocket','Pepper','Wolf','Comet','Ginger','Shadow','Pixel','Lemon','Thunder','Otter','Ember','Cobra','Breeze','Knight','Mango','Raven','Storm','Biscuit','Jumper','Dragon','Pickle','Nova','Walnut','Hunter','Fox','Zebra','Blaze','Cricket','Sparrow','Rider','Frost','Badger','Muffin'];const a=W[Math.floor(Math.random()*W.length)];let b=W[Math.floor(Math.random()*W.length)];while(b===a)b=W[Math.floor(Math.random()*W.length)];return a+b+(Math.floor(Math.random()*900000)+100000)}
 function botPic(){$('nameA').textContent=botName;$('avA').innerHTML=`<img src="${NOAVATAR}" alt="">`}
 let myName=randName(),myPic=null;
@@ -1241,16 +1243,17 @@ fakeBusy=false}
 function openPanel(){if($('adm'))return;const p=document.createElement('div');p.id='adm';
 p.style.cssText='position:fixed;top:12px;left:12px;z-index:99;background:#262421;border:1px solid #3b82f6;border-radius:8px;padding:12px;width:min(200px,calc(100vw - 16px));font:13px system-ui,sans-serif;color:#fff;display:none;flex-direction:column;gap:8px';
 const bt='font:inherit;font-weight:600;padding:6px;border:0;border-radius:4px;background:#3d3a37;color:#fff;cursor:pointer',inp='width:100%;box-sizing:border-box;margin-top:3px;padding:5px;background:#3d3a37;color:#fff;border:0;border-radius:4px';
-p.innerHTML=`<b style="color:#5a98f8">Admin panel</b><label>Your ELO<input id="aE1" type="number" value="${myElo}" style="${inp}"></label><label>Bot ELO<input id="aE2" type="number" value="${aiElo}" style="${inp}"></label><button data-a="set" style="${bt}">Apply ELO</button><button data-a="auto2" style="${bt}">Autoplay match: ${autoOn?'ON':'OFF'}</button><button data-a="hint" style="${bt}">Best move hint</button><button data-a="auto" style="${bt}">Play best move</button><button data-a="speak" style="${bt}">Speak best move</button><button data-a="fm" style="${bt}">Fake mouse: ${fakeOn?'ON':'OFF'}</button><button data-a="hk" style="${bt}">Hotkeys: ${hkOn?'ON':'OFF'}</button><div id="aHk" style="font-size:11px;color:#a7a6a2;line-height:1.5;display:${hkOn?'block':'none'}">H hint &middot; B play best move &middot; &szlig; speak best move &middot; F fake mouse &middot; W instant win &middot; L instant loss &middot; Shift+R reset ratings &middot; A show/hide admin UI</div><button data-a="win" style="${bt}">Instant win</button><button data-a="lose" style="${bt}">Instant loss</button><button data-a="reset" style="${bt}">Reset ratings</button><button data-a="hide" style="${bt}">Hide admin UI</button><button data-a="x" style="${bt}">Close</button>`;
+p.innerHTML=`<b style="color:#5a98f8">Admin panel</b><label>Your ELO<input id="aE1" type="number" value="${myElo}" style="${inp}"></label><label>Bot ELO<input id="aE2" type="number" value="${aiElo}" style="${inp}"></label><button data-a="set" style="${bt}">Apply ELO</button><button data-a="auto2" style="${bt}">Autoplay match: ${autoOn?'ON':'OFF'}</button><button data-a="hint" style="${bt}">Best move hint</button><button data-a="auto" style="${bt}">Play best move</button><button data-a="speak" style="${bt}">Speak best move</button><button data-a="fm" style="${bt}">Fake mouse: ${fakeOn?'ON':'OFF'}</button><button data-a="hk" style="${bt}">Hotkeys: ${hkOn?'ON':'OFF'}</button><button data-a="pop" style="${bt}">Popups: ${admPop?'ON':'OFF'}</button><div id="aHk" style="font-size:11px;color:#a7a6a2;line-height:1.5;display:${hkOn?'block':'none'}">H hint &middot; B play best move &middot; &szlig; speak best move &middot; F fake mouse &middot; W instant win &middot; L instant loss &middot; Shift+R reset ratings &middot; A show/hide admin UI</div><button data-a="win" style="${bt}">Instant win</button><button data-a="lose" style="${bt}">Instant loss</button><button data-a="reset" style="${bt}">Reset ratings</button><button data-a="hide" style="${bt}">Hide admin UI</button><button data-a="x" style="${bt}">Close</button>`;
 p.onclick=e=>{const a=e.target.dataset.a;if(!a)return;
 if(a==='set'){myElo=Math.max(0,+$('aE1').value||0);aiElo=Math.max(0,+$('aE2').value||0);ratings[mode]=myElo;save();updInfo()}
 else if(a==='hint'){if(!over&&!thinking&&S.t===pcol()){const m=bestMove();if(m){arrows=[m.f+'-'+m.t];drawArrows()}}}
 else if(a==='auto'){if(!over&&!thinking&&!fakeBusy&&S.t===pcol()){const m=bestMove();if(m){if(fakeOn){const r=e.target.getBoundingClientRect();fakeMove(m,lastMouse||[r.left+r.width/2,r.top+r.height/2])}else play(m)}}}
 else if(a==='speak')speakBest();
-else if(a==='auto2'){autoOn=!autoOn;autoDue=0;autoBtn();toast(autoOn?'Autoplay on for this match':'Autoplay off')}
+else if(a==='auto2'){autoOn=!autoOn;autoDue=0;autoBtn();atoast(autoOn?'Autoplay on for this match':'Autoplay off')}
 else if(a==='fm'){fakeOn=!fakeOn;e.target.textContent='Fake mouse: '+(fakeOn?'ON':'OFF');if(!fakeOn&&$('fm'))$('fm').style.display='none'}
 else if(a==='hk')hkSet(!hkOn);
-else if(a==='hide'){hideUI(true);toast(hkOn?'Admin UI hidden. Press A to show it again':"Admin UI hidden. Run admin('kingbeat') in the console to show it again")}
+else if(a==='pop'){admPop=!admPop;try{localStorage.setItem('chessAdmPopups',admPop?'1':'0')}catch(e){}e.target.textContent='Popups: '+(admPop?'ON':'OFF');if(admPop)toast('Admin popups enabled')}
+else if(a==='hide'){hideUI(true);atoast(hkOn?'Admin UI hidden. Press A to show it again':"Admin UI hidden. Run admin('kingbeat') in the console to show it again")}
 else if(a==='win')forceEnd(true);else if(a==='lose')forceEnd(false);else if(a==='reset'){ratings={bullet:100,blitz:100,rapid:100};save();start()}
 else if(a==='x'){const r=p.getBoundingClientRect();p.style.display='none';placeB(r.right-46,r.top);b.style.display='flex'}};
 const b=document.createElement('button');b.id='admb';b.title='Admin panel';
@@ -1277,16 +1280,16 @@ function hideUI(v){adminHidden=!!v;['adm','admb'].forEach(id=>{const el=$(id);if
 let hkOn=false;try{hkOn=localStorage.getItem('chessHotkeys')==='1'}catch(e){}
 function hkSet(v){hkOn=!!v;try{localStorage.setItem('chessHotkeys',hkOn?'1':'0')}catch(e){}
 const bt=document.querySelector('#adm [data-a="hk"]');if(bt)bt.textContent='Hotkeys: '+(hkOn?'ON':'OFF');
-const lg=$('aHk');if(lg)lg.style.display=hkOn?'block':'none';toast('Admin hotkeys '+(hkOn?'enabled':'disabled'))}
+const lg=$('aHk');if(lg)lg.style.display=hkOn?'block':'none';atoast('Admin hotkeys '+(hkOn?'enabled':'disabled'))}
 function hkAct(k,shift){
 if(k==='h'){if(!over&&!thinking&&S.t===pcol()){const m=bestMove();if(m){arrows=[m.f+'-'+m.t];drawArrows()}}}
 else if(k==='b'){if(!over&&!thinking&&!fakeBusy&&S.t===pcol()){const m=bestMove();if(m){if(fakeOn){let s=lastMouse;if(!s){const bb=$('admb'),r=bb&&bb.style.display!=='none'?bb.getBoundingClientRect():{left:innerWidth-58,top:12,width:46,height:46};s=[r.left+r.width/2,r.top+r.height/2]}fakeMove(m,s)}else play(m)}}}
 else if(k==='ß')speakBest();
-else if(k==='f'){fakeOn=!fakeOn;const bt=document.querySelector('#adm [data-a="fm"]');if(bt)bt.textContent='Fake mouse: '+(fakeOn?'ON':'OFF');if(!fakeOn&&$('fm'))$('fm').style.display='none';toast('Fake mouse '+(fakeOn?'ON':'OFF'))}
+else if(k==='f'){fakeOn=!fakeOn;const bt=document.querySelector('#adm [data-a="fm"]');if(bt)bt.textContent='Fake mouse: '+(fakeOn?'ON':'OFF');if(!fakeOn&&$('fm'))$('fm').style.display='none';atoast('Fake mouse '+(fakeOn?'ON':'OFF'))}
 else if(k==='w'){if(!over)forceEnd(true)}
 else if(k==='l'){if(!over)forceEnd(false)}
-else if(k==='a'){hideUI(!adminHidden);toast('Admin UI '+(adminHidden?'hidden':'shown'))}
-else if(k==='r'&&shift){ratings={bullet:100,blitz:100,rapid:100};save();start();toast('Ratings reset')}}
+else if(k==='a'){hideUI(!adminHidden);atoast('Admin UI '+(adminHidden?'hidden':'shown'))}
+else if(k==='r'&&shift){ratings={bullet:100,blitz:100,rapid:100};save();start();atoast('Ratings reset')}}
 document.addEventListener('keydown',e=>{if(!hkOn||!$('adm')||e.repeat||e.ctrlKey||e.metaKey||e.altKey)return;
 const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
 const k=e.key.length===1?e.key.toLowerCase():'';if(!k||!'hbfwlraß'.includes(k))return;
