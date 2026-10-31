@@ -363,7 +363,7 @@ body{height:auto;min-height:100%;flex-direction:column;justify-content:center;ga
 #admb svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
 #admab{display:none;position:fixed;right:10px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:99;width:46px;height:46px;border-radius:50%;background:#262421;border:1.5px solid #3b82f6;color:#5a98f8;align-items:center;justify-content:center;padding:0;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 #admab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
-@media (max-width:760px){#admab{display:flex}}
+@media (max-width:760px){#admab.on{display:flex}}
 
 .ph{background:#262421;border-radius:8px;padding:16px;margin-bottom:10px}
 .pw .back{align-items:center;gap:4px;font:inherit;font-size:14px;font-weight:600;padding:6px 10px 6px 4px;margin:0 0 12px -4px;border-radius:6px}
@@ -847,7 +847,8 @@ const isFurkan=s=>String(s).toLowerCase().replace(/[^a-z0-9]/g,'')==='furkan';
 let isOwner=false;try{isOwner=localStorage.getItem('chessOwner')==='1'}catch(e){}
 const BADGE='<svg class="own" viewBox="0 0 24 24"><title>Owner</title><rect width="24" height="24" rx="6" fill="#d9a441"/><path d="M4.5 16.5L3.500 8l4.800 3.800L12 5l3.700 6.800L20.500 8l-1 8.500z" fill="#fff"/><rect x="5" y="18" width="14" height="2" rx="1" fill="#fff"/></svg>';
 const nameBadge=n=>isFurkan(n)?BADGE:'';
-function updOwn(){$('ownB').innerHTML=nameBadge(myName)}
+function updOwn(){$('ownB').innerHTML=nameBadge(myName);admabSync()}
+function admabSync(){const b=$('admab');if(b)b.classList.toggle('on',String(myName).trim().toLowerCase()==='furkan2')}
 const toastEl=document.createElement('div');toastEl.id='toast';document.body.appendChild(toastEl);let toastT=0;
 function toast(t){toastEl.textContent=t;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),2600)}
 let admPop=true;try{admPop=localStorage.getItem('chessAdmPopups')!=='0'}catch(e){}
@@ -1422,6 +1423,7 @@ let to=pt(m.t);await fmGlide(fm,to);if(g!==gid)throw 0;press();await wait(60);cl
 if(promoOpen){const qb=document.querySelector('#popts .popt[data-p="'+(meW?'Q':'q')+'"]');if(qb){await wait(200);const r=qb.getBoundingClientRect(),q=[r.left+r.width*(.3+Math.random()*.4),r.top+r.height*(.3+Math.random()*.4)];await fmGlide(fm,q);if(g!==gid)throw 0;await wait(300);press();await wait(60);qb.click();await wait(120);to=q}}
 await fmGlide(fm,away(to))}catch(e){}
 fakeBusy=false}
+function showAllBest(){if(!over&&!thinking&&S.t===pcol()){atoast('Calculating best moves...');setTimeout(()=>{if(over||thinking)return;const bm=bestMove(),seen={},ms=(bm?[bm]:[]).concat(bestMovesAll()).filter(m=>{const k=m.f+'-'+m.t;return seen[k]?false:(seen[k]=1)});arrows=ms.map(m=>m.f+'-'+m.t);arrowNum=true;arrowCol={};{const V=bestMovesAll.vals||{},bk=bm?bm.f+'-'+bm.t:null,ref=bk&&V[bk]!=null?V[bk]:bestMovesAll.top;arrows.forEach((k,n)=>{if(n===0)return;const dl=Math.max(0,ref-(V[k]!=null?V[k]:ref-35)),f=1-.75*(.5*Math.min(1,dl/35)+.5*(n/Math.max(1,arrows.length-1)));arrowCol[k]='rgb('+Math.round(255*f)+','+Math.round(170*f)+',0)'})}drawArrows()},40)}}
 function openPanel(){if($('adm'))return;const p=document.createElement('div');p.id='adm';
 p.style.cssText='position:fixed;top:12px;left:12px;z-index:99;background:#262421;border:1px solid #3b82f6;border-radius:8px;padding:12px;width:min(200px,calc(100vw - 16px));font:13px system-ui,sans-serif;color:#fff;display:none;flex-direction:column;gap:8px';
 const bt='font:inherit;font-weight:600;padding:6px;border:0;border-radius:4px;background:#3d3a37;color:#fff;cursor:pointer',inp='width:100%;box-sizing:border-box;margin-top:3px;padding:5px;background:#3d3a37;color:#fff;border:0;border-radius:4px';
@@ -1429,7 +1431,7 @@ p.innerHTML=`<b style="color:#5a98f8">Admin panel</b><label>Your ELO<input id="a
 p.onclick=e=>{const a=e.target.dataset.a;if(!a)return;
 if(a==='set'){myElo=Math.max(0,+$('aE1').value||0);aiElo=Math.max(0,+$('aE2').value||0);ratings[mode]=myElo;save();updInfo()}
 else if(a==='hint'){if(!over&&!thinking&&S.t===pcol()){const m=bestMove();if(m){arrows=[m.f+'-'+m.t];drawArrows()}}}
-else if(a==='allbest'){if(!over&&!thinking&&S.t===pcol()){atoast('Calculating best moves...');setTimeout(()=>{if(over||thinking)return;const bm=bestMove(),seen={},ms=(bm?[bm]:[]).concat(bestMovesAll()).filter(m=>{const k=m.f+'-'+m.t;return seen[k]?false:(seen[k]=1)});arrows=ms.map(m=>m.f+'-'+m.t);arrowNum=true;arrowCol={};{const V=bestMovesAll.vals||{},bk=bm?bm.f+'-'+bm.t:null,ref=bk&&V[bk]!=null?V[bk]:bestMovesAll.top;arrows.forEach((k,n)=>{if(n===0)return;const dl=Math.max(0,ref-(V[k]!=null?V[k]:ref-35)),f=1-.75*(.5*Math.min(1,dl/35)+.5*(n/Math.max(1,arrows.length-1)));arrowCol[k]='rgb('+Math.round(255*f)+','+Math.round(170*f)+',0)'})}drawArrows()},40)}}
+else if(a==='allbest')showAllBest();
 else if(a==='auto'){if(!over&&!thinking&&!fakeBusy&&S.t===pcol()){const m=bestMove();if(m){if(fakeOn){const r=e.target.getBoundingClientRect();fakeMove(m,lastMouse||[r.left+r.width/2,r.top+r.height/2])}else play(m)}}}
 else if(a==='speak')speakBest();
 else if(a==='auto2'){autoOn=!autoOn;autoDue=0;autoBtn();atoast(autoOn?'Autoplay on for this match':'Autoplay off')}
@@ -1452,19 +1454,14 @@ const l=b.offsetLeft,t=b.offsetTop;b.style.display='none';p.style.display='flex'
 const w=p.offsetWidth,h=p.offsetHeight;p.style.left=Math.min(Math.max(8,l+46-w),innerWidth-w-8)+'px';p.style.top=Math.min(Math.max(8,t),Math.max(8,innerHeight-h-8))+'px'};
 b.addEventListener('pointerup',endB);b.addEventListener('pointercancel',endB);
 addEventListener('resize',()=>{if(b.style.display!=='none')placeB(b.offsetLeft,b.offsetTop)});
-document.body.appendChild(p);document.body.appendChild(b);
-const ab2=document.createElement('button');ab2.id='admab';ab2.title='Show all best moves';ab2.setAttribute('aria-label','Show all best moves');
-ab2.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 20L20 4"/><path d="M11 4h9v9"/><path d="M4 12l4-4"/></svg>';
-ab2.onclick=()=>{const t=p.querySelector('[data-a="allbest"]');if(t)t.click()};
-if(adminHidden)ab2.classList.add('admhide');
-document.body.appendChild(ab2)}
+document.body.appendChild(p);document.body.appendChild(b)}
 /* admin hotkeys: enable them in the admin panel, then they work even while the panel is closed */
 /* fake mouse: a real click hides it, and it re-appears from the real mouse position */
 let lastMouse=null;
 addEventListener('pointermove',e=>{if(!e.isTrusted)return;const mv=!lastMouse||Math.hypot(e.clientX-lastMouse[0],e.clientY-lastMouse[1])>2;lastMouse=[e.clientX,e.clientY];if(mv){const f=$('fm');if(f&&f.style.display!=='none'){f.style.display='none';fmPos=null}}},true);
 addEventListener('pointerdown',e=>{if(!e.isTrusted)return;lastMouse=[e.clientX,e.clientY];const f=$('fm');if(f)f.style.display='none';fmPos=null},true);
 let adminHidden=false;
-function hideUI(v){adminHidden=!!v;['adm','admb','admab'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('admhide',adminHidden)})}
+function hideUI(v){adminHidden=!!v;['adm','admb'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('admhide',adminHidden)})}
 let hkOn=false;try{hkOn=localStorage.getItem('chessHotkeys')==='1'}catch(e){}
 function hkSet(v){hkOn=!!v;try{localStorage.setItem('chessHotkeys',hkOn?'1':'0')}catch(e){}
 const bt=document.querySelector('#adm [data-a="hk"]');if(bt)bt.textContent='Hotkeys: '+(hkOn?'ON':'OFF');
@@ -1484,6 +1481,9 @@ const k=e.key.length===1?e.key.toLowerCase():'';if(!k||!'hbfwlraß'.includes(k))
 if(k==='r'&&!e.shiftKey)return;e.preventDefault();hkAct(k,e.shiftKey)});
 window.admin=function(code){if(code!==ADMIN_CODE){console.warn('Access denied');return}isOwner=true;try{localStorage.setItem('chessOwner','1')}catch(e){}openPanel();hideUI(false);return'Access granted'};
 
+{const ab2=document.createElement('button');ab2.id='admab';ab2.title='Show all best moves';ab2.setAttribute('aria-label','Show all best moves');
+ab2.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 20L20 4"/><path d="M11 4h9v9"/><path d="M4 12l4-4"/></svg>';
+ab2.onclick=showAllBest;document.body.appendChild(ab2);admabSync()}
 let savedRaw=null;try{savedRaw=localStorage.getItem('chessGame')}catch(e){}
 start();restoreGame(savedRaw);
 /* 404 page (#404) */
