@@ -36,6 +36,7 @@ body{display:flex;align-items:center;justify-content:center;padding:var(--sbt) c
 .line b{font-weight:700}
 .elo{color:#a7a6a2;font-size:13px}
 #avP{position:relative;padding:0;overflow:hidden}
+#avA{padding:0;overflow:hidden}#avA img{object-fit:cover}
 #avI{width:100%;height:100%;padding:3px;box-sizing:border-box}
 #avI.img{padding:0}
 #avI img{width:100%;height:100%;object-fit:cover;display:block}
@@ -470,9 +471,9 @@ body.rvon #mvl .mr b[data-i]:not(.cur):hover{background:#3a3835}
 <aside id="side"><a class="sl" href="#home" data-nav="home" title="LuaChess"><img src="https://luachess.github.io/assets/luachess.png" alt="LuaChess"></a><nav id="nav"><a data-nav="home" href="#home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span>Home</span></a><a data-nav="play" href="#"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg><span>Play</span></a><a data-nav="profile" href="#profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.400 3.600-7 8-7s8 2.600 8 7"/></svg><span>Profile</span></a><a data-nav="settings" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></a></nav><a id="sp" data-nav="profile" href="#profile"></a></aside>
 <div id="home"></div>
 <div id="col">
-<div class="bar"><div class="av" id="avA"></div><div class="who"><div class="line"><b>Bot</b><span class="rk" id="rkA"></span><span class="elo" id="eloA"></span></div><div class="caps" id="capA"></div></div><div id="tabs"></div><div class="clk" id="clkA">0:00</div></div>
+<div class="bar"><div class="av" id="avA"></div><div class="who"><div class="line"><b id="nameA">Bot</b><span class="rk" id="rkA"></span><span class="elo" id="eloA"></span></div><div class="caps" id="capA"></div></div><div id="tabs"></div><div class="clk" id="clkA">0:00</div></div>
 <div id="wrap"><div id="board"></div><div id="pcs"></div><svg id="arr" viewBox="0 0 800 800"></svg></div>
-<div id="ov"><div class="card"><button id="ovx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="msg"></div><div id="sub"></div><div class="vs"><div class="pl"><div class="pav" id="ovP"></div><div class="pn" id="ovPn"></div><div class="pe" id="ovPe"></div></div><div class="vsx">vs</div><div class="pl"><div class="pav" id="ovA"></div><div class="pn">Bot</div><div class="pe" id="ovAe"></div></div></div><button id="next">Next round</button></div></div>
+<div id="ov"><div class="card"><button id="ovx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="msg"></div><div id="sub"></div><div class="vs"><div class="pl"><div class="pav" id="ovP"></div><div class="pn" id="ovPn"></div><div class="pe" id="ovPe"></div></div><div class="vsx">vs</div><div class="pl"><div class="pav" id="ovA"></div><div class="pn" id="ovAn">Bot</div><div class="pe" id="ovAe"></div></div></div><button id="next">Next round</button></div></div>
 <div class="bar"><div class="av" id="avP"><div id="avI"></div></div><input type="file" id="file" accept="image/*" hidden><div class="who"><div class="line"><b id="nameP">You</b><span id="ownB"></span><span class="rk" id="rkP"></span><span class="elo" id="eloP"></span></div><div class="caps" id="capP"></div></div><button id="nxt" title="Next round"><svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/></svg></button><a id="rs">Resign</a><div class="clk" id="clkP">0:00</div></div>
 </div>
 <div id="mv"><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="rvbar"><span id="rvt"></span><button class="rvbtn" id="rvfirst" title="First move"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 6l-8 6 8 6"/></svg></button><button class="rvbtn" id="rvp" title="Previous move (Left arrow)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span id="rvn"></span><button class="rvbtn" id="rvnx" title="Next move (Right arrow)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button><button class="rvbtn" id="rvlast" title="Last move"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 6l8 6-8 6"/></svg></button></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
@@ -820,10 +821,12 @@ co.innerHTML=h;co.style.cssText='position:absolute;inset:0;pointer-events:none;z
 const prem=document.createElement('div');prem.id='prem';prem.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:0';wrap.appendChild(prem);let pmv=null,preCancelAt=null;
 let meW=true,played=0;const vi=i=>meW?i:63-i,pcol=()=>meW?'w':'b';
 function coFlip(){const c=document.getElementById('co');if(!c)return;for(let i=0;i<8;i++)c.children[i].textContent=meW?8-i:i+1;for(let j=0;j<8;j++)c.children[8+j].textContent=meW?'abcdefgh'[j]:'hgfedcba'[j]}
-function applyFlip(){sqs.forEach((d,i)=>d.style.order=vi(i));coFlip();$('avA').innerHTML=pieceHTML(meW?'k':'K')}
+function applyFlip(){sqs.forEach((d,i)=>d.style.order=vi(i));coFlip();botPic()}
 const place=(e,i)=>{const v=vi(i);e.style.transform=`translate(${(v&7)*100}%,${(v>>3)*100}%)`};
 function mk(p,i){const e=document.createElement('div');e.className='pc';e.innerHTML=pieceHTML(p);place(e,i);pcs.appendChild(e);return e}
 const $=id=>document.getElementById(id);
+const NOAVATAR='https://luachess.github.io/assets/noavatar.png';
+let botName=randName();
 const VAL={p:1,n:3,b:3,r:5,q:9};let caps={w:[],b:[]};
 function capsHTML(list,adv){const o=list.slice().sort((x,y)=>VAL[y.toLowerCase()]-VAL[x.toLowerCase()]);
 return o.map(p=>`<span class="cpc">${pieceHTML(p)}</span>`).join('')+(adv>0?`<span class="adv">+${adv}</span>`:'')}
@@ -832,7 +835,7 @@ function setRank(el,elo){const r=RANKS.find(x=>elo>=x[0]);if(!r){el.textContent=
 function updInfo(){const adv=caps.w.reduce((s,p)=>s+VAL[p.toLowerCase()],0)-caps.b.reduce((s,p)=>s+VAL[p.toLowerCase()],0);
 {const a2=meW?adv:-adv;$('capP').innerHTML=capsHTML(meW?caps.w:caps.b,a2);$('capA').innerHTML=capsHTML(meW?caps.b:caps.w,-a2)}
 $('eloP').textContent=`(${myElo})`;$('eloA').textContent=`(${rvOn&&rvAi!=null?rvAi:aiElo})`;$('tabs').innerHTML=Object.keys(MODES).map(k=>`<a data-m="${k}" class="${k===mode?'on':''}">${MODES[k].n}</a>`).join('');setRank($('rkP'),myElo);setRank($('rkA'),rvOn&&rvAi!=null?rvAi:aiElo)}
-$('avA').innerHTML=pieceHTML('k');
+botPic();
 const isFurkan=s=>String(s).toLowerCase().replace(/[^a-z0-9]/g,'')==='furkan';
 let isOwner=false;try{isOwner=localStorage.getItem('chessOwner')==='1'}catch(e){}
 const BADGE='<svg class="own" viewBox="0 0 24 24"><title>Owner</title><rect width="24" height="24" rx="6" fill="#d9a441"/><path d="M4.5 16.5L3.500 8l4.800 3.800L12 5l3.700 6.800L20.500 8l-1 8.500z" fill="#fff"/><rect x="5" y="18" width="14" height="2" rx="1" fill="#fff"/></svg>';
@@ -841,10 +844,10 @@ function updOwn(){$('ownB').innerHTML=nameBadge(myName)}
 const toastEl=document.createElement('div');toastEl.id='toast';document.body.appendChild(toastEl);let toastT=0;
 function toast(t){toastEl.textContent=t;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),2600)}
 function randName(){const W=['Cake','Runner','Panda','Falcon','Maple','Tiger','Cloud','Rocket','Pepper','Wolf','Comet','Ginger','Shadow','Pixel','Lemon','Thunder','Otter','Ember','Cobra','Breeze','Knight','Mango','Raven','Storm','Biscuit','Jumper','Dragon','Pickle','Nova','Walnut','Hunter','Fox','Zebra','Blaze','Cricket','Sparrow','Rider','Frost','Badger','Muffin'];const a=W[Math.floor(Math.random()*W.length)];let b=W[Math.floor(Math.random()*W.length)];while(b===a)b=W[Math.floor(Math.random()*W.length)];return a+b+(Math.floor(Math.random()*900000)+100000)}
+function botPic(){$('nameA').textContent=botName;$('avA').innerHTML=`<img src="${NOAVATAR}" alt="">`}
 let myName=randName(),myPic=null;
 try{const p=JSON.parse(localStorage.getItem('chessProfile')||'null');if(p){myName=p.name||'You';myPic=p.pic||null}}catch(e){}
 function saveP(){try{localStorage.setItem('chessProfile',JSON.stringify({name:myName,pic:myPic}))}catch(e){}}
-const NOAVATAR='https://luachess.github.io/assets/noavatar.png';
 function showPic(){$('avI').className='img';$('avI').innerHTML=`<img src="${myPic||NOAVATAR}" alt="">`}
 $('nameP').textContent=myName;showPic();updOwn();
 $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),s=Math.min(im.width,im.height);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,128,128);myPic=c.toDataURL('image/jpeg',.85);saveP();showPic();if(profOpen)renderProfile()};im.src=r.result};r.readAsDataURL(f);e.target.value=''};
@@ -942,13 +945,13 @@ myElo=Math.max(100,old+Math.round(32*(sc-E)));if(res==='win'&&aiElo>old)myElo=Ma
 let t,c;if(res==='win'){t='You won';c='#81b64c'}else if(res==='loss'){t='You lost';c='#e0524a'}else{t='Draw';c='#fff'}
 const m=$('msg');m.textContent=t;m.style.color=c;$('sub').textContent=why;
 $('ovP').className='pav img';$('ovP').innerHTML=$('avI').innerHTML;$('ovPn').innerHTML=esc(myName)+nameBadge(myName);
-$('ovA').innerHTML=$('avA').innerHTML;
+$('ovA').className='pav img';$('ovA').innerHTML=$('avA').innerHTML;$('ovAn').textContent=botName;
 const dc=d>0?'#81b64c':d<0?'#e0524a':'#a7a6a2';
 $('ovPe').innerHTML=`${old} \u2192 ${myElo}<span class="d" style="color:${dc}">(${d>0?'+':''}${d})</span>`;
 $('ovAe').textContent=aiElo;
 ov.style.display='flex';updInfo()}
 document.getElementById('next').onclick=start;document.getElementById('ovx').onclick=()=>{ov.style.display='none';if(settled){$('nxt').style.display='flex';$('rs').style.display='none'}};$('nxt').onclick=start;
-function start(){pmv=null;closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;autoOn=false;autoDue=0;autoBtn();if(rvOn&&/^#review\//.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}rvOn=false;rvSw=false;rvH=false;rvSv=null;{const b=$('rvbar');if(b)b.style.display='none'}document.body.classList.remove('rvon');mvs=[];rmv=[];rvSt=null;rvIdx=0;rvCur=null;renderMoves();S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
+function start(){botName=randName();$('nameA').textContent=botName;pmv=null;closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;autoOn=false;autoDue=0;autoBtn();if(rvOn&&/^#review\//.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}rvOn=false;rvSw=false;rvH=false;rvSv=null;{const b=$('rvbar');if(b)b.style.display='none'}document.body.classList.remove('rvon');mvs=[];rmv=[];rvSt=null;rvIdx=0;rvCur=null;renderMoves();S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
 myElo=ratings[mode];const lo=Math.max(100,Math.round(myElo*.85)),hi=Math.max(lo+1,Math.round(myElo*1.65));aiElo=lo+Math.floor(Math.random()*(hi-lo+1));
 tw=tb=MODES[mode].t*1000;lastTick=Date.now();
 ov.style.display='none';$('nxt').style.display='none';$('rs').style.display='';clearFX();meW=played===0||forceWhite?true:Math.random()<.5;forceWhite=false;applyFlip();
@@ -981,7 +984,7 @@ if(tw<=0){tw=0;showClk();endGame(meW?'loss':'win','on time')}else if(tb<=0){tb=0
 /* profile page (#profile) */
 let games=[];try{games=JSON.parse(localStorage.getItem('chessGames')||'[]')||[]}catch(e){}
 let since=0;try{since=+localStorage.getItem('chessSince')||0;if(!since){since=Date.now();localStorage.setItem('chessSince',since)}}catch(e){since=Date.now()}
-function recordGame(res,why,d){games.unshift({r:res,m:mode,mv:Math.ceil((hist.length-1)/2),o:aiElo,d,w:why,t:Date.now(),rv:rvEnc(),cw:meW?1:0});games=games.slice(0,150);try{localStorage.setItem('chessGames',JSON.stringify(games))}catch(e){}}
+function recordGame(res,why,d){games.unshift({r:res,m:mode,mv:Math.ceil((hist.length-1)/2),o:aiElo,d,w:why,t:Date.now(),rv:rvEnc(),cw:meW?1:0,bn:botName});games=games.slice(0,150);try{localStorage.setItem('chessGames',JSON.stringify(games))}catch(e){}}
 const sq=(c,p)=>`<svg class="ic" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="${c}"/><path d="${p}" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`;
 const ICO={win:sq('#81b64c','M12 6v12M6 12h12'),loss:sq('#e0524a','M6 12h12'),draw:sq('#8b8987','M6 9h12M6 15h12')};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -991,7 +994,7 @@ function rkHTML(elo){const r=RANKS.find(x=>elo>=x[0]);return r?`<span class="rk"
 let pf='all';
 function renderProfile(){const G=pf==='all'?games:games.filter(g=>g.m===pf);const cnt={win:0,loss:0,draw:0};G.forEach(g=>{if(cnt[g.r]!==undefined)cnt[g.r]++});
 const lbl={win:'Won',loss:'Lost',draw:'Draw'},col=v=>v>0?'#81b64c':v<0?'#e0524a':'#a7a6a2',rcol={win:'#81b64c',loss:'#e0524a',draw:'#8b8987'};
-const row=g=>`<div class="gr" style="--rc:${col(g.d)}">${ICO[g.r]||''}<div class="gm"><div><b>${lbl[g.r]||''}</b> vs Bot (${g.o})</div><div class="gs">${MODES[g.m]?MODES[g.m].n:g.m} · in ${g.mv} ${g.mv===1?'move':'moves'} · ${esc(g.w)}</div></div><div class="gd"><b style="color:${col(g.d)}">${g.d>0?'+':''}${g.d}</b><div class="gs">${fd(g.t)}</div></div>${g.rv?`<button class="rvbtn" data-rv="${games.indexOf(g)}" title="Review game"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>`:''}</div>`;
+const row=g=>`<div class="gr" style="--rc:${col(g.d)}">${ICO[g.r]||''}<div class="gm"><div><b>${lbl[g.r]||''}</b> vs ${esc(g.bn||'Opponent')} (${g.o})</div><div class="gs">${MODES[g.m]?MODES[g.m].n:g.m} · in ${g.mv} ${g.mv===1?'move':'moves'} · ${esc(g.w)}</div></div><div class="gd"><b style="color:${col(g.d)}">${g.d>0?'+':''}${g.d}</b><div class="gs">${fd(g.t)}</div></div>${g.rv?`<button class="rvbtn" data-rv="${games.indexOf(g)}" title="Review game"><svg viewBox="0 0 24 24"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg></button>`:''}</div>`;
 const tot=G.length,wr=tot?Math.round(cnt.win/tot*100):0,pc=k=>tot?cnt[k]/tot*100:0;
 let st=0,sk=G.length?G[0].r:'';for(const g of G){if(g.r===sk)st++;else break}
 const stk=st>1&&sk!=='draw'?`<span>${st} ${sk==='win'?'win':'loss'} streak</span>`:'';
@@ -1022,7 +1025,7 @@ const m=promoMoves&&promoMoves.find(x=>x.p===b.dataset.p);closePromo();if(m)play
 const setEl=document.createElement('div');setEl.id='setpg';document.body.appendChild(setEl);
 const sameC=(a,b)=>a.toLowerCase()===b.toLowerCase();
 function applyPieces(){document.body.classList.toggle('blind',cfg.pieces==='blind');for(let i=0;i<64;i++){const B=rvOn?rvSt.L[rvIdx].b:S.b;if(els[i]&&B[i])els[i].innerHTML=pieceHTML(B[i])}
-$('avA').innerHTML=pieceHTML(meW?'k':'K');if(!myPic)showPic();updInfo();if(profOpen)renderProfile();{const hb=homeEl.querySelector('.hbd');if(hb)hb.innerHTML=homeBoard()}}
+botPic();if(!myPic)showPic();updInfo();if(profOpen)renderProfile();{const hb=homeEl.querySelector('.hbd');if(hb)hb.innerHTML=homeBoard()}}
 const SETICO={board:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18M3 12h18"/><path d="M3 3h9v9H3zM12 12h9v9h-9z"/>',pieces:'<circle cx="12" cy="7" r="3"/><path d="M10 21l1-8h2l1 8M8.5 13h7M7 21h10"/>',mate:'<path d="M4 19h16M5 19L3 7l5 4 4-6 4 6 5-4-2 12"/>',move:'<path d="M5 12h14M13 6l6 6-6 6"/>',sound:'<path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/>',game:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'};
 function renderSet(){
 const mini=(l,d)=>`<div class="mini">${Array.from({length:16},(_,i)=>`<i style="background:${((i>>2)+(i&3))%2?d:l}"></i>`).join('')}</div>`;
@@ -1174,7 +1177,7 @@ for(let k=0;k<64;k++)if(S.b[k]){els[k]=mk(S.b[k],k);els[k].style.animation='none
 $('rvbar').style.display='none';document.body.classList.remove('rvon');arrows=[];drawArrows();renderMoves();paint();updInfo();showClk();lastTick=Date.now();
 if(ch&&/^#review\//.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}navSync()}
 function rvOpenId(id){const g=games.find(x=>x.t===id&&x.rv);if(!g)return false;const R=rvBuild(rvDec(String(g.rv)));if(!R||R.L.length<2)return false;
-rvStart(R,g.cw!==0,({win:'Won',loss:'Lost',draw:'Draw'}[g.r]||'')+' vs Bot ('+g.o+')',true,g.o,g.w==='by resignation');return true}
+rvStart(R,g.cw!==0,({win:'Won',loss:'Lost',draw:'Draw'}[g.r]||'')+' vs '+(g.bn||'Opponent')+' ('+g.o+')',true,g.o,g.w==='by resignation');return true}
 $('rvfirst').onclick=()=>rvGo(0);$('rvlast').onclick=()=>rvGo(1e9);$('rvp').onclick=()=>rvGo(rvIdx-1);$('rvnx').onclick=()=>rvGo(rvIdx+1);function rvLeave(){const fh=rvH;rvExit(!fh);if(fh)openProfile()}
 
 prof.addEventListener('click',e=>{const b=e.target.closest('.rvbtn');if(!b)return;const g=games[+b.dataset.rv];if(!g||!g.rv)return;const h='#review/'+g.t;if(location.hash!==h)location.hash=h;else rvOpenId(g.t)});
