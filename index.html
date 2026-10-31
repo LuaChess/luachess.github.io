@@ -1201,9 +1201,171 @@ $('cRj').onclick=()=>b.remove();
 $('cAc').onclick=()=>{CONSENT=true;try{localStorage.setItem('chessConsent','1');save();saveP();saveCfg();localStorage.setItem('chessGames',JSON.stringify(games));localStorage.setItem('chessSince',since);saveGame();if(isOwner)localStorage.setItem('chessOwner','1')}catch(e){}b.remove()}})();
 /* admin / cheat panel: type admin('kingbeat') in the browser console */
 const ADMIN_CODE='kingbeat';
-function bestMove(){let b=null,bs=-1e9;for(const m of legal(S)){const v=-search(apply(S,m),2,-1e9,1e9);if(v>bs){bs=v;b=m}}return b}
+/* admin best-move engine (~2500+ ELO class): bitless 64-square board, make/unmake, zobrist TT, iterative deepening, PVS, null move, LMR, futility, quiescence, killers/history, tapered eval with pawn structure + king safety. Time budget depends on the mode. */
+const bestMove=(()=>{
+const MATE=30000,INF=32000,MAXP=96,TTB=20,TTM=(1<<TTB)-1;
+const PV=[0,100,320,330,500,900,0],EGV=[0,120,320,340,520,920,0];
+const T_P=[0,0,0,0,0,0,0,0,50,50,50,50,50,50,50,50,10,10,20,30,30,20,10,10,5,5,10,25,25,10,5,5,0,0,0,20,20,0,0,0,5,-5,-10,0,0,-10,-5,5,5,10,10,-20,-20,10,10,5,0,0,0,0,0,0,0,0];
+const T_N=[-50,-40,-30,-30,-30,-30,-40,-50,-40,-20,0,0,0,0,-20,-40,-30,0,10,15,15,10,0,-30,-30,5,15,20,20,15,5,-30,-30,0,15,20,20,15,0,-30,-30,5,10,15,15,10,5,-30,-40,-20,0,5,5,0,-20,-40,-50,-40,-30,-30,-30,-30,-40,-50];
+const T_B=[-20,-10,-10,-10,-10,-10,-10,-20,-10,0,0,0,0,0,0,-10,-10,0,5,10,10,5,0,-10,-10,5,5,10,10,5,5,-10,-10,0,10,10,10,10,0,-10,-10,10,10,10,10,10,10,-10,-10,5,0,0,0,0,5,-10,-20,-10,-10,-10,-10,-10,-10,-20];
+const T_R=[0,0,0,0,0,0,0,0,5,10,10,10,10,10,10,5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,-5,0,0,0,0,0,0,-5,0,0,0,5,5,0,0,0];
+const T_Q=[-20,-10,-10,-5,-5,-10,-10,-20,-10,0,0,0,0,0,0,-10,-10,0,5,5,5,5,0,-10,-5,0,5,5,5,5,0,-5,0,0,5,5,5,5,0,-5,-10,5,5,5,5,5,0,-10,-10,0,5,0,0,0,0,-10,-20,-10,-10,-5,-5,-10,-10,-20];
+const T_KM=[-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-30,-40,-40,-50,-50,-40,-40,-30,-20,-30,-30,-40,-40,-30,-30,-20,-10,-20,-20,-20,-20,-20,-20,-10,20,20,0,0,0,0,20,20,20,30,10,0,0,10,30,20];
+const T_KE=[-50,-40,-30,-20,-20,-30,-40,-50,-30,-20,-10,0,0,-10,-20,-30,-30,-10,20,30,30,20,-10,-30,-30,-10,30,40,40,30,-10,-30,-30,-10,30,40,40,30,-10,-30,-30,-10,20,30,30,20,-10,-30,-30,-30,0,0,0,0,-30,-30,-50,-30,-30,-30,-30,-30,-30,-50];
+const PST=[null,T_P,T_N,T_B,T_R,T_Q,T_KM];
+const PASS=[0,0,5,12,25,45,80,0];
+/* tables */
+const KN=[],KG=[],RAY=[];const DR=[-1,1,0,0,-1,-1,1,1],DC=[0,0,-1,1,-1,1,-1,1];
+for(let s=0;s<64;s++){const r=s>>3,c=s&7;KN[s]=[];KG[s]=[];RAY[s]=[];
+for(const[a,b]of[[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]]){const rr=r+a,cc=c+b;if(rr>=0&&rr<8&&cc>=0&&cc<8)KN[s].push(rr*8+cc)}
+for(let d=0;d<8;d++){const rr=r+DR[d],cc=c+DC[d];if(rr>=0&&rr<8&&cc>=0&&cc<8)KG[s].push(rr*8+cc);const ray=[];let x=rr,y=cc;while(x>=0&&x<8&&y>=0&&y<8){ray.push(x*8+y);x+=DR[d];y+=DC[d]}RAY[s].push(ray)}}
+const CRM=new Int8Array(64).fill(15);CRM[60]=12;CRM[63]=14;CRM[56]=13;CRM[4]=3;CRM[7]=11;CRM[0]=7;
+/* zobrist */
+let seed=0x9e3779b9;const rnd=()=>{seed^=seed<<13;seed^=seed>>>17;seed^=seed<<5;return seed|0};
+const ZPl=new Int32Array(13*64),ZPh=new Int32Array(13*64),ZCl=new Int32Array(16),ZCh=new Int32Array(16),ZEl=new Int32Array(8),ZEh=new Int32Array(8);
+for(let i=0;i<13*64;i++){ZPl[i]=rnd();ZPh[i]=rnd()}for(let i=0;i<16;i++){ZCl[i]=rnd();ZCh[i]=rnd()}for(let i=0;i<8;i++){ZEl[i]=rnd();ZEh[i]=rnd()}const ZSl=rnd(),ZSh=rnd();
+/* state */
+const B=new Int8Array(64),KS=[0,0];let stm=1,cr=0,ep=-1,hm=0,hlo=0,hhi=0,sp=0;
+const Ucap=new Int8Array(512),Ucr=new Int8Array(512),Uep=new Int8Array(512),Uhm=new Int16Array(512),Uhl=new Int32Array(512),Uhh=new Int32Array(512),HL=new Int32Array(512),HH=new Int32Array(512);
+const MV=new Int32Array(MAXP*256),SC=new Int32Array(MAXP*256);
+const TTk=new Int32Array(1<<TTB),TTd=new Int8Array(1<<TTB),TTf=new Int8Array(1<<TTB),TTs=new Int32Array(1<<TTB),TTm=new Int32Array(1<<TTB);
+const KIL=new Int32Array(MAXP*2),HIST=new Int32Array(2*64*64);
+let nodes=0,stop=false,tEnd=0,rootBest=0;
+function attacked(sq,by){const r=sq>>3,c=sq&7;
+if(by===1){if(r<7){if(c>0&&B[sq+7]===1)return true;if(c<7&&B[sq+9]===1)return true}}else{if(r>0){if(c>0&&B[sq-9]===-1)return true;if(c<7&&B[sq-7]===-1)return true}}
+const kn=KN[sq],n2=2*by;for(let i=0;i<kn.length;i++)if(B[kn[i]]===n2)return true;
+const kg=KG[sq],k6=6*by;for(let i=0;i<kg.length;i++)if(B[kg[i]]===k6)return true;
+const ry=RAY[sq],r4=4*by,q5=5*by,b3=3*by;
+for(let d=0;d<4;d++){const ray=ry[d];for(let i=0;i<ray.length;i++){const p=B[ray[i]];if(p){if(p===r4||p===q5)return true;break}}}
+for(let d=4;d<8;d++){const ray=ry[d];for(let i=0;i<ray.length;i++){const p=B[ray[i]];if(p){if(p===b3||p===q5)return true;break}}}
+return false}
+const inChk=side=>attacked(KS[side>0?0:1],-side);
+const mk=(f,t,pr,fl)=>f|(t<<6)|(pr<<12)|(fl<<15);
+function gen(ply,qo){const base=ply*256;let n=base;const w=stm===1;
+for(let f=0;f<64;f++){const p=B[f];if(!p||(p>0)!==w)continue;const a=p>0?p:-p,r=f>>3,c=f&7;
+if(a===1){const one=w?f-8:f+8,pre=w?r===1:r===6;
+if(B[one]===0){if(pre){MV[n++]=mk(f,one,5,0);if(!qo){MV[n++]=mk(f,one,2,0);MV[n++]=mk(f,one,4,0);MV[n++]=mk(f,one,3,0)}}else if(!qo){MV[n++]=mk(f,one,0,0);if(w?r===6:r===1){const two=w?f-16:f+16;if(B[two]===0)MV[n++]=mk(f,two,0,4)}}}
+for(let dc=-1;dc<=1;dc+=2){const cc=c+dc;if(cc<0||cc>7)continue;const t=one+dc,q=B[t];
+if(q&&(q>0)!==w){if(pre){MV[n++]=mk(f,t,5,0);if(!qo){MV[n++]=mk(f,t,2,0);MV[n++]=mk(f,t,4,0);MV[n++]=mk(f,t,3,0)}}else MV[n++]=mk(f,t,0,0)}
+else if(t===ep&&!q)MV[n++]=mk(f,t,0,1)}}
+else if(a===2){const kn=KN[f];for(let i=0;i<kn.length;i++){const t=kn[i],q=B[t];if(q===0){if(!qo)MV[n++]=mk(f,t,0,0)}else if((q>0)!==w)MV[n++]=mk(f,t,0,0)}}
+else if(a===6){const kg=KG[f];for(let i=0;i<kg.length;i++){const t=kg[i],q=B[t];if(q===0){if(!qo)MV[n++]=mk(f,t,0,0)}else if((q>0)!==w)MV[n++]=mk(f,t,0,0)}
+if(!qo){if(w){if(f===60&&!attacked(60,-1)){if((cr&1)&&!B[61]&&!B[62]&&B[63]===4&&!attacked(61,-1)&&!attacked(62,-1))MV[n++]=mk(60,62,0,2);if((cr&2)&&!B[59]&&!B[58]&&!B[57]&&B[56]===4&&!attacked(59,-1)&&!attacked(58,-1))MV[n++]=mk(60,58,0,3)}}
+else if(f===4&&!attacked(4,1)){if((cr&4)&&!B[5]&&!B[6]&&B[7]===-4&&!attacked(5,1)&&!attacked(6,1))MV[n++]=mk(4,6,0,2);if((cr&8)&&!B[3]&&!B[2]&&!B[1]&&B[0]===-4&&!attacked(3,1)&&!attacked(2,1))MV[n++]=mk(4,2,0,3)}}}
+else{const s0=a===3?4:0,s1=a===4?4:8,ry=RAY[f];for(let d=s0;d<s1;d++){const ray=ry[d];for(let i=0;i<ray.length;i++){const t=ray[i],q=B[t];if(q===0){if(!qo)MV[n++]=mk(f,t,0,0)}else{if((q>0)!==w)MV[n++]=mk(f,t,0,0);break}}}}}
+return n-base}
+function make(m){const f=m&63,t=(m>>6)&63,pr=(m>>12)&7,fl=(m>>15)&7;const p=B[f];let cap=B[t];
+Ucr[sp]=cr;Uep[sp]=ep;Uhm[sp]=hm;Uhl[sp]=hlo;Uhh[sp]=hhi;
+if(ep>=0){hlo^=ZEl[ep&7];hhi^=ZEh[ep&7]}hlo^=ZCl[cr];hhi^=ZCh[cr];
+let i=(p+6)*64+f;hlo^=ZPl[i];hhi^=ZPh[i];
+if(cap){i=(cap+6)*64+t;hlo^=ZPl[i];hhi^=ZPh[i]}
+if(fl===1){const cs=t+(p>0?8:-8);cap=B[cs];B[cs]=0;i=(cap+6)*64+cs;hlo^=ZPl[i];hhi^=ZPh[i]}
+Ucap[sp]=cap;
+const np=pr?(p>0?pr:-pr):p;B[f]=0;B[t]=np;i=(np+6)*64+t;hlo^=ZPl[i];hhi^=ZPh[i];
+if(fl===2||fl===3){const rf=fl===2?t+1:t-2,rt=fl===2?t-1:t+1,rp=B[rf];B[rf]=0;B[rt]=rp;i=(rp+6)*64+rf;hlo^=ZPl[i];hhi^=ZPh[i];i=(rp+6)*64+rt;hlo^=ZPl[i];hhi^=ZPh[i]}
+if(p===6)KS[0]=t;else if(p===-6)KS[1]=t;
+cr&=CRM[f]&CRM[t];ep=fl===4?(f+t)>>1:-1;hm=(p===1||p===-1||cap)?0:hm+1;
+stm=-stm;hlo^=ZSl;hhi^=ZSh;hlo^=ZCl[cr];hhi^=ZCh[cr];if(ep>=0){hlo^=ZEl[ep&7];hhi^=ZEh[ep&7]}
+sp++;HL[sp]=hlo;HH[sp]=hhi}
+function unmake(m){sp--;const f=m&63,t=(m>>6)&63,pr=(m>>12)&7,fl=(m>>15)&7;stm=-stm;const p=pr?stm:B[t],cap=Ucap[sp];
+B[f]=p;if(fl===1){B[t]=0;B[t+(p>0?8:-8)]=cap}else B[t]=cap;
+if(fl===2||fl===3){const rf=fl===2?t+1:t-2,rt=fl===2?t-1:t+1;B[rf]=B[rt];B[rt]=0}
+if(p===6)KS[0]=f;else if(p===-6)KS[1]=f;
+cr=Ucr[sp];ep=Uep[sp];hm=Uhm[sp];hlo=Uhl[sp];hhi=Uhh[sp]}
+const wp=new Int8Array(8),bp=new Int8Array(8),wmin=new Int8Array(8),bmax=new Int8Array(8),wmaxr=new Int8Array(8),bminr=new Int8Array(8);
+function evalPos(){let mg=0,eg=0,ph=0;wp.fill(0);bp.fill(0);wmin.fill(9);bmax.fill(-1);wmaxr.fill(-1);bminr.fill(9);
+let wb=0,bb=0,wrm=0,brm=0;
+for(let s=0;s<64;s++){const p=B[s];if(!p)continue;const a=p>0?p:-p,r=s>>3,c=s&7;
+if(p>0){const i=s;mg+=PV[a]+PST[a][i];eg+=EGV[a]+(a===6?T_KE[i]:PST[a][i]);
+if(a===1){wp[c]++;if(r<wmin[c])wmin[c]=r;if(r>wmaxr[c])wmaxr[c]=r}else if(a===3)wb++;else if(a===4)wrm|=1<<c;
+if(a>1&&a<6)ph+=a===5?4:a===4?2:1}
+else{const i=s^56;mg-=PV[a]+PST[a][i];eg-=EGV[a]+(a===6?T_KE[i]:PST[a][i]);
+if(a===1){bp[c]++;if(r>bmax[c])bmax[c]=r;if(r<bminr[c])bminr[c]=r}else if(a===3)bb++;else if(a===4)brm|=1<<c;
+if(a>1&&a<6)ph+=a===5?4:a===4?2:1}}
+if(ph>24)ph=24;
+if(wb>1){mg+=30;eg+=45}if(bb>1){mg-=30;eg-=45}
+/* pawn structure */
+for(let c=0;c<8;c++){
+if(wp[c]){if(wp[c]>1){mg-=10*(wp[c]-1);eg-=18*(wp[c]-1)}const iso=(c===0||!wp[c-1])&&(c===7||!wp[c+1]);if(iso){mg-=10;eg-=14}
+/* passed: most advanced white pawn on file = smallest row; no black pawn ahead (row<r) on files c-1..c+1 */
+const r=wmin[c];let pass=true;for(let d=-1;d<=1;d++){const x=c+d;if(x<0||x>7)continue;if(bp[x]&&bminr[x]<r){pass=false;break}}
+if(pass){const k=PASS[7-r];mg+=k>>1;eg+=k+(7-r)*3}}
+if(bp[c]){if(bp[c]>1){mg+=10*(bp[c]-1);eg+=18*(bp[c]-1)}const iso=(c===0||!bp[c-1])&&(c===7||!bp[c+1]);if(iso){mg+=10;eg+=14}
+const r=bmax[c];let pass=true;for(let d=-1;d<=1;d++){const x=c+d;if(x<0||x>7)continue;if(wp[x]&&wmaxr[x]>r){pass=false;break}}
+if(pass){const k=PASS[r];mg-=k>>1;eg-=k+r*3}}}
+for(let c=0;c<8;c++){if(wrm>>c&1&&!wp[c]){mg+=bp[c]?10:22;eg+=bp[c]?8:14}if(brm>>c&1&&!bp[c]){mg-=wp[c]?10:22;eg-=wp[c]?8:14}}
+/* king safety: pawn shield (middlegame only) */
+{const k=KS[0],kr=k>>3,kc=k&7;if(kr>=6){let s=0;for(let d=-1;d<=1;d++){const x=kc+d;if(x<0||x>7)continue;if(B[(kr-1)*8+x]===1)s+=10;else if(kr>=2&&B[(kr-2)*8+x]===1)s+=5;else s-=8}mg+=s}
+const k2=KS[1],kr2=k2>>3,kc2=k2&7;if(kr2<=1){let s=0;for(let d=-1;d<=1;d++){const x=kc2+d;if(x<0||x>7)continue;if(B[(kr2+1)*8+x]===-1)s+=10;else if(kr2<=5&&B[(kr2+2)*8+x]===-1)s+=5;else s-=8}mg-=s}}
+const v=((mg*ph+eg*(24-ph))/24)|0;return(stm===1?v:-v)+8}
+function score(ply,n,ttm){const base=ply*256,side=stm>0?0:1;for(let i=base;i<base+n;i++){const m=MV[i],f=m&63,t=(m>>6)&63,pr=(m>>12)&7,p=B[f],a=p>0?p:-p,q=B[t],qa=q>0?q:-q;let s=0;
+if(m===ttm)s=2000000;else if(q||((m>>15)&7)===1){const va=((m>>15)&7)===1?1:qa;s=1000000+va*16-a+(pr===5?800:0)}
+else if(pr)s=pr===5?990000:100;
+else if(m===KIL[ply*2])s=900000;else if(m===KIL[ply*2+1])s=800000;else s=HIST[side*4096+f*64+t];
+SC[i]=s}}
+function pick(base,n,i){let b=i;for(let j=i+1;j<n;j++)if(SC[base+j]>SC[base+b])b=j;if(b!==i){let x=MV[base+i];MV[base+i]=MV[base+b];MV[base+b]=x;x=SC[base+i];SC[base+i]=SC[base+b];SC[base+b]=x}return MV[base+i]}
+function qs(a,b,ply){if((++nodes&2047)===0&&performance.now()>tEnd)stop=true;if(stop)return 0;
+const st=evalPos();if(ply>=MAXP-2)return st;if(st>=b)return st;if(st>a)a=st;
+const n=gen(ply,true),base=ply*256;score(ply,n,0);let best=st;
+for(let i=0;i<n;i++){const m=pick(base,n,i),t=(m>>6)&63,pr=(m>>12)&7,q=B[t],qa=q>0?q:-q;
+if(!pr&&st+PV[qa]+200<a&&((m>>15)&7)!==1)continue;
+const mover=stm;make(m);if(inChk(mover)){unmake(m);continue}
+const v=-qs(-b,-a,ply+1);unmake(m);if(stop)return 0;
+if(v>best){best=v;if(v>a){a=v;if(a>=b)break}}}
+return best}
+function ab(d,a,b,ply,pv,nullOK){if((++nodes&2047)===0&&performance.now()>tEnd)stop=true;if(stop)return 0;
+if(ply>0){if(hm>=100)return 0;for(let i=sp-2;i>=0&&i>=sp-hm;i-=2)if(HL[i]===hlo&&HH[i]===hhi)return 0;if(ply>=MAXP-3)return evalPos()}
+const chk=inChk(stm);if(chk&&ply<MAXP-6)d++;
+if(d<=0)return qs(a,b,ply);
+const oa=a;let ttm=0;const ix=hlo&TTM;
+if(TTk[ix]===hhi&&(TTm[ix]|TTd[ix]|TTs[ix])){ttm=TTm[ix];if(ply>0&&TTd[ix]>=d&&!pv){let s=TTs[ix];if(s>MATE-200)s-=ply;else if(s<-MATE+200)s+=ply;const f=TTf[ix];if(f===0)return s;if(f===1&&s>=b)return s;if(f===2&&s<=a)return s}}
+let se=-INF;if(!chk){se=evalPos();
+if(!pv&&d<=3&&se-110*d>=b&&b>-MATE+300&&b<MATE-300)return se;
+if(!pv&&nullOK&&d>=3&&se>=b){let np=false;const o=stm>0?1:-1;for(let s=0;s<64;s++){const p=B[s]*o;if(p>1&&p<6){np=true;break}}
+if(np){Ucr[sp]=cr;Uep[sp]=ep;Uhm[sp]=hm;Uhl[sp]=hlo;Uhh[sp]=hhi;if(ep>=0){hlo^=ZEl[ep&7];hhi^=ZEh[ep&7]}ep=-1;stm=-stm;hlo^=ZSl;hhi^=ZSh;sp++;HL[sp]=hlo;HH[sp]=hhi;
+const v=-ab(d-3-(d>6?1:0),-b,-b+1,ply+1,false,false);
+sp--;stm=-stm;cr=Ucr[sp];ep=Uep[sp];hm=Uhm[sp];hlo=Uhl[sp];hhi=Uhh[sp];
+if(stop)return 0;if(v>=b)return v>MATE-300?b:v}}}
+const n=gen(ply,false),base=ply*256;score(ply,n,ttm);
+let best=-INF,bm=0,legalN=0;const side=stm>0?0:1,mover=stm;
+for(let i=0;i<n;i++){const m=pick(base,n,i);const f=m&63,t=(m>>6)&63,pr=(m>>12)&7,fl=(m>>15)&7;const quiet=!B[t]&&!pr&&fl!==1;
+make(m);if(inChk(mover)){unmake(m);continue}legalN++;
+const gives=inChk(-mover);
+if(!pv&&quiet&&!chk&&!gives&&legalN>1&&d<=3){if(se+90+120*d<=a){unmake(m);continue}if(d<=2&&legalN>6+4*d){unmake(m);continue}}
+let v;
+if(legalN===1)v=-ab(d-1,-b,-a,ply+1,pv,true);
+else{let red=0;if(d>=3&&quiet&&!chk&&!gives&&legalN>3){red=1+(legalN>8?1:0)+(d>7?1:0);if(pv)red--;if(HIST[side*4096+f*64+t]>2000)red--;if(red<0)red=0;if(red>d-2)red=d-2}
+v=-ab(d-1-red,-a-1,-a,ply+1,false,true);
+if(v>a&&red>0)v=-ab(d-1,-a-1,-a,ply+1,false,true);
+if(v>a&&v<b)v=-ab(d-1,-b,-a,ply+1,true,true)}
+unmake(m);if(stop)return 0;
+if(v>best){best=v;bm=m;if(ply===0)rootBest=m;if(v>a){a=v;if(a>=b){if(quiet){if(KIL[ply*2]!==m){KIL[ply*2+1]=KIL[ply*2];KIL[ply*2]=m}HIST[side*4096+f*64+t]+=d*d;if(HIST[side*4096+f*64+t]>60000)for(let k=0;k<HIST.length;k++)HIST[k]>>=1}break}}}}
+if(!legalN)return chk?-MATE+ply:0;
+let s=best;if(s>MATE-200)s+=ply;else if(s<-MATE+200)s-=ply;
+TTk[ix]=hhi;TTd[ix]=d>127?127:d;TTf[ix]=best<=oa?2:best>=b?1:0;TTs[ix]=s;TTm[ix]=bm;
+return best}
+const PC={p:1,n:2,b:3,r:4,q:5,k:6};
+function hashKey(k){let lo=0,hi=0;for(let s=0;s<64;s++){const ch=k[s];if(ch!=='.'){let v=PC[ch.toLowerCase()];if(ch>='a')v=-v;const i=(v+6)*64+s;lo^=ZPl[i];hi^=ZPh[i]}}
+if(k[64]==='b'){lo^=ZSl;hi^=ZSh}const mm=/([KQkq]*)(-?\d+)$/.exec(k.slice(65));let c=0;if(mm)for(const ch of mm[1])c|=ch==='K'?1:ch==='Q'?2:ch==='k'?4:8;lo^=ZCl[c];hi^=ZCh[c];const e=mm?+mm[2]:-1;if(e>=0){lo^=ZEl[e&7];hi^=ZEh[e&7]}return[lo,hi]}
+function load(){stm=S.t==='w'?1:-1;cr=(S.c.K?1:0)|(S.c.Q?2:0)|(S.c.k?4:0)|(S.c.q?8:0);ep=S.ep>=0?S.ep:-1;hm=S.hm||0;hlo=0;hhi=0;
+for(let s=0;s<64;s++){const ch=S.b[s];let v=0;if(ch){v=PC[ch.toLowerCase()];if(ch<'a')v=v;else v=-v;if(v===6)KS[0]=s;if(v===-6)KS[1]=s;B[s]=v;const i=(v+6)*64+s;hlo^=ZPl[i];hhi^=ZPh[i]}else B[s]=0}
+if(stm===-1){hlo^=ZSl;hhi^=ZSh}hlo^=ZCl[cr];hhi^=ZCh[cr];if(ep>=0){hlo^=ZEl[ep&7];hhi^=ZEh[ep&7]}let off=0;try{if(typeof hist!=='undefined'&&hist&&hist.length>1){const n=hist.length;off=Math.min(n-1,Math.min(hm,150));for(let j=1;j<=off;j++){const h=hashKey(String(hist[n-1-j]));HL[off-j]=h[0];HH[off-j]=h[1]}}}catch(e){off=0}
+sp=off;HL[sp]=hlo;HH[sp]=hhi}
+return function bestMove(ms){
+const ml=legal(S);if(!ml.length)return null;if(ml.length===1)return ml[0];
+const bud=ms||({bullet:350,blitz:700,rapid:1500}[mode]||700);
+load();stop=false;nodes=0;KIL.fill(0);for(let i=0;i<HIST.length;i++)HIST[i]>>=2;
+const t0=performance.now();tEnd=t0+bud;rootBest=0;let best=0;
+for(let d=1;d<=40;d++){rootBest=0;const sc=ab(d,-INF,INF,0,true,false);if(stop){if(rootBest&&d>1)best=rootBest;else if(!best)best=rootBest;break}
+if(rootBest)best=rootBest;
+if(sc>MATE-100||sc<-MATE+100)break;
+if(performance.now()-t0>bud*.42)break}
+if(!best){const ix=hlo&TTM;best=TTm[ix]}
+const f=best&63,t=(best>>6)&63,pr=(best>>12)&7;const pl=pr?'..nbrq'[pr]:'';
+for(const m of ml){if(m.f===f&&m.t===t&&(m.p?m.p.toLowerCase():'')===pl)return m}
+return ml[0]}})();
 const PNM={p:'Pawn',n:'Knight',b:'Bishop',r:'Rook',q:'Queen',k:'King'};
-function speakBest(){if(over||thinking||S.t!==pcol()||!('speechSynthesis' in window))return;let m=bestMove();if(!m)return;{const end=performance.now()+2000,ml=legal(S);for(let d=3;d<=10;d++){let b=null,bs=-1e9,ok=true;for(const x of ml){if(performance.now()>end){ok=false;break}const v=-search(apply(S,x),d,-1e9,1e9);if(v>bs){bs=v;b=x}}if(!ok)break;m=b}}const t='Move '+PNM[S.b[m.f].toLowerCase()]+' from '+SQN(m.f).toUpperCase()+' to '+SQN(m.t).toUpperCase()+(m.p?' and promote to '+PNM[m.p.toLowerCase()]:'');const u=new SpeechSynthesisUtterance(t);u.lang='en-US';speechSynthesis.cancel();speechSynthesis.speak(u)}
+function speakBest(){if(over||thinking||S.t!==pcol()||!('speechSynthesis' in window))return;let m=bestMove(2000);if(!m)return;const t='Move '+PNM[S.b[m.f].toLowerCase()]+' from '+SQN(m.f).toUpperCase()+' to '+SQN(m.t).toUpperCase()+(m.p?' and promote to '+PNM[m.p.toLowerCase()]:'');const u=new SpeechSynthesisUtterance(t);u.lang='en-US';speechSynthesis.cancel();speechSynthesis.speak(u)}
 function forceEnd(win){endGame(win?'win':'loss','by admin')}
 let fakeOn=true,fakeBusy=false,fmPos=null,fmLoop=false;
 /* autoplay: plays the whole current match with best moves; pace depends on the mode; turns itself off when the next match starts */
@@ -1219,7 +1381,7 @@ fm.innerHTML='<svg class="a" viewBox="0 0 24 24"><path d="M3 2l17 8-7 2-3 7z" fi
 function fmHover(){const fm=$('fm');if(!fm||fm.style.display==='none'||!fmPos){fmLoop=false;return}
 const el=document.elementFromPoint(fmPos[0],fmPos[1]);fm.classList.toggle('hand',!!el&&getComputedStyle(el).cursor==='pointer');requestAnimationFrame(fmHover)}
 const fmEase=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
-function fmGlide(fm,to){return new Promise(res=>{const from=fmPos,dx=to[0]-from[0],dy=to[1]-from[1],dist=Math.hypot(dx,dy)||1,dur=Math.min(480,200+dist*.25);
+function fmGlide(fm,to){return new Promise(res=>{const from=fmPos,dx=to[0]-from[0],dy=to[1]-from[1],dist=Math.hypot(dx,dy)||1,dur=Math.min(480,200+dist*.25)*(mode==='bullet'?.7:1);
 const nx=-dy/dist,ny=dx/dist,off=(Math.random()<.5?-1:1)*dist*(.08+Math.random()*.14),cx=from[0]+dx/2+nx*off,cy=from[1]+dy/2+ny*off,ph=Math.random()*6.28,t0=performance.now();
 const step=now=>{const t=Math.min(1,(now-t0)/dur),e=fmEase(t),u=1-e;
 let x=u*u*from[0]+2*u*e*cx+e*e*to[0],y=u*u*from[1]+2*u*e*cy+e*e*to[1];
