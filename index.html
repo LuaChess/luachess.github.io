@@ -361,6 +361,9 @@ body{height:auto;min-height:100%;flex-direction:column;justify-content:center;ga
 #admb:active{cursor:grabbing}
 .admhide{display:none!important}
 #admb svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+#admab{display:none;position:fixed;right:10px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:99;width:46px;height:46px;border-radius:50%;background:#262421;border:1.5px solid #3b82f6;color:#5a98f8;align-items:center;justify-content:center;padding:0;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+#admab svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+@media (max-width:760px){#admab{display:flex}}
 
 .ph{background:#262421;border-radius:8px;padding:16px;margin-bottom:10px}
 .pw .back{align-items:center;gap:4px;font:inherit;font-size:14px;font-weight:600;padding:6px 10px 6px 4px;margin:0 0 12px -4px;border-radius:6px}
@@ -863,13 +866,14 @@ $('tabs').onclick=e=>{const k=e.target.dataset.m;if(!k||k===mode||(over&&!settle
 let arrows=[],rc=null;const arr=$('arr');
 function sqAt(e){const r=boardEl.getBoundingClientRect(),c=Math.floor((e.clientX-r.left)/r.width*8),w=Math.floor((e.clientY-r.top)/r.height*8);return c<0||c>7||w<0||w>7?-1:vi(w*8+c)}
 let arrowCol={};const ARCOLS=['#3b82f6','#e0524a','#81b64c','#a855f7','#06b6d4','#ec4899'];
-function drawArrows(){let s='';for(const k in arrowCol)if(arrows.indexOf(k)<0)delete arrowCol[k];for(const k of arrows){const AC=arrowCol[k]||'rgb(255,170,0)';const[f,t]=k.split('-').map(Number).map(vi),fx=(f&7)*100+50,fy=(f>>3)*100+50;
+let arrowNum=false;
+function drawArrows(){let s='';if(!arrows.length)arrowNum=false;const NUMT=(k,x,y)=>arrowNum?`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="26" font-weight="800" font-family="system-ui,sans-serif" fill="#fff" stroke="#000" stroke-opacity=".55" stroke-width="3" paint-order="stroke">${arrows.indexOf(k)+1}</text>`:'';for(const k in arrowCol)if(arrows.indexOf(k)<0)delete arrowCol[k];for(const k of arrows){const AC=arrowCol[k]||'rgb(255,170,0)';const[f,t]=k.split('-').map(Number).map(vi),fx=(f&7)*100+50,fy=(f>>3)*100+50;
 if(f===t){s+=`<circle cx="${fx}" cy="${fy}" r="46" fill="none" stroke="rgb(235,97,80)" stroke-width="7" opacity=".85"/>`;continue}
 const tx=(t&7)*100+50,ty=(t>>3)*100+50,kdc=Math.abs((t&7)-(f&7)),kdr=Math.abs((t>>3)-(f>>3));
 if(kdc*kdr===2){const hl=38,hz=kdc===2,cx=hz?tx:fx,cy=hz?fy:ty,dx=hz?0:Math.sign(tx-fx),dy=hz?Math.sign(ty-fy):0,lx=tx-dx*hl,ly=ty-dy*hl,px=hz?24:0,py=hz?0:24;
-s+=`<g opacity=".85"><path d="M${fx} ${fy}L${cx} ${cy}L${lx} ${ly}" fill="none" stroke="${AC}" stroke-width="16" stroke-linejoin="miter" stroke-linecap="butt"/><polygon fill="${AC}" points="${tx},${ty} ${lx+px},${ly+py} ${lx-px},${ly-py}"/></g>`;continue}
+s+=`<g opacity=".85"><path d="M${fx} ${fy}L${cx} ${cy}L${lx} ${ly}" fill="none" stroke="${AC}" stroke-width="16" stroke-linejoin="miter" stroke-linecap="butt"/><polygon fill="${AC}" points="${tx},${ty} ${lx+px},${ly+py} ${lx-px},${ly-py}"/></g>`+NUMT(k,tx-dx*24,ty-dy*24);continue}
 const a=Math.atan2(ty-fy,tx-fx),hl=38,bx=tx-Math.cos(a)*hl,by=ty-Math.sin(a)*hl,sx=fx+Math.cos(a)*20,sy=fy+Math.sin(a)*20,px=-Math.sin(a)*24,py=Math.cos(a)*24;
-s+=`<g opacity=".85" fill="${AC}"><line x1="${sx}" y1="${sy}" x2="${bx}" y2="${by}" stroke="${AC}" stroke-width="16" stroke-linecap="round"/><polygon points="${tx},${ty} ${bx+px},${by+py} ${bx-px},${by-py}"/></g>`}
+s+=`<g opacity=".85" fill="${AC}"><line x1="${sx}" y1="${sy}" x2="${bx}" y2="${by}" stroke="${AC}" stroke-width="16" stroke-linecap="round"/><polygon points="${tx},${ty} ${bx+px},${by+py} ${bx-px},${by-py}"/></g>`+NUMT(k,tx-Math.cos(a)*24,ty-Math.sin(a)*24)}
 arr.innerHTML=s}
 wrap.addEventListener('contextmenu',e=>e.preventDefault());
 wrap.addEventListener('mousedown',e=>{if(e.button===2){rc=sqAt(e);e.preventDefault()}else if(e.button===0&&arrows.length){arrows=[];drawArrows()}});
@@ -1425,7 +1429,7 @@ p.innerHTML=`<b style="color:#5a98f8">Admin panel</b><label>Your ELO<input id="a
 p.onclick=e=>{const a=e.target.dataset.a;if(!a)return;
 if(a==='set'){myElo=Math.max(0,+$('aE1').value||0);aiElo=Math.max(0,+$('aE2').value||0);ratings[mode]=myElo;save();updInfo()}
 else if(a==='hint'){if(!over&&!thinking&&S.t===pcol()){const m=bestMove();if(m){arrows=[m.f+'-'+m.t];drawArrows()}}}
-else if(a==='allbest'){if(!over&&!thinking&&S.t===pcol()){atoast('Calculating best moves...');setTimeout(()=>{if(over||thinking)return;const bm=bestMove(),seen={},ms=(bm?[bm]:[]).concat(bestMovesAll()).filter(m=>{const k=m.f+'-'+m.t;return seen[k]?false:(seen[k]=1)});arrows=ms.map(m=>m.f+'-'+m.t);arrowCol={};{const V=bestMovesAll.vals||{},bk=bm?bm.f+'-'+bm.t:null,ref=bk&&V[bk]!=null?V[bk]:bestMovesAll.top;arrows.forEach((k,n)=>{if(n===0)return;const dl=Math.max(0,ref-(V[k]!=null?V[k]:ref-35)),f=1-.75*(.5*Math.min(1,dl/35)+.5*(n/Math.max(1,arrows.length-1)));arrowCol[k]='rgb('+Math.round(255*f)+','+Math.round(170*f)+',0)'})}drawArrows()},40)}}
+else if(a==='allbest'){if(!over&&!thinking&&S.t===pcol()){atoast('Calculating best moves...');setTimeout(()=>{if(over||thinking)return;const bm=bestMove(),seen={},ms=(bm?[bm]:[]).concat(bestMovesAll()).filter(m=>{const k=m.f+'-'+m.t;return seen[k]?false:(seen[k]=1)});arrows=ms.map(m=>m.f+'-'+m.t);arrowNum=true;arrowCol={};{const V=bestMovesAll.vals||{},bk=bm?bm.f+'-'+bm.t:null,ref=bk&&V[bk]!=null?V[bk]:bestMovesAll.top;arrows.forEach((k,n)=>{if(n===0)return;const dl=Math.max(0,ref-(V[k]!=null?V[k]:ref-35)),f=1-.75*(.5*Math.min(1,dl/35)+.5*(n/Math.max(1,arrows.length-1)));arrowCol[k]='rgb('+Math.round(255*f)+','+Math.round(170*f)+',0)'})}drawArrows()},40)}}
 else if(a==='auto'){if(!over&&!thinking&&!fakeBusy&&S.t===pcol()){const m=bestMove();if(m){if(fakeOn){const r=e.target.getBoundingClientRect();fakeMove(m,lastMouse||[r.left+r.width/2,r.top+r.height/2])}else play(m)}}}
 else if(a==='speak')speakBest();
 else if(a==='auto2'){autoOn=!autoOn;autoDue=0;autoBtn();atoast(autoOn?'Autoplay on for this match':'Autoplay off')}
@@ -1448,14 +1452,19 @@ const l=b.offsetLeft,t=b.offsetTop;b.style.display='none';p.style.display='flex'
 const w=p.offsetWidth,h=p.offsetHeight;p.style.left=Math.min(Math.max(8,l+46-w),innerWidth-w-8)+'px';p.style.top=Math.min(Math.max(8,t),Math.max(8,innerHeight-h-8))+'px'};
 b.addEventListener('pointerup',endB);b.addEventListener('pointercancel',endB);
 addEventListener('resize',()=>{if(b.style.display!=='none')placeB(b.offsetLeft,b.offsetTop)});
-document.body.appendChild(p);document.body.appendChild(b)}
+document.body.appendChild(p);document.body.appendChild(b);
+const ab2=document.createElement('button');ab2.id='admab';ab2.title='Show all best moves';ab2.setAttribute('aria-label','Show all best moves');
+ab2.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 20L20 4"/><path d="M11 4h9v9"/><path d="M4 12l4-4"/></svg>';
+ab2.onclick=()=>{const t=p.querySelector('[data-a="allbest"]');if(t)t.click()};
+if(adminHidden)ab2.classList.add('admhide');
+document.body.appendChild(ab2)}
 /* admin hotkeys: enable them in the admin panel, then they work even while the panel is closed */
 /* fake mouse: a real click hides it, and it re-appears from the real mouse position */
 let lastMouse=null;
 addEventListener('pointermove',e=>{if(!e.isTrusted)return;const mv=!lastMouse||Math.hypot(e.clientX-lastMouse[0],e.clientY-lastMouse[1])>2;lastMouse=[e.clientX,e.clientY];if(mv){const f=$('fm');if(f&&f.style.display!=='none'){f.style.display='none';fmPos=null}}},true);
 addEventListener('pointerdown',e=>{if(!e.isTrusted)return;lastMouse=[e.clientX,e.clientY];const f=$('fm');if(f)f.style.display='none';fmPos=null},true);
 let adminHidden=false;
-function hideUI(v){adminHidden=!!v;['adm','admb'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('admhide',adminHidden)})}
+function hideUI(v){adminHidden=!!v;['adm','admb','admab'].forEach(id=>{const el=$(id);if(el)el.classList.toggle('admhide',adminHidden)})}
 let hkOn=false;try{hkOn=localStorage.getItem('chessHotkeys')==='1'}catch(e){}
 function hkSet(v){hkOn=!!v;try{localStorage.setItem('chessHotkeys',hkOn?'1':'0')}catch(e){}
 const bt=document.querySelector('#adm [data-a="hk"]');if(bt)bt.textContent='Hotkeys: '+(hkOn?'ON':'OFF');
