@@ -872,7 +872,7 @@ const snd={move:()=>playSnd('move'),cap:()=>playSnd('capture'),castle:()=>playSn
 /* ui */
 const boardEl=document.getElementById('board'),pcs=document.getElementById('pcs'),wrap=document.getElementById('wrap'),ov=document.getElementById('ov');
 let els=[],sqs=[],z=1;
-const MODES={bullet:{n:'Bullet',t:60,d:[200,800]},blitz:{n:'Blitz',t:180,d:[500,1800]},rapid:{n:'Rapid',t:600,d:[800,3000]}};
+const MODES={bullet:{n:'Bullet',t:60,d:[200,800]},blitz:{n:'Blitz',t:180,d:[1000,4000]},rapid:{n:'Rapid',t:600,d:[1000,14000]}};
 let ratings={bullet:100,blitz:100,rapid:100},mode='blitz';
 try{const d=JSON.parse(localStorage.getItem('chessElo3')||'null');if(d){if(d.ratings)for(const k in ratings)if(d.ratings[k]>=0)ratings[k]=d.ratings[k]|0;if(MODES[d.mode])mode=d.mode}}catch(e){}
 myElo=ratings[mode];
@@ -890,7 +890,7 @@ const place=(e,i)=>{const v=vi(i);e.style.transform=`translate(${(v&7)*100}%,${(
 function mk(p,i){const e=document.createElement('div');e.className='pc';e.innerHTML=pieceHTML(p);place(e,i);pcs.appendChild(e);return e}
 const $=id=>document.getElementById(id);
 const NOAVATAR='https://luachess.github.io/assets/noavatar.png';
-let botName=randName();let botAv=null,botAvTk=0;
+let botName=randName();let botAv=null,botAvTk=0,botLoad=false;
 const VAL={p:1,n:3,b:3,r:5,q:9};let caps={w:[],b:[]};
 function capsHTML(list,adv){const o=list.slice().sort((x,y)=>VAL[y.toLowerCase()]-VAL[x.toLowerCase()]);
 return o.map(p=>`<span class="cpc">${pieceHTML(p)}</span>`).join('')+(adv>0?`<span class="adv">+${adv}</span>`:'')}
@@ -912,16 +912,25 @@ let admPop=true;try{admPop=localStorage.getItem('chessAdmPopups')!=='0'}catch(e)
 function atoast(t){if(admPop)toast(t)}
 function randName(){const W=['Cake','Runner','Panda','Falcon','Maple','Tiger','Cloud','Rocket','Pepper','Wolf','Comet','Ginger','Shadow','Pixel','Lemon','Thunder','Otter','Ember','Cobra','Breeze','Knight','Mango','Raven','Storm','Biscuit','Jumper','Dragon','Pickle','Nova','Walnut','Hunter','Fox','Zebra','Blaze','Cricket','Sparrow','Rider','Frost','Badger','Muffin'];const a=W[Math.floor(Math.random()*W.length)];let b=W[Math.floor(Math.random()*W.length)];while(b===a)b=W[Math.floor(Math.random()*W.length)];return a+b+(Math.floor(Math.random()*900000)+100000)}
 function simAv(){$('avA').innerHTML=pieceHTML(meW?'k':'K');$('avI').className='';$('avI').innerHTML=pieceHTML(meW?'K':'k')}
-function botPic(){$('nameA').textContent=simOpen?(meW?'Black':'White'):botName;if(simOpen){simAv();return}$('avA').innerHTML=`<img src="${botAv||NOAVATAR}" alt="" referrerpolicy="no-referrer">`}
-/* bot avatar: a random Steam profile picture (highest quality, _full.jpg) taken from randomavatar.com */
-async function loadBotAv(){const tk=++botAvTk;botAv=null;
-const tryGet=async u=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),6000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)return'';return await r.text()}catch(e){return''}finally{clearTimeout(t)}};
-const find=h=>{const m=/https?:\/\/[^"'\s<>\\)]*steamstatic\.com\/steamcommunity\/public\/images\/avatars\/[0-9a-f]{2}\/([0-9a-f]{40})[^"'\s<>\\)]*\.jpg/i.exec(h||'');return m?'https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/'+m[1].slice(0,2)+'/'+m[1]+'_full.jpg':''};
-const load=u=>new Promise(res=>{const i=new Image();i.referrerPolicy='no-referrer';i.onload=()=>res(true);i.onerror=()=>res(false);i.src=u});
-for(let n=0;n<5&&tk===botAvTk;n++){const id=1+Math.floor(Math.random()*400000),page='https://randomavatar.com/avatar/'+id;
-for(const u of[page,'https://api.allorigins.win/raw?url='+encodeURIComponent(page)]){
-const url=find(await tryGet(u));if(tk!==botAvTk)return;
-if(url&&await load(url)){if(tk!==botAvTk)return;botAv=url;if(!simOpen)botPic();return}}}}
+function botPic(){$('nameA').textContent=simOpen?(meW?'Black':'White'):(botLoad?'':botName);if(simOpen){simAv();return}$('avA').innerHTML=botLoad?'':`<img src="${botAv||NOAVATAR}" alt="" onerror="this.onerror=null;this.src='${NOAVATAR}'">`}
+/* bot identity: username + avatar of a random streamer from api.chess.com/pub/streamers (list is fetched once and reused).
+   While it loads, the bot's name and picture stay empty so nothing flashes; a missing / "noavatar" picture uses the LuaChess default. */
+let streamerAv=null,streamerP=null;
+function ensureStreamers(){if(streamerAv)return Promise.resolve(streamerAv);if(streamerP)return streamerP;
+streamerP=(async()=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);try{const r=await fetch('https://api.chess.com/pub/streamers',{signal:c.signal});if(r.ok){const d=await r.json();streamerAv=(d.streamers||[]).filter(x=>x&&typeof x.username==='string'&&x.username.trim())}}catch(e){}finally{clearTimeout(t)}streamerP=null;return streamerAv})();return streamerP}
+const goodAv=u=>typeof u==='string'&&/^https?:\/\//.test(u)&&!/noavatar/i.test(u);
+async function loadBotAv(){const tk=++botAvTk;botAv=null;botLoad=true;let nm=null,av=null;
+try{const L=await ensureStreamers();
+if(L&&L.length){const s=L[Math.floor(Math.random()*L.length)],u=s.avatar;nm=s.username.trim();
+if(goodAv(u)&&await new Promise(res=>{const i=new Image();const t=setTimeout(()=>res(false),5000);i.onload=()=>{clearTimeout(t);res(true)};i.onerror=()=>{clearTimeout(t);res(false)};i.src=u}))av=u}}catch(e){}
+if(tk!==botAvTk)return;
+if(nm)botName=nm;botAv=av;botLoad=false;if(!simOpen)botPic();else $('nameA').textContent=meW?'Black':'White'}
+/* game review from the profile: show the opponent's picture (saved with the game, otherwise looked up by username, otherwise the LuaChess default) */
+let rvAvTk=0;
+async function rvBotAv(g){const tk=++rvAvTk;$('avA').innerHTML='';let u=goodAv(g.ba)?g.ba:'';
+if(!u&&g.bn){try{const L=await ensureStreamers(),n=String(g.bn).toLowerCase(),s=L&&L.find(x=>x.username.toLowerCase()===n);if(s&&goodAv(s.avatar))u=s.avatar}catch(e){}}
+if(tk!==rvAvTk||!rvOn)return;
+$('avA').innerHTML=`<img src="${esc(u||NOAVATAR)}" alt="" onerror="this.onerror=null;this.src='${NOAVATAR}'">`}
 let myName=randName(),myPic=null;
 try{const p=JSON.parse(localStorage.getItem('chessProfile')||'null');if(p){myName=p.name||'You';myPic=p.pic||null}}catch(e){}
 function saveP(){try{localStorage.setItem('chessProfile',JSON.stringify({name:myName,pic:myPic}))}catch(e){}}
@@ -1065,7 +1074,7 @@ if(tw<=0){tw=0;showClk();endGame(meW?'loss':'win','on time')}else if(tb<=0){tb=0
 /* profile page (#profile) */
 let games=[];try{games=JSON.parse(localStorage.getItem('chessGames')||'[]')||[]}catch(e){}
 let since=0;try{since=+localStorage.getItem('chessSince')||0;if(!since){since=Date.now();localStorage.setItem('chessSince',since)}}catch(e){since=Date.now()}
-function recordGame(res,why,d){games.unshift({r:res,m:mode,mv:Math.ceil((hist.length-1)/2),o:aiElo,d,w:why,t:Date.now(),rv:rvEnc(),cw:meW?1:0,bn:botName});games=games.slice(0,150);try{localStorage.setItem('chessGames',JSON.stringify(games))}catch(e){}}
+function recordGame(res,why,d){games.unshift({r:res,m:mode,mv:Math.ceil((hist.length-1)/2),o:aiElo,d,w:why,t:Date.now(),rv:rvEnc(),cw:meW?1:0,bn:botName,ba:botAv||''});games=games.slice(0,150);try{localStorage.setItem('chessGames',JSON.stringify(games))}catch(e){}}
 const sq=(c,p)=>`<svg class="ic" viewBox="0 0 24 24"><rect width="24" height="24" rx="4" fill="${c}"/><path d="${p}" stroke="#fff" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`;
 const ICO={win:sq('#81b64c','M12 6v12M6 12h12'),loss:sq('#e0524a','M6 12h12'),draw:sq('#8b8987','M6 9h12M6 15h12')};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -1341,7 +1350,7 @@ for(let k=0;k<64;k++)if(S.b[k]){els[k]=mk(S.b[k],k);els[k].style.animation='none
 $('rs').style.display=settled?'none':'';$('rvbar').style.display='none';document.body.classList.remove('rvon');arrows=[];drawArrows();renderMoves();paint();updInfo();showClk();lastTick=Date.now();
 if(ch&&/^#review\//.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}navSync()}
 function rvOpenId(id){const g=games.find(x=>x.t===id&&x.rv);if(!g)return false;const R=rvBuild(rvDec(String(g.rv)));if(!R||R.L.length<2)return false;
-rvStart(R,g.cw!==0,({win:'Won',loss:'Lost',draw:'Draw'}[g.r]||'')+' vs '+(g.bn||'Opponent')+' ('+g.o+')',true,g.o,g.w==='by resignation');$('nameA').textContent=g.bn||'Opponent';return true}
+rvStart(R,g.cw!==0,({win:'Won',loss:'Lost',draw:'Draw'}[g.r]||'')+' vs '+(g.bn||'Opponent')+' ('+g.o+')',true,g.o,g.w==='by resignation');$('nameA').textContent=g.bn||'Opponent';rvBotAv(g);return true}
 $('rvfirst').onclick=()=>rvGo(0);$('rvlast').onclick=()=>rvGo(1e9);$('rvp').onclick=()=>rvGo(rvIdx-1);$('rvnx').onclick=()=>rvGo(rvIdx+1);function rvLeave(){const fh=rvH;rvExit(!fh);if(fh)openProfile()}
 
 prof.addEventListener('click',e=>{const b=e.target.closest('.rvbtn');if(!b)return;const g=games[+b.dataset.rv];if(!g||!g.rv)return;const h='#review/'+g.t;if(location.hash!==h)location.hash=h;else rvOpenId(g.t)});
@@ -1658,7 +1667,7 @@ const badge=r=>r?`<span class="rk" style="background:${r[2]};border-color:${r[3]
 const modes=Object.keys(MODES).map(k=>`<button class="tm${k===mode?' on':''}" data-mode="${k}"><span class="tt">${MODES[k].t/60} min</span><span class="tn">${MODES[k].n}</span><span class="tr">${ratings[k]} ELO ${badge(RANKS.find(x=>ratings[k]>=x[0]))}</span></button>`).join('');
 const lad=RANKS.slice().reverse().map(r=>`<div class="lr${cur&&cur===r?' on':''}">${badge(r)}<span class="t">${r[0]}+ ELO</span></div>`).join('');
 const anim=MATES.map(([k,n,d])=>`<div class="mo${cfg.mate===k?' on':''}" data-m="${k}"><div class="stg"><div class="kk">${pieceHTML('k')}</div></div><span>${n}</span><small>${d}</small></div>`).join('');
-homeEl.innerHTML=`<div class="hw"><div class="hero"><div><div class="hk">Free and open source</div><h1>Play chess. Skip the rest.</h1><p>LuaChess is a chess game that runs in your browser. Pick a time control, take on a bot matched to your rating, and climb from Knight to King.</p><div class="hbtns"><button class="hb" data-act="play">Play now</button><a class="hb o" href="https://github.com/LuaChess/luachess.github.io" target="_blank" rel="noopener">View the source</a></div></div><div class="hbd">${homeBoard()}</div></div>
+homeEl.innerHTML=`<div class="hw"><div class="hero"><div><div class="hk">Free and open source</div><h1>Play chess. Skip the rest.</h1><p>LuaChess is a chess game that runs in your browser. Pick a time control, challenge players matched to your rating, and climb from Knight to King.</p><div class="hbtns"><button class="hb" data-act="play">Play now</button><a class="hb o" href="https://github.com/LuaChess/luachess.github.io" target="_blank" rel="noopener">View the source</a></div></div><div class="hbd">${homeBoard()}</div></div>
 <div class="hs"><h2>Pick a time control</h2><p class="sub">Each mode keeps its own rating. Choose one to start a game.</p><div class="tc">${modes}</div></div>
 <div class="hs"><h2>Climb the ranks</h2><p class="sub">Ratings start at 100. Win games to raise yours, and reach 800 to earn your first rank. The bot is matched to your rating, so every game stays a fair fight.</p><div class="lad">${lad}</div></div>
 <div class="hs"><h2>Win in style</h2><p class="sub">Choose how a beaten king goes down. Hover to preview and click to pick. The same animation plays on your own king if you resign.</p><div class="pgrid">${anim}</div></div>
