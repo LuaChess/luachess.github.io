@@ -890,7 +890,7 @@ const place=(e,i)=>{const v=vi(i);e.style.transform=`translate(${(v&7)*100}%,${(
 function mk(p,i){const e=document.createElement('div');e.className='pc';e.innerHTML=pieceHTML(p);place(e,i);pcs.appendChild(e);return e}
 const $=id=>document.getElementById(id);
 const NOAVATAR='https://luachess.github.io/assets/noavatar.png';
-let botName=randName();
+let botName=randName();let botAv=null,botAvTk=0;
 const VAL={p:1,n:3,b:3,r:5,q:9};let caps={w:[],b:[]};
 function capsHTML(list,adv){const o=list.slice().sort((x,y)=>VAL[y.toLowerCase()]-VAL[x.toLowerCase()]);
 return o.map(p=>`<span class="cpc">${pieceHTML(p)}</span>`).join('')+(adv>0?`<span class="adv">+${adv}</span>`:'')}
@@ -912,7 +912,16 @@ let admPop=true;try{admPop=localStorage.getItem('chessAdmPopups')!=='0'}catch(e)
 function atoast(t){if(admPop)toast(t)}
 function randName(){const W=['Cake','Runner','Panda','Falcon','Maple','Tiger','Cloud','Rocket','Pepper','Wolf','Comet','Ginger','Shadow','Pixel','Lemon','Thunder','Otter','Ember','Cobra','Breeze','Knight','Mango','Raven','Storm','Biscuit','Jumper','Dragon','Pickle','Nova','Walnut','Hunter','Fox','Zebra','Blaze','Cricket','Sparrow','Rider','Frost','Badger','Muffin'];const a=W[Math.floor(Math.random()*W.length)];let b=W[Math.floor(Math.random()*W.length)];while(b===a)b=W[Math.floor(Math.random()*W.length)];return a+b+(Math.floor(Math.random()*900000)+100000)}
 function simAv(){$('avA').innerHTML=pieceHTML(meW?'k':'K');$('avI').className='';$('avI').innerHTML=pieceHTML(meW?'K':'k')}
-function botPic(){$('nameA').textContent=simOpen?(meW?'Black':'White'):botName;if(simOpen){simAv();return}$('avA').innerHTML=`<img src="${NOAVATAR}" alt="">`}
+function botPic(){$('nameA').textContent=simOpen?(meW?'Black':'White'):botName;if(simOpen){simAv();return}$('avA').innerHTML=`<img src="${botAv||NOAVATAR}" alt="" referrerpolicy="no-referrer">`}
+/* bot avatar: a random Steam profile picture (highest quality, _full.jpg) taken from randomavatar.com */
+async function loadBotAv(){const tk=++botAvTk;botAv=null;
+const tryGet=async u=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),6000);try{const r=await fetch(u,{signal:c.signal});if(!r.ok)return'';return await r.text()}catch(e){return''}finally{clearTimeout(t)}};
+const find=h=>{const m=/https?:\/\/[^"'\s<>\\)]*steamstatic\.com\/steamcommunity\/public\/images\/avatars\/[0-9a-f]{2}\/([0-9a-f]{40})[^"'\s<>\\)]*\.jpg/i.exec(h||'');return m?'https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/'+m[1].slice(0,2)+'/'+m[1]+'_full.jpg':''};
+const load=u=>new Promise(res=>{const i=new Image();i.referrerPolicy='no-referrer';i.onload=()=>res(true);i.onerror=()=>res(false);i.src=u});
+for(let n=0;n<5&&tk===botAvTk;n++){const id=1+Math.floor(Math.random()*400000),page='https://randomavatar.com/avatar/'+id;
+for(const u of[page,'https://corsproxy.io/?url='+encodeURIComponent(page),'https://api.allorigins.win/raw?url='+encodeURIComponent(page)]){
+const url=find(await tryGet(u));if(tk!==botAvTk)return;
+if(url&&await load(url)){if(tk!==botAvTk)return;botAv=url;if(!simOpen)botPic();return}}}}
 let myName=randName(),myPic=null;
 try{const p=JSON.parse(localStorage.getItem('chessProfile')||'null');if(p){myName=p.name||'You';myPic=p.pic||null}}catch(e){}
 function saveP(){try{localStorage.setItem('chessProfile',JSON.stringify({name:myName,pic:myPic}))}catch(e){}}
@@ -1022,7 +1031,7 @@ $('ovPe').innerHTML=`${old} \u2192 ${myElo}<span class="d" style="color:${dc}">(
 $('ovAe').textContent=aiElo;
 ov.style.display='flex';updInfo()}
 document.getElementById('next').onclick=start;document.getElementById('ovx').onclick=()=>{ov.style.display='none';if(settled){$('nxt').style.display='flex';$('rs').style.display='none'}};$('nxt').onclick=start;
-function start(){simUn=[];botName=randName();$('nameA').textContent=botName;pmv=null;closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;autoOn=false;autoDue=0;autoBtn();if(rvOn&&/^#review\//.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}rvOn=false;rvSw=false;rvH=false;rvSv=null;{const b=$('rvbar');if(b)b.style.display='none'}document.body.classList.remove('rvon');mvs=[];rmv=[];rvSt=null;rvIdx=0;rvCur=null;renderMoves();S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
+function start(){simUn=[];botName=randName();$('nameA').textContent=botName;loadBotAv();pmv=null;closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;autoOn=false;autoDue=0;autoBtn();if(rvOn&&/^#review\//.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}rvOn=false;rvSw=false;rvH=false;rvSv=null;{const b=$('rvbar');if(b)b.style.display='none'}document.body.classList.remove('rvon');mvs=[];rmv=[];rvSt=null;rvIdx=0;rvCur=null;renderMoves();S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
 myElo=ratings[mode];const lo=Math.max(100,myElo-25),hi=Math.max(lo+1,myElo+25);aiElo=lo+Math.floor(Math.random()*(hi-lo+1));
 tw=tb=MODES[mode].t*1000;lastTick=Date.now();
 ov.style.display='none';$('nxt').style.display='none';$('rs').style.display='';clearFX();meW=simOpen||played===0||forceWhite?true:Math.random()<.5;forceWhite=false;applyFlip();
