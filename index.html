@@ -872,7 +872,7 @@ const snd={move:()=>playSnd('move'),cap:()=>playSnd('capture'),castle:()=>playSn
 /* ui */
 const boardEl=document.getElementById('board'),pcs=document.getElementById('pcs'),wrap=document.getElementById('wrap'),ov=document.getElementById('ov');
 let els=[],sqs=[],z=1;
-const MODES={bullet:{n:'Bullet',t:60,d:[200,800]},blitz:{n:'Blitz',t:180,d:[1000,4000]},rapid:{n:'Rapid',t:600,d:[1000,14000]}};
+const MODES={bullet:{n:'Bullet',t:60,d:[200,800]},blitz:{n:'Blitz',t:180,d:[1000,4000]},rapid:{n:'Rapid',t:600,d:[1000,5000]}};
 let ratings={bullet:100,blitz:100,rapid:100},mode='blitz';
 try{const d=JSON.parse(localStorage.getItem('chessElo3')||'null');if(d){if(d.ratings)for(const k in ratings)if(d.ratings[k]>=0)ratings[k]=d.ratings[k]|0;if(MODES[d.mode])mode=d.mode}}catch(e){}
 myElo=ratings[mode];
@@ -1048,7 +1048,7 @@ pcs.innerHTML='';els=[];caps={w:[],b:[]};arrows=[];drawArrows();for(let i=0;i<64
 if(!meW){const g=gid;thinking=true;setTimeout(()=>{if(over||g!==gid)return;const a=aiMove();doMove(a,()=>{if(g===gid){thinking=false;runPre()}})},2000+Math.random()*1000)}}/* clocks, draw rules */
 let forceWhite=false,gid=0,tw=0,tb=0,started=false,lastTick=0,settled=false,hist=[];
 /* continue the running game after the page was closed */
-function gameRaw(){if(over||settled||!mvs.length)return null;return JSON.stringify({v:1,S,mvs,rv:rmv.map(a=>String.fromCharCode(65+a[0],65+a[1])+(a[2]||'-')).join(''),hist,caps,last,aiElo,mode,tw,tb,started,w:meW})}
+function gameRaw(){if(over||settled||!mvs.length)return null;return JSON.stringify({v:1,S,mvs,rv:rmv.map(a=>String.fromCharCode(65+a[0],65+a[1])+(a[2]||'-')).join(''),hist,caps,last,aiElo,mode,tw,tb,started,w:meW,bn:botName,ba:botAv})}
 function saveGame(){if(rvSw||simOpen)return;try{const r=gameRaw();if(r===null){localStorage.removeItem('chessGame');return}
 localStorage.setItem('chessGame',r)}catch(e){}}
 function restoreGame(raw){try{if(!raw)return;const d=JSON.parse(raw);
@@ -1057,7 +1057,7 @@ if(!okB||!MODES[d.mode]||!Array.isArray(d.mvs)||!d.mvs.length||!Array.isArray(d.
 if(!legal(d.S).length){localStorage.removeItem('chessGame');return}
 gid++;mode=d.mode;myElo=ratings[mode];aiElo=+d.aiElo||aiElo;S=d.S;mvs=d.mvs.map(String);rmv=[];rvSt=null;rvIdx=0;rvCur=null;{const q=typeof d.rv==='string'?d.rv:'';for(let i=0;i+2<q.length;i+=3){const c=q[i+2];rmv.push([q.charCodeAt(i)-65,q.charCodeAt(i+1)-65,c==='-'?'':c])}}hist=d.hist.map(String);caps={w:d.caps.w.map(String),b:d.caps.b.map(String)};
 last=d.last&&Number.isInteger(d.last.f)&&Number.isInteger(d.last.t)?d.last:null;tw=Math.max(1,+d.tw||0);tb=Math.max(1,+d.tb||0);started=!!d.started;lastTick=Date.now();
-over=false;settled=false;sel=null;legalSel=[];thinking=false;ov.style.display='none';clearFX();meW=d.w!==false;applyFlip();
+over=false;settled=false;sel=null;legalSel=[];thinking=false;ov.style.display='none';clearFX();meW=d.w!==false;if(typeof d.bn==='string'&&d.bn){botAvTk++;botLoad=false;botName=d.bn;botAv=typeof d.ba==='string'&&d.ba?d.ba:null}applyFlip();
 pcs.innerHTML='';els=[];arrows=[];drawArrows();for(let i=0;i<64;i++)if(S.b[i])els[i]=mk(S.b[i],i);
 renderMoves();paint();updInfo();showClk();
 if(S.t!==pcol()){const g=gid;thinking=true;setTimeout(()=>{if(over||g!==gid)return;const a=aiMove();doMove(a,()=>{if(g===gid){thinking=false;runPre()}})},700)}}catch(e){}}
