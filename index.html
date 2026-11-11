@@ -872,7 +872,7 @@ const snd={move:()=>playSnd('move'),cap:()=>playSnd('capture'),castle:()=>playSn
 /* ui */
 const boardEl=document.getElementById('board'),pcs=document.getElementById('pcs'),wrap=document.getElementById('wrap'),ov=document.getElementById('ov');
 let els=[],sqs=[],z=1;
-const MODES={bullet:{n:'Bullet',t:60,d:[200,800]},blitz:{n:'Blitz',t:180,d:[1000,4000]},rapid:{n:'Rapid',t:600,d:[1000,5000]}};
+const MODES={bullet:{n:'Bullet',t:60,d:[200,800]},blitz:{n:'Blitz',t:180,d:[400,1500]},rapid:{n:'Rapid',t:600,d:[1000,5000]}};
 let ratings={bullet:100,blitz:100,rapid:100},mode='blitz';
 try{const d=JSON.parse(localStorage.getItem('chessElo3')||'null');if(d){if(d.ratings)for(const k in ratings)if(d.ratings[k]>=0)ratings[k]=d.ratings[k]|0;if(MODES[d.mode])mode=d.mode}}catch(e){}
 myElo=ratings[mode];
@@ -1524,7 +1524,7 @@ if(stm===-1){hlo^=ZSl;hhi^=ZSh}hlo^=ZCl[cr];hhi^=ZCh[cr];if(ep>=0){hlo^=ZEl[ep&7
 sp=off;HL[sp]=hlo;HH[sp]=hhi}
 return function bestMove(ms){
 const ml=legal(S);if(!ml.length)return null;if(ml.length===1)return ml[0];
-const bud=ms||({bullet:350,blitz:700,rapid:1500}[mode]||700);
+const bud=ms||({bullet:150,blitz:300,rapid:1500}[mode]||700);
 load();stop=false;nodes=0;KIL.fill(0);for(let i=0;i<HIST.length;i++)HIST[i]>>=2;
 const t0=performance.now();tEnd=t0+bud;rootBest=0;let best=0;
 for(let d=1;d<=40;d++){rootBest=0;const sc=ab(d,-INF,INF,0,true,false);if(stop){if(rootBest&&d>1)best=rootBest;else if(!best)best=rootBest;break}
