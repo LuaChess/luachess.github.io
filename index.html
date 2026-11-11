@@ -919,7 +919,7 @@ const tryGet=async u=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),
 const find=h=>{const m=/https?:\/\/[^"'\s<>\\)]*steamstatic\.com\/steamcommunity\/public\/images\/avatars\/[0-9a-f]{2}\/([0-9a-f]{40})[^"'\s<>\\)]*\.jpg/i.exec(h||'');return m?'https://cdn.cloudflare.steamstatic.com/steamcommunity/public/images/avatars/'+m[1].slice(0,2)+'/'+m[1]+'_full.jpg':''};
 const load=u=>new Promise(res=>{const i=new Image();i.referrerPolicy='no-referrer';i.onload=()=>res(true);i.onerror=()=>res(false);i.src=u});
 for(let n=0;n<5&&tk===botAvTk;n++){const id=1+Math.floor(Math.random()*400000),page='https://randomavatar.com/avatar/'+id;
-for(const u of[page,'https://corsproxy.io/?url='+encodeURIComponent(page),'https://api.allorigins.win/raw?url='+encodeURIComponent(page)]){
+for(const u of[page,'https://api.allorigins.win/raw?url='+encodeURIComponent(page)]){
 const url=find(await tryGet(u));if(tk!==botAvTk)return;
 if(url&&await load(url)){if(tk!==botAvTk)return;botAv=url;if(!simOpen)botPic();return}}}}
 let myName=randName(),myPic=null;
