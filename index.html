@@ -1869,7 +1869,8 @@ OPB('King\'s Indian Defense','You play Black. White opens with 1.d4. Play the fi
 PZ.forEach((p,i)=>{if(!p.sec)p.sec=i<10?'Basics':'Easy'});
 let done=0;try{done=Math.min(PZ.length,Math.max(0,+(JSON.parse(localStorage.getItem('chessPuzzles')||'{}').done)||0))}catch(e){}
 let bossWon=false;try{bossWon=!!JSON.parse(localStorage.getItem('chessPuzzles')||'{}').boss}catch(e){}
-function saveZ(){try{localStorage.setItem('chessPuzzles',JSON.stringify({done,boss:bossWon?1:0}))}catch(e){}}
+let alexWon=false;try{alexWon=!!JSON.parse(localStorage.getItem('chessPuzzles')||'{}').alex}catch(e){}
+function saveZ(){try{localStorage.setItem('chessPuzzles',JSON.stringify({done,boss:bossWon?1:0,alex:alexWon?1:0}))}catch(e){}}
 /* page styles (low specificity so Settings > Style can restyle them through the mirror below) */
 const css=document.createElement('style');css.id='puzCss';
 css.textContent=`#puz{position:fixed;inset:var(--sbt) 0 0 var(--sb);z-index:61;background:#302e2b;overflow-y:auto;display:none}
@@ -1977,7 +1978,7 @@ s+=`<g opacity=".85" fill="rgb(255,170,0)"><line x1="${sx}" y1="${sy}" x2="${bx}
 parr.innerHTML=s}
 function msg(t,c){const e=Z('pzmsg');e.className='pzmsg'+(c?' '+c:'');e.innerHTML=(t?(c==='bad'?'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>':c==='good'?'<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>':''):'')+'<span></span>';e.lastChild.textContent=t}
 const LOCK='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',CHK='<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>';
-function renderList(){Z('pzl').innerHTML=(()=>{const bl=false;return'<div class="pzsec">Bots</div><button class="pzi'+(boss?' cur':'')+'" data-boss="1" title="'+(bl?'Locked: finish Basics and Easy first':bossWon?'Shulkified (defeated)':'Shulkified')+'" aria-label="Shulkified"'+(bl?' disabled':'')+'>'+(bl?LOCK:'<img class="pzbimg" src="https://luachess.github.io/assets/shulkified_boss.png" alt="">')+'</button>'})()+PZ.map((p,i)=>{const lock=i>done,dn=i<done,f=PZ.findIndex(x=>x.sec===p.sec);return(f===i?'<div class="pzsec">'+p.sec+'</div>':'')+`<button class="pzi${i===idx&&!boss?' cur':''}${dn?' dn':''}" data-p="${i}" title="${lock?'Locked':p.title}" aria-label="${lock?'Locked':p.title}"${lock?' disabled':''}>${lock?LOCK:dn?CHK:i-f+1}</button>`}).join('')}
+function renderList(){Z('pzl').innerHTML=(()=>BOTS.map((b,k)=>{const wn=k?alexWon:bossWon;return(k===0?'<div class="pzsec">Bots</div>':'')+'<button class="pzi'+(boss&&cb===k?' cur':'')+'" data-boss="'+k+'" title="'+b.name+' ('+b.elo+' ELO)'+(wn?' (defeated)':'')+'" aria-label="'+b.name+'"><img class="pzbimg" src="'+b.up+'" alt=""></button>'}).join(''))()+PZ.map((p,i)=>{const lock=i>done,dn=i<done,f=PZ.findIndex(x=>x.sec===p.sec);return(f===i?'<div class="pzsec">'+p.sec+'</div>':'')+`<button class="pzi${i===idx&&!boss?' cur':''}${dn?' dn':''}" data-p="${i}" title="${lock?'Locked':p.title}" aria-label="${lock?'Locked':p.title}"${lock?' disabled':''}>${lock?LOCK:dn?CHK:i-f+1}</button>`}).join('')}
 function updStep(){const p=PZ[idx],n=p.steps.length,s=Z('pzsteps');
 if(n>1){s.classList.add('on');s.innerHTML='Move '+(step+1)+' of '+n+' '+p.steps.map((_,i)=>'<span class="pzdot'+(i<step?' on':i===step?' half':'')+'"></span>').join('')}else s.classList.remove('on');
 Z('pzh').textContent='Hint: '+p.steps[step].hint;Z('pzh').classList.remove('on')}
@@ -2045,10 +2046,10 @@ window.addEventListener('pointerup',e=>endDrag(e,false));window.addEventListener
 wrapZ.addEventListener('contextmenu',e=>e.preventDefault());
 wrapZ.addEventListener('mousedown',e=>{if(e.button===2){rc=sqAt(e);e.preventDefault()}else if(e.button===0&&arrows.length){arrows=[];drawArrows()}});
 window.addEventListener('mouseup',e=>{if(e.button!==2||rc===null)return;const t=sqAt(e);if(rc>=0&&t>=0){const k=rc+'-'+t,i=arrows.indexOf(k);if(i>=0)arrows.splice(i,1);else arrows.push(k);drawArrows()}rc=null});
-Z('pzl').addEventListener('click',e=>{const b=e.target.closest('.pzi');if(!b||b.disabled)return;if(b.dataset.boss){bossStart();return}load(+b.dataset.p)});
+Z('pzl').addEventListener('click',e=>{const b=e.target.closest('.pzi');if(!b||b.disabled)return;if(b.dataset.boss!==undefined){bossStart(+b.dataset.boss);return}load(+b.dataset.p)});
 Z('pzhb').onclick=()=>Z('pzh').classList.toggle('on');
 Z('pzrb').onclick=()=>load(idx);
-Z('pznb').onclick=()=>{if(idx<PZ.length-1)load(idx+1);else if(done>=PZ.length)bossStart()};
+Z('pznb').onclick=()=>{if(idx<PZ.length-1)load(idx+1);else if(done>=PZ.length)bossStart(0)};
 /* phones: the Next button sits right under the board; on bigger screens it stays in the button row */
 {const mq=window.matchMedia('(max-width:760px)'),nb=Z('pznb'),home=Z('pzbt'),bw=pz.querySelector('.pzbw');
 const place=()=>{if(mq.matches){if(nb.parentNode!==bw)bw.appendChild(nb)}else if(nb.parentNode!==home)home.appendChild(nb)};
@@ -2056,8 +2057,8 @@ place();if(mq.addEventListener)mq.addEventListener('change',place);else mq.addLi
 /* ---- boss fight: Shulkified (400 ELO, no hints). Unlocked after Basics and Easy. */
 let boss=false,bOver=false,bHist=[],bTalkT=0,bImgT=0,bCaps={w:[],b:[]};
 function pzCaps(){const T=Z('pzcpT'),B=Z('pzcpB');if(!boss){T.classList.remove('on');B.classList.remove('on');T.innerHTML=B.innerHTML='';return}const sm=l=>l.reduce((a,p)=>a+VAL[p.toLowerCase()],0),adv=sm(bCaps.w)-sm(bCaps.b);T.classList.add('on');B.classList.add('on');T.innerHTML=capsHTML(bCaps.b,-adv);B.innerHTML=capsHTML(bCaps.w,adv)}
-const B_UP='https://luachess.github.io/assets/shulkified_boss.png',B_DOWN='https://luachess.github.io/assets/shulkified_boss_down.png';new Image().src=B_DOWN;
-const BL={
+let cb=0;const BOTS=[{name:'Shulkified',elo:400,up:'https://luachess.github.io/assets/shulkified_boss.png',down:'https://luachess.github.io/assets/shulkified_boss_down.png'},{name:'Alex',elo:800,up:'https://luachess.github.io/assets/alex_bot.png',down:'https://luachess.github.io/assets/alex_bot_tounge.png'}];BOTS.forEach(b=>{new Image().src=b.down;new Image().src=b.up});
+const BL_S={
 intro:["So you solved every puzzle... Impressive. I am Shulkified, and my box is tougher than your tactics!","Hehe... a challenger! Nobody has cracked my shell yet.","Welcome to my box. Please keep your arms and pieces inside at all times.","You made it all the way here? Cute. Let us see what you have got.","I have been waiting in this box for ages. Finally, someone to play with!","Puzzles are easy. Real games have a Shulkified in them. Good luck!","Ah, a fresh challenger!","My shell has beaten better players than you. Probably. I did not check.","Ready to get boxed? Because I am ready to box you."],
 again:["Back for more? My box is still closed!","A rematch! I was just getting warmed up.","Oh, you again! Did you bring a better plan this time?","Hehe, I knew you could not stay away from the box.","Round two! Try not to blunder on move three this time.","You like losing that much? Fine, I am happy to oblige!","New game, same box. Let us go!","I hope you practiced. I definitely did not, but I do not need to."],
 idle:["Hmm... let me think. Boxes are very good at thinking inside.","Is that your plan? Interesting...","My shell is very hard to crack.","Take your time. I am patient. I live in a box.","Pawns are just tiny boxes, right?","Hehe, look at that move.","I hope you enjoy being closed in!","It is cozy in here. You should try it.","Did you plan that, or did your hand slip?","You know, a knight is just a horse that wanted to be in a box.","Thinking... thinking... still thinking... okay, I have got nothing. Just kidding!","I see what you are doing. Actually no, I do not. Carry on.","Bishops always sneak around diagonally. Very suspicious.","Is it just me, or is this board getting smaller?","Whoa, that is bold. I like bold. I will punish bold, but I like it.","Do you hear that? That is the sound of your plan falling apart.","Every great move starts with a little shake. Like a shulker.","I wonder what is in my box. Probably another box.","Your pieces look nervous. Mine are totally relaxed.","Plot twist: I am actually good at this.","Oooh, spicy. Let me think about this one.","Tick tock, tick tock. Just kidding, I have all day.","If I close my shell, can you still see the board? Asking for a friend."],
@@ -2070,19 +2071,34 @@ lose:["No... how?! My box... it cracked! You win, challenger.","Impossible! You 
 draw:["A draw? Neither of us wins... how boring! Let us play again.","Hmm, a draw. My box protects me... this time.","A draw! I was this close to winning. Probably.","Nobody wins, nobody loses. Weird feeling.","Fine, a draw. But next time I will not be so nice.","Stalemate vibes. Let us call it even and go again.","A draw? I will take it. My box and I live to fight another day.","That is a draw. I will pretend I wanted that."],
 resign:["Giving up already? Hehe... I win!","Resigning? A wise choice against me.","Oh, leaving so soon? The box is still open!","A resignation! Smart. Saved yourself some pain.","You give up? I did not even get to show off!","Running away? Fine. Come back when you are braver.","White flag? Alright, I win then!","Ha! The box wins by default.","Do not worry, everyone resigns against me eventually.","Well, that was quick. See you next time!"],
 turn:["It is your turn, White!","You are White, so you move first. Go on!","Your turn! Do not take all day.","White to move. That is you, in case you forgot!","Go ahead, it is your turn.","You have the white pieces, so it is your turn. Make it count!","Ladies first. Or challengers. Anyway, your turn!","Do not just stare at the board. It is your turn!","I am Black, so you go first. Your turn!","Your move, White. I will be waiting right here in my box."]};
+const BL_A={
+intro:["meow!","mrrp? :3","mrrrrrow!","mew mew :3","*stretches* mmmmm","purrrrrr...","mrow! >:3","meow meow meow","nya~ :3","*blinks slowly* mrrp"],
+again:["mrrp! :3","meow? >:3","hehe mrrrow","MEOW!","mrrr >:3","mew?!","*headbutts the screen* mrrp!","prrrrt! :3"],
+idle:["mmmmm","mrrrrrr","purrrrrr","meow","*tail swish*",":3","mrrp","*blinks slowly*","nyaa~","*stares*","mew...","prrrrt?","*licks paw*","mmmmrrrow?","*yawns* mrrrrow","*kneads the board*","mrrrp!","*ear twitch*","...meow.","*sits on the keyboard*"],
+bcap:["MEOW! :3","nom nom nom","mrrrow! >:3","*chomp*","mrrp! >:3","MRRROW!","nyaa! :3","*bonks the piece off the board*","mrrrrp! :3","*pounces*"],
+pcap:["3:<","HISSSSS","mrrrow...","meeeow!?","FFFFT!","mew... :(","3:< mrrr","*hiss*","MROW?!","*flattens ears*"],
+bchk:[">:3","MEOW!","mrrrrow!!","mrrp! >:3","nya! >:3","*pounces* MEOW!","mrow mrow! >:3","mrrrrrr >:3"],
+pchk:["HISSSSSS!","3:<","MROWWW!?","FFFFFT! 3:<","mrrr...!","*puffs up* HISSSS","MEOW!? 3:<","*tail goes bushy*"],
+win:[":3","MEOW MEOW MEOW!",">:3 mrrrow","purrrrrrr :3","mrrp! :3 mrrp!","nyaaaa~! :3","*victory zoomies* MEOW!","mrrrow... :3"],
+lose:["3:<","mrrr... 3:<","meeeeow...","HISSSSSSS...","mrow... :<","mew... ;w;","mrrrr...","*sulks under the sofa*"],
+draw:["mrrp?","meow...?",":3?","mmmmm...",">:3?","*tilts head* mrrp?","mew?"],
+resign:[":3","mrrp! :3","purrrrrr",">:3 meow","MEOW! :3","*naps* zzz... mrrp","nyaa~ :3"],
+turn:["mrrp?","meow?","mew?",":3?","*taps paw* mrow?","mrow?","*stares at you* mrrp?","meow meow?"]};
+let BL=BL_S;
 const bPick=a=>a[Math.floor(Math.random()*a.length)];
-function bsay(t){clearInterval(bTalkT);clearInterval(bImgT);clearTimeout(bsay._h);const el=Z('pzbub'),im=Z('pzbimg');el.style.opacity='1';el.textContent='';let i=0,dn=false;im.src=B_UP;bImgT=setInterval(()=>{dn=!dn;im.src=dn?B_DOWN:B_UP},150);bTalkT=setInterval(()=>{i++;el.textContent=t.slice(0,i);if(i>=t.length){clearInterval(bTalkT);clearInterval(bImgT);im.src=B_UP}},26)}
-function bossOff(){if(!boss)return;boss=false;bOver=false;bCaps={w:[],b:[]};pzCaps();clearInterval(bTalkT);clearInterval(bImgT);Z('pzbimg').src=B_UP;Z('pzc1').style.display='';Z('pzbc').style.display='none';Z('pzbt').style.display='';Z('pzbb').style.display='none'}
-function bossStart(){const again=boss||bossWon;tm.forEach(clearTimeout);tm=[];boss=true;bOver=false;sel=-1;lg=[];last=null;arrows=[];drawArrows();busy=false;solved=false;
+function bsay(t){clearInterval(bTalkT);clearInterval(bImgT);clearTimeout(bsay._h);const el=Z('pzbub'),im=Z('pzbimg');el.style.opacity='1';el.textContent='';let i=0,dn=false;im.src=BOTS[cb].up;bImgT=setInterval(()=>{dn=!dn;im.src=dn?BOTS[cb].down:BOTS[cb].up},150);bTalkT=setInterval(()=>{i++;el.textContent=t.slice(0,i);if(i>=t.length){clearInterval(bTalkT);clearInterval(bImgT);im.src=BOTS[cb].up}},26)}
+function bossOff(){if(!boss)return;boss=false;bOver=false;bCaps={w:[],b:[]};pzCaps();clearInterval(bTalkT);clearInterval(bImgT);Z('pzbimg').src=BOTS[cb].up;Z('pzc1').style.display='';Z('pzbc').style.display='none';Z('pzbt').style.display='';Z('pzbb').style.display='none'}
+function bossStart(k){k=k|0;const again=(boss&&cb===k)||(k?alexWon:bossWon);cb=k;BL=k?BL_A:BL_S;tm.forEach(clearTimeout);tm=[];boss=true;bOver=false;sel=-1;lg=[];last=null;arrows=[];drawArrows();busy=false;solved=false;
 setFlip(false);setup(parse(START,{c:{K:1,Q:1,k:1,q:1}}));bHist=[posKey(st)];bCaps={w:[],b:[]};pzCaps();paint();
 Z('pzc1').style.display='none';Z('pzbc').style.display='';Z('pzbt').style.display='none';Z('pzbb').style.display='flex';Z('pzbre').style.display='none';Z('pzbres').style.display='';Z('pznb').style.display='none';
-const bi=Z('pzbimg'),fit=()=>{const n=bi.naturalWidth,T=112;if(n)bi.style.width=(n<T?n*Math.floor(T/n):T)+'px'};if(bi.complete)fit();else bi.onload=fit;
+pz.querySelector('#pzbc .pzbn .pzt').textContent=BOTS[cb].name;pz.querySelector('#pzbc .pzbe').textContent=BOTS[cb].elo;
+const bi=Z('pzbimg'),fit=()=>{const n=bi.naturalWidth,T=112;if(n)bi.style.width=(n<T?n*Math.floor(T/n):T)+'px'};bi.alt=BOTS[cb].name;bi.style.width='';bi.onload=fit;bi.src=BOTS[cb].up;if(bi.complete)fit();
 msg('');renderList();bsay(bPick(again?BL.again:BL.intro)+' '+bPick(BL.turn))}
-function bossPick(){const ms=legal(st),noise=Math.max(0,(1600-400)/1600)*320;let best=null,bs=-Infinity;for(const m of ms){const v=-search(apply(st,m),0,-1e9,1e9)+Math.random()*noise;if(v>bs){bs=v;best=m}}return best}
+function bossPick(){const ms=legal(st),noise=Math.max(0,(1600-BOTS[cb].elo)/1600)*320;let best=null,bs=-Infinity;for(const m of ms){const v=-search(apply(st,m),0,-1e9,1e9)+Math.random()*noise;if(v>bs){bs=v;best=m}}return best}
 function bDraw(){if(st.hm>=100)return'by the 50-move rule';const k=posKey(st);if(bHist.filter(x=>x===k).length>=3)return'by repetition';const p=st.b.filter(x=>x&&x.toLowerCase()!=='k');if(!p.length||(p.length===1&&'nb'.includes(p[0].toLowerCase())))return'by insufficient material';return''}
 function bEnd(res,why){bOver=true;busy=true;solved=true;
-if(res==='win'){pzSnd('puzzle-correct');bossWon=true;saveZ();msg('Checkmate! You defeated Shulkified!','good');bsay(bPick(BL.lose))}
-else if(res==='loss'){pzSnd('puzzle-wrong');msg('Checkmate. Shulkified wins. Try again!','bad');bsay(bPick(BL.win))}
+if(res==='win'){pzSnd('puzzle-correct');if(cb)alexWon=true;else bossWon=true;saveZ();msg('Checkmate! You defeated '+BOTS[cb].name+'!','good');bsay(bPick(BL.lose))}
+else if(res==='loss'){pzSnd('puzzle-wrong');msg('Checkmate. '+BOTS[cb].name+' wins. Try again!','bad');bsay(bPick(BL.win))}
 else if(res==='resign'){msg('');bsay(bPick(BL.resign))}
 else{msg('Draw '+(why||'')+'.');bsay(bPick(BL.draw))}
 Z('pzbres').style.display='none';Z('pzbre').style.display='';renderList()}
@@ -2099,7 +2115,7 @@ const dr=bDraw();if(dr){bEnd('draw',dr);return}
 if(chk)bsay(bPick(BL.bchk));else if(cap)bsay(bPick(BL.bcap));else if(Math.random()<.25)bsay(bPick(BL.idle));
 busy=false;msg('')})}
 Z('pzbres').onclick=()=>{if(!boss||bOver)return;tm.forEach(clearTimeout);tm=[];bOver=true;busy=true;const F=fx();snd.mate();F.mateFX(kingSq(st.b,true));later(()=>bEnd('resign'),(MATEFX[cfg.mate]||{}).d||1500)};
-Z('pzbre').onclick=()=>bossStart();
+Z('pzbre').onclick=()=>bossStart(cb);
 function openPz(){if(pzOpen)return;
 if(homeOpen)closeHome();if(profOpen)closeProfile();if(setOpen)closeSet();if(nfOpen)closeNF();closeSim();
 pzOpen=true;mirror();pz.style.display='block';pz.scrollTop=0;load(Math.min(idx>done?done:idx,PZ.length-1));
