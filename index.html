@@ -1900,7 +1900,10 @@ function paint(){const ck=inCheck(st,st.t==='w')?kingSq(st.b,st.t==='w'):-1;
 sqE.forEach((d,i)=>{const lm=lg.find(m=>m.t===i);d.classList.toggle('last',!!last&&(i===last.f||i===last.t));d.classList.toggle('sel',i===sel);d.classList.toggle('chk',i===ck);d.classList.toggle('mv',!!lm);d.classList.toggle('cp',!!lm&&!!(st.b[i]||lm.ep))})}
 function drawArrows(){let s='';for(const k of arrows){const[f,t]=k.split('-').map(Number),fx_=(f&7)*100+50,fy=(f>>3)*100+50;
 if(f===t){s+=`<circle cx="${fx_}" cy="${fy}" r="46" fill="none" stroke="rgb(235,97,80)" stroke-width="7" opacity=".85"/>`;continue}
-const tx=(t&7)*100+50,ty=(t>>3)*100+50,a=Math.atan2(ty-fy,tx-fx_),hl=38,bx=tx-Math.cos(a)*hl,by=ty-Math.sin(a)*hl,sx=fx_+Math.cos(a)*20,sy=fy+Math.sin(a)*20,px=-Math.sin(a)*24,py=Math.cos(a)*24;
+const tx=(t&7)*100+50,ty=(t>>3)*100+50,kdc=Math.abs((t&7)-(f&7)),kdr=Math.abs((t>>3)-(f>>3));
+if(kdc*kdr===2){const hl=38,hz=kdc===2,cx=hz?tx:fx_,cy=hz?fy:ty,dx=hz?0:Math.sign(tx-fx_),dy=hz?Math.sign(ty-fy):0,lx=tx-dx*hl,ly=ty-dy*hl,px=hz?24:0,py=hz?0:24;
+s+=`<g opacity=".85"><path d="M${fx_} ${fy}L${cx} ${cy}L${lx} ${ly}" fill="none" stroke="rgb(255,170,0)" stroke-width="16" stroke-linejoin="miter" stroke-linecap="butt"/><polygon fill="rgb(255,170,0)" points="${tx},${ty} ${lx+px},${ly+py} ${lx-px},${ly-py}"/></g>`;continue}
+const a=Math.atan2(ty-fy,tx-fx_),hl=38,bx=tx-Math.cos(a)*hl,by=ty-Math.sin(a)*hl,sx=fx_+Math.cos(a)*20,sy=fy+Math.sin(a)*20,px=-Math.sin(a)*24,py=Math.cos(a)*24;
 s+=`<g opacity=".85" fill="rgb(255,170,0)"><line x1="${sx}" y1="${sy}" x2="${bx}" y2="${by}" stroke="rgb(255,170,0)" stroke-width="16" stroke-linecap="round"/><polygon points="${tx},${ty} ${bx+px},${by+py} ${bx-px},${by-py}"/></g>`}
 parr.innerHTML=s}
 function msg(t,c){const e=Z('pzmsg');e.className='pzmsg'+(c?' '+c:'');e.innerHTML=(t?(c==='bad'?'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>':c==='good'?'<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>':''):'')+'<span></span>';e.lastChild.textContent=t}
