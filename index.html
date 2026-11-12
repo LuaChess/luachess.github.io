@@ -1969,13 +1969,14 @@ function mk(p,i){const e=document.createElement('div');e.className='pc';e.innerH
 function setup(s){fx().clearFX();pcsZ.innerHTML='';for(let i=0;i<64;i++){els[i]=s.b[i]?mk(s.b[i],i):null}st=s}
 function paint(){const ck=inCheck(st,st.t==='w')?kingSq(st.b,st.t==='w'):-1;
 sqE.forEach((d,i)=>{const lm=lg.find(m=>m.t===i);d.classList.toggle('last',!!last&&(i===last.f||i===last.t));d.classList.toggle('sel',i===sel);d.classList.toggle('chk',i===ck);d.classList.toggle('mv',!!lm);d.classList.toggle('cp',!!lm&&!!(st.b[i]||lm.ep))})}
-function drawArrows(){let s='';for(const k of arrows){const[f0,t0]=k.split('-').map(Number),f=vi(f0),t=vi(t0),fx_=(f&7)*100+50,fy=(f>>3)*100+50;
+let pzNum=false,pzCol={};
+function drawArrows(){let s='';if(!arrows.length)pzNum=false;const NUMT=(k,x,y)=>pzNum?`<text x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="26" font-weight="800" font-family="system-ui,sans-serif" fill="#fff" stroke="#000" stroke-opacity=".55" stroke-width="3" paint-order="stroke">${arrows.indexOf(k)+1}</text>`:'';for(const k in pzCol)if(arrows.indexOf(k)<0)delete pzCol[k];for(const k of arrows){const AC=pzCol[k]||'rgb(255,170,0)';const[f0,t0]=k.split('-').map(Number),f=vi(f0),t=vi(t0),fx_=(f&7)*100+50,fy=(f>>3)*100+50;
 if(f===t){s+=`<circle cx="${fx_}" cy="${fy}" r="46" fill="none" stroke="rgb(235,97,80)" stroke-width="7" opacity=".85"/>`;continue}
 const tx=(t&7)*100+50,ty=(t>>3)*100+50,kdc=Math.abs((t&7)-(f&7)),kdr=Math.abs((t>>3)-(f>>3));
 if(kdc*kdr===2){const hl=38,hz=kdc===2,cx=hz?tx:fx_,cy=hz?fy:ty,dx=hz?0:Math.sign(tx-fx_),dy=hz?Math.sign(ty-fy):0,lx=tx-dx*hl,ly=ty-dy*hl,px=hz?24:0,py=hz?0:24;
-s+=`<g opacity=".85"><path d="M${fx_} ${fy}L${cx} ${cy}L${lx} ${ly}" fill="none" stroke="rgb(255,170,0)" stroke-width="16" stroke-linejoin="miter" stroke-linecap="butt"/><polygon fill="rgb(255,170,0)" points="${tx},${ty} ${lx+px},${ly+py} ${lx-px},${ly-py}"/></g>`;continue}
+s+=`<g opacity=".85"><path d="M${fx_} ${fy}L${cx} ${cy}L${lx} ${ly}" fill="none" stroke="${AC}" stroke-width="16" stroke-linejoin="miter" stroke-linecap="butt"/><polygon fill="${AC}" points="${tx},${ty} ${lx+px},${ly+py} ${lx-px},${ly-py}"/></g>`+NUMT(k,tx-dx*24,ty-dy*24);continue}
 const a=Math.atan2(ty-fy,tx-fx_),hl=38,bx=tx-Math.cos(a)*hl,by=ty-Math.sin(a)*hl,sx=fx_+Math.cos(a)*20,sy=fy+Math.sin(a)*20,px=-Math.sin(a)*24,py=Math.cos(a)*24;
-s+=`<g opacity=".85" fill="rgb(255,170,0)"><line x1="${sx}" y1="${sy}" x2="${bx}" y2="${by}" stroke="rgb(255,170,0)" stroke-width="16" stroke-linecap="round"/><polygon points="${tx},${ty} ${bx+px},${by+py} ${bx-px},${by-py}"/></g>`}
+s+=`<g opacity=".85" fill="${AC}"><line x1="${sx}" y1="${sy}" x2="${bx}" y2="${by}" stroke="${AC}" stroke-width="16" stroke-linecap="round"/><polygon points="${tx},${ty} ${bx+px},${by+py} ${bx-px},${by-py}"/></g>`+NUMT(k,tx-Math.cos(a)*24,ty-Math.sin(a)*24)}
 parr.innerHTML=s}
 function msg(t,c){const e=Z('pzmsg');e.className='pzmsg'+(c?' '+c:'');e.innerHTML=(t?(c==='bad'?'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>':c==='good'?'<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>':''):'')+'<span></span>';e.lastChild.textContent=t}
 const LOCK='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',CHK='<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>';
@@ -2137,8 +2138,8 @@ const okMoves=()=>{const s=PZ[idx].steps[step];return legal(st).filter(m=>s.ok(m
 const can=()=>pzOpen&&!busy&&!solved&&st&&st.t===(flip?'b':'w')&&!(boss&&bOver);
 window.pzAdm={on:()=>pzOpen,
 best(){if(!can())return null;if(boss)return eng(()=>bestMove(600));const ms=okMoves();if(!ms.length)return null;if(ms.length===1)return ms[0];const b=eng(()=>bestMove(300));return b&&ms.find(m=>same(m,b))||ms[0]},
-hint(){const m=this.best();if(m){arrows=[m.f+'-'+m.t];drawArrows()}},
-all(){if(!can())return;if(boss){const bm=this.best();const seen={},ms=(bm?[bm]:[]).concat(eng(()=>bestMovesAll())).filter(m=>{const k=m.f+'-'+m.t;return seen[k]?false:(seen[k]=1)});arrows=ms.map(m=>m.f+'-'+m.t)}else arrows=okMoves().map(m=>m.f+'-'+m.t);drawArrows()},
+hint(){const m=this.best();if(m){arrows=[m.f+'-'+m.t];pzNum=false;pzCol={};drawArrows()}},
+all(){if(!can())return;if(boss){const bm=this.best();const seen={},ms=(bm?[bm]:[]).concat(eng(()=>bestMovesAll())).filter(m=>{const k=m.f+'-'+m.t;return seen[k]?false:(seen[k]=1)});arrows=ms.map(m=>m.f+'-'+m.t);pzNum=true;pzCol={};{const V=bestMovesAll.vals||{},bk=bm?bm.f+'-'+bm.t:null,ref=bk&&V[bk]!=null?V[bk]:bestMovesAll.top;arrows.forEach((k,n)=>{if(n===0)return;const dl=Math.max(0,ref-(V[k]!=null?V[k]:ref-35)),f=1-.75*(.5*Math.min(1,dl/35)+.5*(n/Math.max(1,arrows.length-1)));pzCol[k]='rgb('+Math.round(255*f)+','+Math.round(170*f)+',0)'})}}else{arrows=okMoves().map(m=>m.f+'-'+m.t);pzNum=false;pzCol={}}drawArrows()},
 play(){const m=this.best();if(m)tryMove(m)},
 speak(){const m=this.best();if(m)spk(m)},
 tick(){const n=Date.now();if(!can()){aDue=0;return}if(!aDue){aDue=n+600+Math.random()*900;return}if(n>=aDue){aDue=0;this.play()}},
