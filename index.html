@@ -1999,7 +1999,7 @@ function bDraw(){if(st.hm>=100)return'by the 50-move rule';const k=posKey(st);if
 function bEnd(res,why){bOver=true;busy=true;solved=true;
 if(res==='win'){pzSnd('puzzle-correct');bossWon=true;saveZ();msg('Checkmate! You defeated Shulkified!','good');bsay(bPick(BL.lose))}
 else if(res==='loss'){pzSnd('puzzle-wrong');msg('Checkmate. Shulkified wins. Try again!','bad');bsay(bPick(BL.win))}
-else if(res==='resign'){msg('You resigned. Shulkified wins!','bad');bsay(bPick(BL.resign))}
+else if(res==='resign'){msg('');bsay(bPick(BL.resign))}
 else{msg('Draw '+(why||'')+'.');bsay(bPick(BL.draw))}
 Z('pzbres').style.display='none';Z('pzbre').style.display='';renderList()}
 function bossMove(m){if(bOver)return;const w=st.t==='w',cs=m.ep?m.t+(w?8:-8):m.t,cap=!!st.b[cs];sel=-1;lg=[];busy=true;msg('');paint();
@@ -2014,7 +2014,7 @@ if(!ms.length){bEnd(chk?'loss':'draw','by stalemate');return}
 const dr=bDraw();if(dr){bEnd('draw',dr);return}
 if(chk)bsay(bPick(BL.bchk));else if(cap)bsay(bPick(BL.bcap));else if(Math.random()<.25)bsay(bPick(BL.idle));
 busy=false;msg('Your move.')})}
-Z('pzbres').onclick=()=>{if(!boss||bOver)return;tm.forEach(clearTimeout);tm=[];bOver=true;busy=true;const F=fx();F.checkFX({...st,t:'w'});later(()=>{snd.mate();F.mateFX(kingSq(st.b,true));later(()=>bEnd('resign'),(MATEFX[cfg.mate]||{}).d||1500)},600)};
+Z('pzbres').onclick=()=>{if(!boss||bOver)return;tm.forEach(clearTimeout);tm=[];bOver=true;busy=true;const F=fx();snd.mate();F.mateFX(kingSq(st.b,true));later(()=>bEnd('resign'),(MATEFX[cfg.mate]||{}).d||1500)};
 Z('pzbre').onclick=()=>bossStart();
 function openPz(){if(pzOpen)return;
 if(homeOpen)closeHome();if(profOpen)closeProfile();if(setOpen)closeSet();if(nfOpen)closeNF();closeSim();
