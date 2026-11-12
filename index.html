@@ -1926,7 +1926,8 @@ css.textContent=`#puz{position:fixed;inset:var(--sbt) 0 0 var(--sb);z-index:61;b
 .pzi img{width:34px;height:34px;object-fit:contain;display:block}
 @media (max-width:760px){.pzbw{width:100%}}
 @media (max-width:760px){
-.pzbw #pznb{width:100%;margin:10px 0 0;height:46px}
+.pzbw #pznb,.pzbw #pzbre{width:100%;margin:10px 0 0;height:46px}
+#pzbb:empty{display:none!important}
 #pzbc{position:fixed;left:0;right:0;bottom:0;z-index:62;box-sizing:border-box;border-radius:10px 10px 0 0;padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px))}
 #pzbc .pzbn{margin-top:8px}
 #puz:has(#pzbc:not([style*="none"])) .pzw{padding-bottom:176px}
@@ -2050,9 +2051,10 @@ Z('pzl').addEventListener('click',e=>{const b=e.target.closest('.pzi');if(!b||b.
 Z('pzhb').onclick=()=>Z('pzh').classList.toggle('on');
 Z('pzrb').onclick=()=>load(idx);
 Z('pznb').onclick=()=>{if(idx<PZ.length-1)load(idx+1);else if(done>=PZ.length)bossStart(0)};
-/* phones: the Next button sits right under the board; on bigger screens it stays in the button row */
-{const mq=window.matchMedia('(max-width:760px)'),nb=Z('pznb'),home=Z('pzbt'),bw=pz.querySelector('.pzbw');
-const place=()=>{if(mq.matches){if(nb.parentNode!==bw)bw.appendChild(nb)}else if(nb.parentNode!==home)home.appendChild(nb)};
+/* phones: the Next and Rematch buttons sit right under the board; on bigger screens they stay in their button rows */
+{const mq=window.matchMedia('(max-width:760px)'),bw=pz.querySelector('.pzbw');
+const mv=(n,home)=>{if(mq.matches){if(n.parentNode!==bw)bw.appendChild(n)}else if(n.parentNode!==home)home.appendChild(n)};
+const place=()=>{mv(Z('pznb'),Z('pzbt'));mv(Z('pzbre'),Z('pzbb'))};
 place();if(mq.addEventListener)mq.addEventListener('change',place);else mq.addListener(place)}
 /* ---- boss fight: Shulkified (400 ELO, no hints). Unlocked after Basics and Easy. */
 let boss=false,bOver=false,bHist=[],bTalkT=0,bImgT=0,bCaps={w:[],b:[]};
