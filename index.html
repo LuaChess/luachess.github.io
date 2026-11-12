@@ -1939,9 +1939,9 @@ if(m.p&&MV!=='portal'){el.innerHTML=pieceHTML(before.b[m.f]);el.classList.remove
 F.mvPlace(MV,el,m.t,m.f,m.p?before.b[m.f]:'')}
 if(cap){const back=()=>{if(!els[cs])els[cs]=mk(cap,cs)};MV==='portal'?setTimeout(back,PT_TP):back()}
 paint();later(()=>cb&&cb(),mvWait(F,MV,m.t,m.f))}
-function tryMove(m){if(boss){bossMove(m);return}const p=PZ[idx],s=p.steps[step],before=st,pl=last,ok=s.ok(m,apply(st,m));sel=-1;lg=[];busy=true;msg('');paint();
+function tryMove(m){if(boss){bossMove(m);return}const p=PZ[idx],s=p.steps[step],before=st,pl=last,ok=s.ok(m,apply(st,m));const pm=Z('pzmsg'),pmT=pm.textContent,pmC=pm.classList.contains('good')?'good':pm.classList.contains('bad')?'bad':'';sel=-1;lg=[];busy=true;msg('');paint();
 pzMove(m,()=>{
-if(!ok){pzSnd('puzzle-wrong');msg('Not quite. That is not the right move. Try again!','bad');later(()=>undoMove(m,before,pl,()=>{busy=false;paint()}),600);return}
+if(!ok){pzSnd('puzzle-wrong');msg('Not quite. That is not the right move. Try again!','bad');later(()=>undoMove(m,before,pl,()=>{busy=false;paint();later(()=>{const e=Z('pzmsg');if(!solved&&e.classList.contains('bad')&&e.textContent.indexOf('Not quite')===0)msg(pmT,pmC)},Math.max(0,400-mvWait(fx(),mvKind(),m.t,m.f)))}),600);return}
 if(step===p.steps.length-1){finish();return}
 const rp=s.reply;step++;updStep();msg('Good move!','good');
 later(()=>{const b=legal(st).find(x=>x.f===SQ(rp[0])&&x.t===SQ(rp[1]));if(!b){busy=false;return}
