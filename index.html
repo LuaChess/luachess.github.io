@@ -1819,7 +1819,10 @@ css.textContent=`#puz{position:fixed;inset:var(--sbt) 0 0 var(--sb);z-index:61;b
 .pzp{flex:1;min-width:280px;display:flex;flex-direction:column;gap:14px}
 .pzc{background:#262421;border-radius:10px;padding:16px}
 .pzhd{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.pzk{font-size:12px;font-weight:600;color:#a7a6a2}
+.pzk{font-size:12px;font-weight:600;color:#a7a6a2;display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:4px}
+.pzpl{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:99px;background:rgba(255,255,255,.07);color:#c9c8c5}
+.pzpl.a{background:var(--pza,#3b82f6);color:#fff}
+.pzbub{transition:opacity .3s}
 .pzt{font-size:19px;font-weight:700;line-height:1.2}
 .pzg{font-size:15px;line-height:1.45}
 .pzsteps{display:none;align-items:center;gap:6px;margin-top:12px}
@@ -1908,7 +1911,7 @@ if(n>1){s.classList.add('on');s.innerHTML='Move '+(step+1)+' of '+n+' '+p.steps.
 Z('pzh').textContent='Hint: '+p.steps[step].hint;Z('pzh').classList.remove('on')}
 function load(i){bossOff();tm.forEach(clearTimeout);tm=[];idx=i;step=0;const p=PZ[i];sel=-1;lg=[];last=null;arrows=[];drawArrows();busy=false;solved=false;
 setup(parse(p.fen,p));paint();
-{const f=PZ.findIndex(x=>x.sec===p.sec),n=PZ.filter(x=>x.sec===p.sec).length;Z('pzk').textContent=p.sec+' \u00b7 Puzzle '+(i-f+1)+' of '+n+' \u00b7 '+p.tag}Z('pzt').textContent=p.title;Z('pzg').textContent=p.goal;
+{const f=PZ.findIndex(x=>x.sec===p.sec),n=PZ.filter(x=>x.sec===p.sec).length;Z('pzk').innerHTML='<span class="pzpl a">'+p.sec+'</span><span class="pzpl">'+p.tag+'</span><span>Puzzle '+(i-f+1)+' of '+n+'</span>'}Z('pzt').textContent=p.title;Z('pzg').textContent=p.goal;
 Z('pznb').style.display='none';Z('pznb').firstChild.nodeValue='Next';msg('');updStep();renderList()}
 const pzAud={};function pzSnd(n){try{const u='https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/'+n+'.mp3',a=pzAud[u]||(pzAud[u]=new Audio(u));a.currentTime=0;a.play().catch(()=>{})}catch(e){}}
 function finish(){solved=true;Z('pzsteps').querySelectorAll('.pzdot').forEach(d=>d.classList.add('on'));pzSnd('puzzle-correct');busy=false;if(idx===done&&done<PZ.length){done++;saveZ()}
@@ -1984,7 +1987,7 @@ draw:["A draw? Neither of us wins... how boring! Let us play again.","Hmm, a dra
 resign:["Giving up already? Hehe... I win!","Resigning? A wise choice against me.","Oh, leaving so soon? The box is still open!","A resignation! Smart. Saved yourself some pain.","You give up? I did not even get to show off!","Running away? Fine. Come back when you are braver.","White flag? Alright, I win then!","Ha! The box wins by default.","Do not worry, everyone resigns against me eventually.","Well, that was quick. See you next time!"],
 turn:["It is your turn, White!","You are White, so you move first. Go on!","Your turn! Do not take all day.","White to move. That is you, in case you forgot!","Go ahead, it is your turn.","You have the white pieces, so it is your turn. Make it count!","Ladies first. Or challengers. Anyway, your turn!","Do not just stare at the board. It is your turn!","I am Black, so you go first. Your turn!","Your move, White. I will be waiting right here in my box."]};
 const bPick=a=>a[Math.floor(Math.random()*a.length)];
-function bsay(t){clearInterval(bTalkT);clearInterval(bImgT);const el=Z('pzbub'),im=Z('pzbimg');el.textContent='';let i=0,dn=false;im.src=B_UP;bImgT=setInterval(()=>{dn=!dn;im.src=dn?B_DOWN:B_UP},150);bTalkT=setInterval(()=>{i++;el.textContent=t.slice(0,i);if(i>=t.length){clearInterval(bTalkT);clearInterval(bImgT);im.src=B_UP}},26)}
+function bsay(t){clearInterval(bTalkT);clearInterval(bImgT);clearTimeout(bsay._h);const el=Z('pzbub'),im=Z('pzbimg');el.style.opacity='1';el.textContent='';let i=0,dn=false;im.src=B_UP;bImgT=setInterval(()=>{dn=!dn;im.src=dn?B_DOWN:B_UP},150);bTalkT=setInterval(()=>{i++;el.textContent=t.slice(0,i);if(i>=t.length){clearInterval(bTalkT);clearInterval(bImgT);im.src=B_UP}},26)}
 function bossOff(){if(!boss)return;boss=false;bOver=false;clearInterval(bTalkT);clearInterval(bImgT);Z('pzbimg').src=B_UP;Z('pzc1').style.display='';Z('pzbc').style.display='none';Z('pzbt').style.display='';Z('pzbb').style.display='none'}
 function bossStart(){const again=boss||bossWon;tm.forEach(clearTimeout);tm=[];boss=true;bOver=false;sel=-1;lg=[];last=null;arrows=[];drawArrows();busy=false;solved=false;
 setup(parse(START,{c:{K:1,Q:1,k:1,q:1}}));bHist=[posKey(st)];paint();
