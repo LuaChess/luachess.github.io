@@ -938,7 +938,7 @@ function showPic(){if(simOpen){simAv();return}$('avI').className='img';$('avI').
 $('nameP').textContent=myName;showPic();updOwn();
 $('file').onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=128;const x=c.getContext('2d'),s=Math.min(im.width,im.height);x.drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,128,128);myPic=c.toDataURL('image/jpeg',.85);saveP();showPic();if(profOpen)renderProfile()};im.src=r.result};r.readAsDataURL(f);e.target.value=''};
 $('rs').onclick=()=>{if(simOpen){start();return}if(!rvOn&&started&&!over){forceWhite=true;over=true;thinking=true;snd.mate();mateFX(kingSq(S.b,meW));setTimeout(()=>endGame('loss','by resignation'),(MATEFX[cfg.mate]||{}).d||1500)}};
-$('tabs').onclick=e=>{const k=e.target.dataset.m;if(!k||k===mode||(over&&!settled))return;mode=k;save();start()};
+$('tabs').onclick=e=>{const k=e.target.dataset.m;if(!k||k===mode||(over&&!settled)||(started&&!over&&!settled))return;mode=k;save();start()};
 let arrows=[],rc=null;const arr=$('arr');
 function sqAt(e){const r=boardEl.getBoundingClientRect(),c=Math.floor((e.clientX-r.left)/r.width*8),w=Math.floor((e.clientY-r.top)/r.height*8);return c<0||c>7||w<0||w>7?-1:vi(w*8+c)}
 let arrowCol={};const ARCOLS=['#3b82f6','#e0524a','#81b64c','#a855f7','#06b6d4','#ec4899'];
