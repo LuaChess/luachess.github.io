@@ -518,7 +518,7 @@ body.lobby #avA{background-color:#3b3937;background-image:url("data:image/svg+xm
 #lby .lh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #3a3835;font-size:15px;font-weight:600;color:#e9e8e6;background:#2a2825;flex:none}
 #lby .lh i{width:18px;height:18px;flex:none;display:block}
 #lby .lh i svg,#lby .lh i img{width:100%;height:100%;display:block}
-#lby .lb{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:14px}
+#lby .lb{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:14px}
 #lby .lc{width:100%;box-sizing:border-box;display:flex;align-items:center;gap:16px;padding:18px 20px;border:1px solid #3a3835;border-radius:8px;background:#302e2b;color:#fff;font:inherit;text-align:left;cursor:pointer}
 #lby .lc:hover{background:#3a3835}
 #lby .lc:disabled{pointer-events:none}
@@ -536,6 +536,15 @@ body.lobby #avA{background-color:#3b3937;background-image:url("data:image/svg+xm
 #lby .lc img{width:38px;height:38px;flex:none;display:block}
 #lby .lc b{display:block;font-size:22px;font-weight:800;line-height:1.15}
 #lby .lc small{display:block;margin-top:4px;font-size:14px;font-weight:500;color:#bdbcb8;line-height:1.3}
+
+/* play bots: dialogue panel inside the move list panel (desktop); on phones the panel just grows instead of shrinking */
+#bdlg{display:none}
+body.botg:not(.rvon) #bdlg{display:flex;flex:none;align-items:center;gap:12px;box-sizing:border-box;padding:12px 14px 14px;border-bottom:1px solid #3a3835;background:#262421}
+#bdlg .bdav{flex:none;width:72px;height:72px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+#bdlg .bdav img{display:block;max-width:100%;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;image-rendering:pixelated}
+#bdlg .bdbub{position:relative;flex:1;min-width:0;min-height:72px;box-sizing:border-box;display:flex;align-items:center;padding:10px 14px;border-radius:18px;background:#fff;color:#111;font-size:13px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
+#bdlg .bdbub::before{content:"";position:absolute;left:-12px;bottom:16px;width:14px;height:18px;background:#fff;clip-path:path("M14 0C13 8 8 14 0 17C8 18 12 18 14 18Z")}
+@media (max-width:760px){body.botg:not(.rvon) #mv{height:auto}body.botg:not(.rvon) #mvl{flex:none;height:187px}}
 </style><style id="luaCss"></style><script>try{if(!/[?&]nocss\b/.test(location.search)){const d=JSON.parse(localStorage.getItem('chessStyle')||'null');if(d&&typeof d.css==='string')document.getElementById('luaCss').textContent=d.css}}catch(e){}</script></head><body>
 <aside id="side"><a class="sl" href="#home" data-nav="home" title="LuaChess"><img src="https://luachess.github.io/assets/luachess.png" alt="LuaChess"></a><nav id="nav"><a data-nav="home" href="#home"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg><span>Home</span></a><a data-nav="play" href="#"><svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg><span>Play</span></a><a data-nav="sim" href="#simulation"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/></svg><span>Simulation</span></a><a data-nav="puzzle" href="#puzzle"><svg viewBox="0 0 24 24"><path d="M12 3a2.5 2.5 0 0 1 2.5 2.5V7H19a1 1 0 0 1 1 1v4.5h-1.5a2.5 2.5 0 0 0 0 5H20V21a1 1 0 0 1-1 1h-4.5v-1.5a2.5 2.5 0 0 0-5 0V22H5a1 1 0 0 1-1-1v-4.5h1.5a2.5 2.5 0 0 0 0-5H4V8a1 1 0 0 1 1-1h4.5V5.5A2.5 2.5 0 0 1 12 3z"/></svg><span>Puzzles</span></a><a data-nav="profile" href="#profile"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.400 3.600-7 8-7s8 2.600 8 7"/></svg><span>Profile</span></a><a data-nav="settings" href="#"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>Settings</span></a></nav><a id="sp" data-nav="profile" href="#profile"></a></aside>
 <div id="home"></div>
@@ -545,7 +554,7 @@ body.lobby #avA{background-color:#3b3937;background-image:url("data:image/svg+xm
 <div id="ov"><div class="card"><button id="ovx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="msg"></div><div id="sub"></div><div class="vs"><div class="pl"><div class="pav" id="ovP"></div><div class="pn" id="ovPn"></div><div class="pe" id="ovPe"></div></div><div class="vsx">vs</div><div class="pl"><div class="pav" id="ovA"></div><div class="pn" id="ovAn">Bot</div><div class="pe" id="ovAe"></div></div></div><button id="next">Next round</button></div></div>
 <div class="bar"><div class="av" id="avP"><div id="avI"></div></div><input type="file" id="file" accept="image/*" hidden><div class="who"><div class="line"><b id="nameP">You</b><span id="ownB"></span><span class="rk" id="rkP"></span><span class="elo" id="eloP"></span></div><div class="caps" id="capP"></div></div><button id="nxt" title="Next round"><svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/></svg></button><a class="rnd simb" id="simU" title="Undo move" aria-label="Undo move"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></a><a class="rnd simb" id="simF" title="Flip board" aria-label="Flip board"><svg viewBox="0 0 24 24"><path d="M7 20V4"/><path d="M3 8l4-4 4 4"/><path d="M17 4v16"/><path d="M13 16l4 4 4-4"/></svg></a><a class="rnd simb" id="simR" title="Reset board" aria-label="Reset board"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></a><a id="rs">Resign</a><div class="clk" id="clkP">0:00</div></div>
 </div>
-<div id="mv"><div id="lby"><div class="lh"><i id="lbyIc"></i><span>Play Chess</span></div><div class="lb"><button class="lc" id="lbyGo" type="button"><img src="https://assets-ds.chess.com/color-icons/time-blitz.svg" alt=""><div class="an"></div><span><b>Play Online</b><small>Play vs a person of similar skill</small></span></button></div></div><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="rvbar"><span id="rvt"></span><button class="rvbtn" id="rvfirst" title="First move"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 6l-8 6 8 6"/></svg></button><button class="rvbtn" id="rvp" title="Previous move (Left arrow)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span id="rvn"></span><button class="rvbtn" id="rvnx" title="Next move (Right arrow)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button><button class="rvbtn" id="rvlast" title="Last move"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 6l8 6-8 6"/></svg></button></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
+<div id="mv"><div id="lby"><div class="lh"><i id="lbyIc"></i><span>Play Chess</span></div><div class="lb"><button class="lc" id="lbyGo" type="button"><img src="https://assets-ds.chess.com/color-icons/time-blitz.svg" alt=""><div class="an"></div><span><b>Play Online</b><small>Play vs a person of similar skill</small></span></button><button class="lc" id="lbyBots" type="button"><img src="https://assets-ds.chess.com/color-icons/device-bot.svg" alt=""><span><b>Play Bots</b><small>Challenge a bot from Easy to Master</small></span></button></div></div><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="rvbar"><span id="rvt"></span><button class="rvbtn" id="rvfirst" title="First move"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 6l-8 6 8 6"/></svg></button><button class="rvbtn" id="rvp" title="Previous move (Left arrow)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span id="rvn"></span><button class="rvbtn" id="rvnx" title="Next move (Right arrow)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button><button class="rvbtn" id="rvlast" title="Last move"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 6l8 6-8 6"/></svg></button></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
 <div id="promo"><div class="pcard"><div class="t">Promote pawn to</div><div class="popts" id="popts"></div></div></div>
 <script>
 /* privacy: nothing is written to localStorage unless the visitor accepted */
@@ -2020,7 +2029,7 @@ s+=`<g opacity=".85" fill="${AC}"><line x1="${sx}" y1="${sy}" x2="${bx}" y2="${b
 parr.innerHTML=s}
 function msg(t,c){const e=Z('pzmsg');e.className='pzmsg'+(c?' '+c:'');e.innerHTML=(t?(c==='bad'?'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>':c==='good'?'<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>':''):'')+'<span></span>';e.lastChild.textContent=t}
 const LOCK='<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',CHK='<svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg>';
-function renderList(){Z('pzl').innerHTML=(()=>BOTS.map((b,k)=>{const wn=k?alexWon:bossWon;return(k===0?'<div class="pzsec">Bots</div>':'')+'<button class="pzi'+(boss&&cb===k?' cur':'')+'" data-boss="'+k+'" title="'+b.name+' ('+b.elo+' ELO)'+(wn?' (defeated)':'')+'" aria-label="'+b.name+'"><img class="pzbimg" src="'+b.up+'" alt=""></button>'}).join(''))()+PZ.map((p,i)=>{const lock=i>done,dn=i<done,f=PZ.findIndex(x=>x.sec===p.sec);return(f===i?'<div class="pzsec">'+p.sec+'</div>':'')+`<button class="pzi${i===idx&&!boss?' cur':''}${dn?' dn':''}" data-p="${i}" title="${lock?'Locked':p.title}" aria-label="${lock?'Locked':p.title}"${lock?' disabled':''}>${lock?LOCK:dn?CHK:i-f+1}</button>`}).join('')}
+function renderList(){Z('pzl').innerHTML=PZ.map((p,i)=>{const lock=i>done,dn=i<done,f=PZ.findIndex(x=>x.sec===p.sec);return(f===i?'<div class="pzsec">'+p.sec+'</div>':'')+`<button class="pzi${i===idx&&!boss?' cur':''}${dn?' dn':''}" data-p="${i}" title="${lock?'Locked':p.title}" aria-label="${lock?'Locked':p.title}"${lock?' disabled':''}>${lock?LOCK:dn?CHK:i-f+1}</button>`}).join('')}
 function updStep(){const p=PZ[idx],n=p.steps.length,s=Z('pzsteps');
 if(n>1){s.classList.add('on');s.innerHTML='Move '+(step+1)+' of '+n+' '+p.steps.map((_,i)=>'<span class="pzdot'+(i<step?' on':i===step?' half':'')+'"></span>').join('')}else s.classList.remove('on');
 Z('pzh').textContent='Hint: '+p.steps[step].hint;Z('pzh').classList.remove('on')}
@@ -2127,7 +2136,7 @@ lose:["3:<","mrrr... 3:<","meeeeow...","HISSSSSSS...","mrow... :<","mew... ;w;",
 draw:["mrrp?","meow...?",":3?","mmmmm...",">:3?","*tilts head* mrrp?","mew?"],
 resign:[":3","mrrp! :3","purrrrrr",">:3 meow","MEOW! :3","*naps* zzz... mrrp","nyaa~ :3"],
 turn:["mrrp?","meow?","mew?",":3?","*taps paw* mrow?","mrow?","*stares at you* mrrp?","meow meow?"]};
-let BL=BL_S;
+let BL=BL_S;window.LCBOTS={BOTS,L:[BL_S,BL_A]};
 const bPick=a=>a[Math.floor(Math.random()*a.length)];
 function bsay(t){clearInterval(bTalkT);clearInterval(bImgT);clearTimeout(bsay._h);const el=Z('pzbub'),im=Z('pzbimg');el.style.opacity='1';el.textContent='';let i=0,dn=false;im.src=BOTS[cb].up;bImgT=setInterval(()=>{dn=!dn;im.src=dn?BOTS[cb].down:BOTS[cb].up},150);bTalkT=setInterval(()=>{i++;el.textContent=t.slice(0,i);if(i>=t.length){clearInterval(bTalkT);clearInterval(bImgT);im.src=BOTS[cb].up}},26)}
 function bossOff(){if(!boss)return;boss=false;bOver=false;bCaps={w:[],b:[]};pzCaps();clearInterval(bTalkT);clearInterval(bImgT);Z('pzbimg').src=BOTS[cb].up;Z('pzc1').style.display='';Z('pzbc').style.display='none';Z('pzbt').style.display='';Z('pzbb').style.display='none'}
@@ -2185,5 +2194,42 @@ speak(){const m=this.best();if(m)spk(m)},
 tick(){const n=Date.now();if(!can()){aDue=0;return}if(!aDue){aDue=n+600+Math.random()*900;return}if(n>=aDue){aDue=0;this.play()}},
 end(win){if(!pzOpen)return;if(boss){if(bOver)return;tm.forEach(clearTimeout);tm=[];bEnd(win?'win':'loss');return}
 if(win){if(solved)return;tm.forEach(clearTimeout);tm=[];finish()}else{pzSnd('puzzle-wrong');msg('Not quite. That is not the right move. Try again!','bad')}}}}
+})();
+
+/* play bots: choose a bot in the lobby, play it on the main board, its dialogue shows in the side panel */
+(()=>{const B=window.LCBOTS;if(!B)return;
+const lby=$('lby'),mvp=$('mv'),lb=lby.querySelector('.lb');
+let k=-1,flag=false,last=-1,talkT=0,imgT=0;
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const dl=document.createElement('div');dl.id='bdlg';dl.innerHTML='<div class="bdav"><img id="bdimg" alt=""></div><div class="bdbub" id="bdbub"></div>';mvp.insertBefore(dl,$('mvh'));
+const bi=$('bdimg'),fit=()=>{const n=bi.naturalWidth,T=72;if(n)bi.style.width=(n<T?n*Math.floor(T/n):T)+'px'};bi.onload=fit;
+function say(t){if(k<0)return;clearInterval(talkT);clearInterval(imgT);const b=B.BOTS[k],el=$('bdbub');el.textContent='';let i=0,d=false;bi.alt=b.name;bi.style.width='';bi.src=b.up;imgT=setInterval(()=>{d=!d;bi.src=d?b.down:b.up},150);talkT=setInterval(()=>{i++;el.textContent=t.slice(0,i);if(i>=t.length){clearInterval(talkT);clearInterval(imgT);bi.src=b.up}},26)}
+function off(){if(k<0)return;k=-1;clearInterval(talkT);clearInterval(imgT);document.body.classList.remove('botg')}
+const bl=document.createElement('div');bl.className='lb';bl.id='lbyBl';bl.style.display='none';
+bl.innerHTML='<button class="lc" id="lbyBack" type="button" style="padding:12px 16px"><span><b style="font-size:16px">\u2039 Back</b></span></button>'+B.BOTS.map((b,i)=>`<button class="lc" data-bk="${i}" type="button"><img src="${b.up}" alt="" style="object-fit:contain;image-rendering:pixelated"><span><b>${b.name}</b><small>${b.elo} ELO</small></span></button>`).join('');
+lby.appendChild(bl);
+const showMain=()=>{lb.style.display='';bl.style.display='none'};
+$('lbyBots').onclick=()=>{lbyReset();lb.style.display='none';bl.style.display='flex'};
+$('lbyBack').onclick=showMain;
+function startBot(i){if(!document.body.classList.contains('lobby'))return;const again=last===i,b=B.BOTS[i],L=B.L[i];
+flag=true;try{start()}finally{flag=false}
+k=i;last=i;botName=b.name;botAv=b.up;botAvTk++;botLoad=false;aiElo=b.elo;botPic();updInfo();started=true;lastTick=Date.now();saveGame();
+document.body.classList.add('botg');
+try{const a=new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-start.mp3');a.play().catch(()=>{})}catch(e){}
+say(pick(again?L.again:L.intro)+(meW?' '+pick(L.turn):''))}
+bl.addEventListener('click',e=>{const x=e.target.closest('[data-bk]');if(x)startBot(+x.dataset.bk)});
+const _start=start;start=function(){if(!flag)off();return _start.apply(this,arguments)};
+const _lobby=enterLobby;enterLobby=function(){off();showMain();return _lobby.apply(this,arguments)};
+const _dm=doMove;doMove=function(m,done){if(k<0||rvOn||simOpen)return _dm.apply(this,arguments);
+const w=S.t==='w',cs=m.ep?m.t+(w?8:-8):m.t,cap=!!S.b[cs],me=w===meW,g=gid;
+const r=_dm.apply(this,arguments);
+if(k>=0&&g===gid&&!over){const L=B.L[k],chk=inCheck(S,S.t==='w');
+if(chk)say(pick(me?L.pchk:L.bchk));else if(cap)say(pick(me?L.pcap:L.bcap));else if(Math.random()<(me?.3:.25))say(pick(L.idle))}
+return r};
+const _eg=endGame;endGame=function(res,why){const was=settled,r=_eg.apply(this,arguments);
+if(k>=0&&!was&&!simOpen){const L=B.L[k];say(pick(res==='win'?L.lose:res==='draw'?L.draw:/resign/.test(why)?L.resign:L.win))}
+return r};
+/* a bot game that was restored after a page reload keeps its bot */
+if(mvs.length&&!over&&!settled){const i=B.BOTS.findIndex(b=>b.name===botName);if(i>=0){k=i;last=i;document.body.classList.add('botg');say(pick(B.L[i].idle))}}
 })();
 </script></body></html>
