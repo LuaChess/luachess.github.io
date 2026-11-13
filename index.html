@@ -545,6 +545,7 @@ body.botg:not(.rvon) #mv{gap:8px;background:transparent;overflow:visible}
 body.botg:not(.rvon) #mvh{border-radius:8px 8px 0 0}
 body.botg:not(.rvon) #mvl{background:#262421;border-radius:0 0 8px 8px}
 body.botg:not(.rvon) #bdlg{border-bottom:0;border-radius:8px}
+body.botg:not(.rvon) #mvh{margin-bottom:-8px}
 #bdlg .bdav{flex:none;width:72px;height:72px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 #bdlg .bdav img{display:block;max-width:100%;image-rendering:-moz-crisp-edges;image-rendering:crisp-edges;image-rendering:pixelated}
 #bdlg .bdbub{position:relative;flex:1;min-width:0;min-height:72px;box-sizing:border-box;display:flex;align-items:center;padding:10px 14px;border-radius:18px;background:#fff;color:#111;font-size:13px;font-weight:600;line-height:1.4;overflow-wrap:anywhere}
@@ -1080,14 +1081,14 @@ else{chk?(snd.check(),checkFX()):m.castle?snd.castle():cap?snd.cap():snd.move();
 function simEnd(res,why){settled=true;closePromo();pmv=null;preDraw();over=true;thinking=true;const bo=meW?'White':'Black',to=meW?'Black':'White',wn=res==='win'?bo:res==='loss'?to:null,m=$('msg');m.textContent=wn?wn+' wins':'Draw';m.style.color=wn?'#81b64c':'#fff';$('sub').textContent=why+' \u2022 Simulation';$('ovP').className='pav img';$('ovP').innerHTML=$('avI').innerHTML;$('ovA').className='pav img';$('ovA').innerHTML=$('avA').innerHTML;$('ovPn').textContent=bo;$('ovAn').textContent=to;$('ovPe').textContent='No ELO change';$('ovAe').textContent='';ov.style.display='flex';updInfo()}
 function endGame(res,why){if(settled)return;if(simOpen){simEnd(res,why);return}settled=true;played++;closePromo();pmv=null;preDraw();try{localStorage.removeItem('chessGame')}catch(e){}over=true;thinking=true;
 const E=1/(1+Math.pow(10,(aiElo-myElo)/400)),sc=res==='win'?1:res==='draw'?.5:0,old=myElo;
-myElo=Math.max(100,old+Math.round(32*(sc-E)));if(res==='win'&&aiElo>old)myElo=Math.max(100,aiElo+Math.max(1,Math.round(32*(sc-E))));const d=myElo-old;ratings[mode]=myElo;save();recordGame(res,why,d);
+myElo=Math.max(100,old+Math.round(32*(sc-E)));if(res==='win'&&aiElo>old)myElo=Math.max(100,aiElo+Math.max(1,Math.round(32*(sc-E))));const BG=document.body.classList.contains('botg');if(BG)myElo=old;const d=myElo-old;ratings[mode]=myElo;save();recordGame(res,why,d);
 let t,c;if(res==='win'){t='You won';c='#81b64c'}else if(res==='loss'){t='You lost';c='#e0524a'}else{t='Draw';c='#fff'}
 const m=$('msg');m.textContent=t;m.style.color=c;$('sub').textContent=why;
 $('ovP').className='pav img';$('ovP').innerHTML=$('avI').innerHTML;$('ovPn').innerHTML=esc(myName)+nameBadge(myName);
 $('ovA').className='pav img';$('ovA').innerHTML=$('avA').innerHTML;$('ovAn').textContent=botName;
 const dc=d>0?'#81b64c':d<0?'#e0524a':'#a7a6a2';
 $('ovPe').innerHTML=`${old} \u2192 ${myElo}<span class="d" style="color:${dc}">(${d>0?'+':''}${d})</span>`;
-if(res==='win'&&d>0){const bd=Math.max(1,Math.round(d*(.8+Math.random()*.4)));$('ovAe').innerHTML=`${aiElo} \u2192 ${Math.max(0,aiElo-bd)}<span class="d" style="color:#e0524a">(-${bd})</span>`}else if(res==='loss'){const bg=Math.max(1,Math.round((d<0?-d:32*E)*(.8+Math.random()*.4)));$('ovAe').innerHTML=`${aiElo} \u2192 ${aiElo+bg}<span class="d" style="color:#81b64c">(+${bg})</span>`}else $('ovAe').textContent=aiElo;
+if(!BG&&res==='win'&&d>0){const bd=Math.max(1,Math.round(d*(.8+Math.random()*.4)));$('ovAe').innerHTML=`${aiElo} \u2192 ${Math.max(0,aiElo-bd)}<span class="d" style="color:#e0524a">(-${bd})</span>`}else if(!BG&&res==='loss'){const bg=Math.max(1,Math.round((d<0?-d:32*E)*(.8+Math.random()*.4)));$('ovAe').innerHTML=`${aiElo} \u2192 ${aiElo+bg}<span class="d" style="color:#81b64c">(+${bg})</span>`}else $('ovAe').textContent=aiElo;
 ov.style.display='flex';updInfo()}
 document.getElementById('next').onclick=()=>enterLobby();document.getElementById('ovx').onclick=()=>{ov.style.display='none';if(settled){$('nxt').style.display='flex';$('rs').style.display='none'}};$('nxt').onclick=()=>enterLobby();
 function start(){document.body.classList.remove('lobby');simUn=[];botName=randName();$('nameA').textContent=botName;loadBotAv();pmv=null;closePromo();{const f=$('fm');if(f)f.style.display='none';fmPos=null}gid++;autoOn=false;autoDue=0;autoBtn();if(rvOn&&/^#review\//.test(location.hash)){try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}}rvOn=false;rvSw=false;rvH=false;rvSv=null;{const b=$('rvbar');if(b)b.style.display='none'}document.body.classList.remove('rvon');mvs=[];rmv=[];rvSt=null;rvIdx=0;rvCur=null;renderMoves();S=newState();sel=null;legalSel=[];last=null;over=false;thinking=false;settled=false;started=false;hist=[posKey(S)];
@@ -1098,12 +1099,12 @@ pcs.innerHTML='';els=[];caps={w:[],b:[]};arrows=[];drawArrows();for(let i=0;i<64
 if(!meW){const g=gid;thinking=true;setTimeout(()=>{if(over||g!==gid)return;const a=aiMove();doMove(a,()=>{if(g===gid){thinking=false;runPre()}})},2000+Math.random()*1000)}}/* clocks, draw rules */
 let forceWhite=false,gid=0,tw=0,tb=0,started=false,lastTick=0,settled=false,hist=[];
 /* continue the running game after the page was closed */
-function gameRaw(){if(over||settled||!mvs.length)return null;return JSON.stringify({v:1,S,mvs,rv:rmv.map(a=>String.fromCharCode(65+a[0],65+a[1])+(a[2]||'-')).join(''),hist,caps,last,aiElo,mode,tw,tb,started,w:meW,bn:botName,ba:botAv})}
+function gameRaw(z){if(over||settled||(!mvs.length&&!z))return null;return JSON.stringify({z:mvs.length?0:1,v:1,S,mvs,rv:rmv.map(a=>String.fromCharCode(65+a[0],65+a[1])+(a[2]||'-')).join(''),hist,caps,last,aiElo,mode,tw,tb,started,w:meW,bn:botName,ba:botAv})}
 function saveGame(){if(rvSw||simOpen)return;try{const r=gameRaw();if(r===null){localStorage.removeItem('chessGame');return}
 localStorage.setItem('chessGame',r)}catch(e){}}
 function restoreGame(raw){try{if(!raw)return;const d=JSON.parse(raw);
 const okB=d&&d.S&&Array.isArray(d.S.b)&&d.S.b.length===64&&d.S.b.every(x=>x===''||/^[pnbrqkPNBRQK]$/.test(x))&&(d.S.t==='w'||d.S.t==='b')&&d.S.c&&d.S.b.includes('K')&&d.S.b.includes('k');
-if(!okB||!MODES[d.mode]||!Array.isArray(d.mvs)||!d.mvs.length||!Array.isArray(d.hist)||!d.caps||!Array.isArray(d.caps.w)||!Array.isArray(d.caps.b)){localStorage.removeItem('chessGame');return}
+if(!okB||!MODES[d.mode]||!Array.isArray(d.mvs)||(!d.mvs.length&&!d.z)||!Array.isArray(d.hist)||!d.caps||!Array.isArray(d.caps.w)||!Array.isArray(d.caps.b)){localStorage.removeItem('chessGame');return}
 if(!legal(d.S).length){localStorage.removeItem('chessGame');return}
 gid++;mode=d.mode;myElo=ratings[mode];aiElo=+d.aiElo||aiElo;S=d.S;mvs=d.mvs.map(String);rmv=[];rvSt=null;rvIdx=0;rvCur=null;{const q=typeof d.rv==='string'?d.rv:'';for(let i=0;i+2<q.length;i+=3){const c=q[i+2];rmv.push([q.charCodeAt(i)-65,q.charCodeAt(i+1)-65,c==='-'?'':c])}}hist=d.hist.map(String);caps={w:d.caps.w.map(String),b:d.caps.b.map(String)};
 last=d.last&&Number.isInteger(d.last.f)&&Number.isInteger(d.last.t)?d.last:null;tw=Math.max(1,+d.tw||0);tb=Math.max(1,+d.tb||0);started=!!d.started;lastTick=Date.now();
@@ -1742,11 +1743,11 @@ homeEl.addEventListener('mouseover',e=>{const mo=e.target.closest('.mo');if(!mo|
 /* simulation sandbox (#simulation): the Play board with its sounds, animations, checkmate effects and admin tools; you move White and Black, no ELO, no saved game */
 function simShow(){try{if(location.hash!=='#simulation')location.hash='simulation'}catch(e){}navSync()}
 function openSim(){if(homeOpen)closeHome();if(profOpen)closeProfile();if(setOpen)closeSet();if(nfOpen)closeNF();if(simOpen){simShow();return}
-if(rvOn)rvExit(true);saveGame();simRaw=gameRaw();
+if(rvOn)rvExit(true);saveGame();simRaw=gameRaw(!document.body.classList.contains('lobby'));
 simOpen=true;document.body.classList.add('simon');start();simShow()}
 function closeSim(){if(!simOpen)return;simOpen=false;document.body.classList.remove('simon');$('rs').textContent='Resign';$('nameP').textContent=myName;updOwn();showPic();
 try{if(location.hash==='#simulation')history.replaceState(null,'',location.pathname+location.search)}catch(e){}
-const raw=simRaw;simRaw=null;start();restoreGame(raw);if(!mvs.length)enterLobby();navSync()}
+const raw=simRaw;simRaw=null;start();restoreGame(raw);if(!mvs.length&&!started)enterLobby();navSync()}
 function simRebuild(){pcs.innerHTML='';els=[];for(let i=0;i<64;i++)if(S.b[i])els[i]=mk(S.b[i],i)}
 /* step one move back by sliding the pieces (same as the review viewer) */
 function simTween(m,ms){const w=ms.t==='w',cs=m.ep?m.t+(w?8:-8):m.t,cap=ms.b[cs],row=w?7:0,rf=row*8+(m.castle===1?7:0),rt=row*8+(m.castle===1?5:3),MV=['portal','instant','jump','flip','cart'].includes(cfg.move)?cfg.move:'default';
@@ -2236,6 +2237,7 @@ return r};
 const _eg=endGame;endGame=function(res,why){const was=settled,r=_eg.apply(this,arguments);
 if(k>=0&&!was&&!simOpen){const L=B.L[k];say(pick(res==='win'?L.lose:res==='draw'?L.draw:/resign/.test(why)?L.resign:L.win))}
 return r};
+const _rg=restoreGame;restoreGame=function(){const r=_rg.apply(this,arguments);if((mvs.length||started)&&!over&&!settled){const i=B.BOTS.findIndex(b=>b.name===botName);if(i>=0){k=i;last=i;document.body.classList.add('botg');say(pick(B.L[i].idle))}}return r};
 /* a bot game that was restored after a page reload keeps its bot */
 if(mvs.length&&!over&&!settled){const i=B.BOTS.findIndex(b=>b.name===botName);if(i>=0){k=i;last=i;document.body.classList.add('botg');say(pick(B.L[i].idle))}}
 })();
