@@ -2240,7 +2240,7 @@ flag=true;try{start()}finally{flag=false}
 k=i;last=i;botName=b.name;botAv=b.up;botAvTk++;botLoad=false;aiElo=b.elo;botPic();updInfo();started=true;lastTick=Date.now();saveGame();
 document.body.classList.add('botg');
 try{const a=new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-start.mp3');a.play().catch(()=>{})}catch(e){}
-say(pick(again?L.again:L.intro)+(meW?' '+pick(L.turn):''))}
+say(pick(again?L.again:L.intro)+(meW&&!b.smooth?' '+pick(L.turn):''))}
 bl.addEventListener('click',e=>{const x=e.target.closest('[data-bk]');if(x)startBot(+x.dataset.bk)});
 const _start=start;start=function(){if(!flag)off();return _start.apply(this,arguments)};
 const _lobby=enterLobby;enterLobby=function(){off();showMain();return _lobby.apply(this,arguments)};
