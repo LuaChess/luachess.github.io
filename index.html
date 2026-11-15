@@ -578,7 +578,7 @@ body.botg:not(.rvon) #mvh{margin-bottom:-8px}
 <div id="ov"><div class="card"><button id="ovx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="msg"></div><div id="sub"></div><div class="vs"><div class="pl"><div class="pav" id="ovP"></div><div class="pn" id="ovPn"></div><div class="pe" id="ovPe"></div></div><div class="vsx">vs</div><div class="pl"><div class="pav" id="ovA"></div><div class="pn" id="ovAn">Bot</div><div class="pe" id="ovAe"></div></div></div><button id="next">Next round</button></div></div>
 <div class="bar"><div class="av" id="avP"><div id="avI"></div></div><input type="file" id="file" accept="image/*" hidden><div class="who"><div class="line"><b id="nameP">You</b><span id="ownB"></span><span class="rk" id="rkP"></span><span class="elo" id="eloP"></span></div><div class="caps" id="capP"></div></div><button id="nxt" title="Next round"><svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/></svg></button><a class="rnd simb" id="simU" title="Undo move" aria-label="Undo move"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></a><a class="rnd simb" id="simF" title="Flip board" aria-label="Flip board"><svg viewBox="0 0 24 24"><path d="M7 20V4"/><path d="M3 8l4-4 4 4"/><path d="M17 4v16"/><path d="M13 16l4 4 4-4"/></svg></a><a class="rnd simb" id="simR" title="Reset board" aria-label="Reset board"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></a><a id="rs">Resign</a><div class="clk" id="clkP">0:00</div></div>
 </div>
-<div id="mv"><div id="lby"><div class="lh"><i id="lbyIc"></i><span>Play Chess</span></div><div class="lb"><button class="lc" id="lbyGo" type="button"><img src="https://assets-ds.chess.com/color-icons/time-blitz.svg" alt=""><div class="an"></div><span><b>Play Online</b><small>Play vs a person of similar skill</small></span></button><button class="lc" id="lbyBots" type="button"><img src="https://assets-ds.chess.com/color-icons/device-bot.svg" alt=""><span><b>Play Bots</b><small>Challenge a bot from Easy to Master</small></span></button></div></div><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="rvbar"><span id="rvt"></span><button class="rvbtn" id="rvfirst" title="First move"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 6l-8 6 8 6"/></svg></button><button class="rvbtn" id="rvp" title="Previous move (Left arrow)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span id="rvn"></span><button class="rvbtn" id="rvnx" title="Next move (Right arrow)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button><button class="rvbtn" id="rvlast" title="Last move"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 6l8 6-8 6"/></svg></button></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
+<div id="mv"><div id="lby"><div class="lh"><i id="lbyIc"></i><span>Play Chess</span></div><div class="lb"><button class="lc" id="lbyGo" type="button"><img src="https://assets-ds.chess.com/color-icons/time-blitz.svg" alt=""><div class="an"></div><span><b>Play Online</b><small>Play vs a person of similar skill</small></span></button><button class="lc" id="lbyBots" type="button"><img src="https://assets-ds.chess.com/color-icons/device-bot.svg" alt=""><span><b>Play Bots</b><small>Challenge a bot from Easy to Master</small></span></button></div></div><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="rvbar"><span id="rvt"></span><span id="rvacc" style="flex:1 0 100%;display:none;font-size:13px;font-weight:600;color:#a7a6a2"></span><button class="rvbtn" id="rvfirst" title="First move"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 6l-8 6 8 6"/></svg></button><button class="rvbtn" id="rvp" title="Previous move (Left arrow)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span id="rvn"></span><button class="rvbtn" id="rvnx" title="Next move (Right arrow)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button><button class="rvbtn" id="rvlast" title="Last move"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 6l8 6-8 6"/></svg></button></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
 <div id="promo"><div class="pcard"><div class="t">Promote pawn to</div><div class="popts" id="popts"></div></div></div>
 <script>
 /* privacy: nothing is written to localStorage unless the visitor accepted */
@@ -1425,7 +1425,65 @@ function rvStart(R,w,lbl,fh,ai,rs){if(fh&&simOpen)closeSim();if(setOpen)closeSet
 if(!rvOn){rvSv={mvs,meW,last};rvSv.lb=document.body.classList.contains('lobby');document.body.classList.remove('lobby')}
 rvOn=true;rvRes=!!rs;rvAi=ai==null?null:ai;rvSw=true;rvH=!!fh;rvSt=R;preDraw();rvIdx=R.L.length-1;sel=null;legalSel=[];meW=w;applyFlip();mvs=R.N;
 if(ov.style.display!=='none')ov.style.display='none';if(settled){$('nxt').style.display='flex';$('rs').style.display='none'}
-$('rvt').textContent=lbl;$('rs').style.display='none';$('rvbar').style.display='flex';document.body.classList.add('rvon');rvRender();navSync()}
+$('rvt').textContent=lbl;$('rs').style.display='none';$('rvbar').style.display='flex';document.body.classList.add('rvon');rvRender();navSync();rvAcc(R)}
+/* estimated play rating of both players, guessed from the average centipawn loss of their moves (engine analysis) */
+function rvAcc(R){const el=$('rvacc');if(!el)return;el.style.display='block';el.textContent='Estimating play ratings...';
+const N=R.L.length,sc=[],bm=[],one=[],sS=S,sH=hist;let i=0;
+const run=()=>{if(!rvOn||rvSt!==R)return;const t0=performance.now();
+while(i<N&&performance.now()-t0<40){const s=R.L[i];let v;
+if(!legal(s).length)v=inCheck(s,s.t==='w')?-1500:0;
+else{one[i]=legal(s).length===1;S=s;hist=[posKey(s)];bestMove.sc=null;try{bm[i]=bestMove(50);v=bestMove.sc}finally{S=sS;hist=sH}if(v==null)v=evalS(s)}
+sc.push(Math.max(-1500,Math.min(1500,v)));i++}
+if(i<N){setTimeout(run,0);return}
+const sum=[0,0],cnt=[0,0];
+for(let k=0;k<N-1;k++){const p=k%2;sum[p]+=Math.max(0,Math.min(500,sc[k]+sc[k+1]));cnt[p]++}
+const est=p=>cnt[p]?'~'+Math.round(Math.max(100,Math.min(3200,3200*Math.exp(-0.0125*sum[p]/cnt[p])))/10)*10:'n/a';
+const me=meW?0:1;el.innerHTML='<div>You played at '+est(me)+'</div><div>Opponent played at '+est(1-me)+'</div>';rvCls(R,sc,bm,one);rvIcons()};
+setTimeout(run,0)}
+/* move classification (brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss, blunder).
+   Every icon lives in CLS below: to use the real chess.com icons, add a  u:'https://...svg'  (image URL) to an entry and it is used instead of the drawn icon. */
+const CLS_W='fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"';
+const CLS_EX=x=>`<path d="M${x} 5.5v7.2" ${CLS_W}/><circle cx="${x}" cy="17.8" r="1.6" fill="#fff"/>`;
+const CLS_QM=x=>`<path d="M${x-3} 9.2a3 3 0 1 1 4.7 2.4c-1.2.9-1.7 1.5-1.7 2.8" ${CLS_W} stroke-width="2.4"/><circle cx="${x}" cy="17.8" r="1.5" fill="#fff"/>`;
+const CLS_IC=(c,b)=>`<circle cx="12" cy="12" r="11.5" fill="${c}"/>`+b;
+const CLS={
+brilliant:{n:'Brilliant',s:CLS_IC('#1baca6',CLS_EX(8.2)+CLS_EX(15.8))},
+great:{n:'Great move',s:CLS_IC('#5c8bb0',CLS_EX(12))},
+best:{n:'Best move',s:CLS_IC('#81b64c','<polygon points="12,5 13.76,9.57 18.66,9.84 14.85,12.93 16.11,17.66 12,15 7.89,17.66 9.15,12.93 5.34,9.84 10.24,9.57" fill="#fff"/>')},
+excellent:{n:'Excellent',s:CLS_IC('#96bc4b','<path d="M7 11h2.5v8H7zM11 11l2.6-5.3c1.2-.2 2.200.8 2 2L15.3 10.5h2.8c1 0 1.700.9 1.500 1.900l-.9 4.600c-.2 1-1 1.700-2 1.700H11z" fill="#fff"/>')},
+good:{n:'Good',s:CLS_IC('#96af8b',`<path d="M7 12.5l3.300 3.300L17.500 8.500" ${CLS_W}/>`)},
+book:{n:'Book',s:CLS_IC('#a88865',`<path d="M5 7.500c2.500-1 5-1 7 .8 2-1.800 4.500-1.800 7-.8v10c-2.500-1-5-1-7 .8-2-1.800-4.500-1.800-7-.8zM12 8.300v10" ${CLS_W} stroke-width="1.800"/>`)},
+inaccuracy:{n:'Inaccuracy',s:CLS_IC('#f7c631',CLS_QM(8.5)+CLS_EX(17.2))},
+mistake:{n:'Mistake',s:CLS_IC('#e58f2a',CLS_QM(12))},
+miss:{n:'Miss',s:CLS_IC('#ee6b6e',`<path d="M8 8l8 8M16 8l-8 8" ${CLS_W}/>`)},
+blunder:{n:'Blunder',s:CLS_IC('#ca3431',CLS_QM(7.5)+CLS_QM(16.5))}};
+function clsIcon(c,st){const o=CLS[c];if(!o)return'';return o.u?`<img src="${o.u}" alt="${o.n}" title="${o.n}" style="${st}">`:`<svg viewBox="0 0 24 24" style="${st}"><title>${o.n}</title>${o.s}</svg>`}
+const CLS_V={p:1,n:3,b:3,r:5,q:9};
+const clsMat=(s,w)=>{let m=0;for(const p of s.b)if(p&&isW(p)===w)m+=CLS_V[p.toLowerCase()]||0;return m};
+function rvCls(R,sc,bm,one){const N=R.L.length,out=[],cl=x=>Math.max(-600,Math.min(600,x)),el=[];
+for(let k=0;k<N-1;k++)el[k]=Math.max(0,cl(sc[k])-cl(-sc[k+1]));
+for(let k=0;k<N-1;k++){if(one[k]){out[k]='';continue}
+const m=R.V[k],b=bm[k],w=k%2===0,loss=el[k],same=!!b&&b.f===m.f&&b.t===m.t&&(b.p||'')===(m.p||''),pl=k>0?el[k-1]:0,before=sc[k],after=-sc[k+1];
+const j=R.N.slice(0,k+1).join(' '),book=k<24&&OPN.some(([key])=>key===j||key.startsWith(j+' '));
+let sac=false;if(k+2<N){const d=(clsMat(R.L[k+2],w)-clsMat(R.L[k+2],!w))-(clsMat(R.L[k],w)-clsMat(R.L[k],!w));sac=d<=-2}
+const cap=!!R.L[k].b[m.t]||!!m.ep,chk=k+1<N&&inCheck(R.L[k+1],R.L[k+1].t==='w');
+let c;
+if(book)c='book';
+else if(sac&&loss<=20&&before<500&&before>-400&&after>-150)c='brilliant';
+else if((same||loss<=10)&&pl>=150&&before>=150&&(cap||chk))c='great';
+else if(same||loss<=10)c='best';
+else if(loss<=35)c='excellent';
+else if(loss<60)c='good';
+else if(loss<150)c='inaccuracy';
+else if(loss<300)c=(pl>=150&&before>=150&&loss>=100)?'miss':'mistake';
+else c='blunder';
+out[k]=c}
+R.cls=out}
+/* shows the icon next to each move in the move list and on the square the current move went to */
+function rvIcons(){pcs.querySelectorAll('.mbg').forEach(x=>x.remove());const R=rvSt;if(!rvOn||!R||!R.cls)return;
+document.querySelectorAll('#mvl b[data-i]').forEach(b=>{const c=R.cls[+b.dataset.i-1];if(c&&!b.querySelector('svg,img'))b.insertAdjacentHTML('beforeend',clsIcon(c,'width:15px;height:15px;vertical-align:-3px;margin-left:4px'))});
+const c=R.cls[rvIdx-1];if(rvIdx>0&&c){const v=vi(R.V[rvIdx-1].t),d=document.createElement('div');d.className='mbg';d.style.cssText='position:absolute;left:'+(v&7)*12.5+'%;top:'+(v>>3)*12.5+'%;width:12.5%;height:12.5%;pointer-events:none;z-index:2147483000';d.innerHTML=clsIcon(c,'position:absolute;right:-24%;top:-24%;width:48%;height:48%');pcs.appendChild(d)}}
+{const _rm=renderMoves;renderMoves=function(){const r=_rm.apply(this,arguments);rvIcons();return r}}
 /* leave the review and put the real game back exactly as it was */
 function rvExit(ch){if(!rvOn)return;const v=rvSv;if(v&&v.lb)document.body.classList.add('lobby');rvOn=false;rvSw=false;rvH=false;rvSt=null;rvCur=null;rvSv=null;
 mvs=v.mvs;meW=v.meW;last=v.last;applyFlip();clearFX();pcs.innerHTML='';els=[];
