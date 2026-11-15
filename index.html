@@ -2403,11 +2403,11 @@ if(LINKH)receive(LINKH);
 })();
 
 
-/* app mode: the LuaChess app turns this on from the console with  userplayingonapp = true  (off by default). While it is on, ?app=online or ?app=bots is shown in the address during a match */
+/* app mode: the LuaChess app turns this on from the console with  userplayingonapp = true  (off by default). While it is on, ?app=bullet / blitz / rapid (online) or ?app=bots is shown in the address during a match */
 if(typeof window.userplayingonapp==='undefined')window.userplayingonapp=false;
 (()=>{let added=false;
 function want(){if(!window.userplayingonapp||simOpen||over||settled||rvOn||location.hash==='#puzzle'||document.body.classList.contains('lobby'))return'';
-if(!(started||mvs.length))return'';return document.body.classList.contains('botg')?'bots':'online'}
+if(!(started||mvs.length))return'';return document.body.classList.contains('botg')?'bots':mode}
 function sync(){try{const w=want();if(!w&&!added)return;const u=new URL(location.href);if((u.searchParams.get('app')||'')===w)return;if(w){u.searchParams.set('app',w);added=true}else{u.searchParams.delete('app');added=false}history.replaceState(history.state,'',u.pathname+u.search+u.hash)}catch(e){}}
 setInterval(sync,300)})();
 </script></body></html>
