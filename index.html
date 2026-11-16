@@ -521,6 +521,7 @@ body.simon #tabs,body.simon .clk{display:none!important}
 
 /* play lobby: pre-game screen shown before a game starts */
 #lby{display:none}
+#lhSim{display:none!important}body.simon #lby .lh:not(#lhSim){display:none!important}body.simon #lhSim{display:flex!important}body:not(.simon) #lby>#lbySimV,body.simon:not(.lobby) #lby>#lbySimV{display:none!important}body.simon.lobby #lby>.lb{display:none!important}body.simon.lobby #lby>#lbySimV{display:flex!important}
 body.lobby #mvh,body.lobby #rvbar,body.lobby #mvl{display:none!important}
 body.lobby #lby{display:flex;flex-direction:column;flex:1;min-height:0}
 body.lobby #wrap{pointer-events:none}
@@ -578,7 +579,7 @@ body.botg:not(.rvon) #mvh{margin-bottom:-8px}
 <div id="ov"><div class="card"><button id="ovx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="msg"></div><div id="sub"></div><div class="vs"><div class="pl"><div class="pav" id="ovP"></div><div class="pn" id="ovPn"></div><div class="pe" id="ovPe"></div></div><div class="vsx">vs</div><div class="pl"><div class="pav" id="ovA"></div><div class="pn" id="ovAn">Bot</div><div class="pe" id="ovAe"></div></div></div><button id="next">Next round</button></div></div>
 <div class="bar"><div class="av" id="avP"><div id="avI"></div></div><input type="file" id="file" accept="image/*" hidden><div class="who"><div class="line"><b id="nameP">You</b><span id="ownB"></span><span class="rk" id="rkP"></span><span class="elo" id="eloP"></span></div><div class="caps" id="capP"></div></div><button id="nxt" title="Next round"><svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/></svg></button><a class="rnd simb" id="simU" title="Undo move" aria-label="Undo move"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></a><a class="rnd simb" id="simF" title="Flip board" aria-label="Flip board"><svg viewBox="0 0 24 24"><path d="M7 20V4"/><path d="M3 8l4-4 4 4"/><path d="M17 4v16"/><path d="M13 16l4 4 4-4"/></svg></a><a class="rnd simb" id="simR" title="Reset board" aria-label="Reset board"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></a><a id="rs">Resign</a><div class="clk" id="clkP">0:00</div></div>
 </div>
-<div id="mv"><div id="lby"><div class="lh"><i id="lbyIc"></i><span>Play Chess</span></div><div class="lb"><button class="lc" id="lbyGo" type="button"><img src="https://assets-ds.chess.com/color-icons/time-blitz.svg" alt=""><div class="an"></div><span><b>Play Online</b><small>Play vs a person of similar skill</small></span></button><button class="lc" id="lbyBots" type="button"><img src="https://assets-ds.chess.com/color-icons/device-bot.svg" alt=""><span><b>Play Bots</b><small>Challenge a bot from Easy to Master</small></span></button></div></div><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="rvbar"><span id="rvt"></span><span id="rvacc" style="flex:1 0 100%;display:none;font-size:13px;font-weight:600;color:#a7a6a2"></span><button class="rvbtn" id="rvfirst" title="First move"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 6l-8 6 8 6"/></svg></button><button class="rvbtn" id="rvp" title="Previous move (Left arrow)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span id="rvn"></span><button class="rvbtn" id="rvnx" title="Next move (Right arrow)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button><button class="rvbtn" id="rvlast" title="Last move"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 6l8 6-8 6"/></svg></button></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
+<div id="mv"><div id="lby"><div class="lh"><i id="lbyIc"></i><span>Play Chess</span></div><div class="lh" id="lhSim"><i><img src="https://assets-ds.chess.com/color-icons/training.svg" alt=""></i><span>Simulation</span></div><div class="lb"><button class="lc" id="lbyGo" type="button"><img src="https://assets-ds.chess.com/color-icons/time-blitz.svg" alt=""><div class="an"></div><span><b>Play Online</b><small>Play vs a person of similar skill</small></span></button><button class="lc" id="lbyBots" type="button"><img src="https://assets-ds.chess.com/color-icons/device-bot.svg" alt=""><span><b>Play Bots</b><small>Challenge a bot from Easy to Master</small></span></button></div></div><div id="mvh"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.500 2.500 0 0 1 6.500 17H20V3H6.500A2.500 2.500 0 0 0 4 5.500z"/><path d="M4 19.500A2.500 2.500 0 0 0 6.500 22H20v-5"/></svg><span id="mvn">Starting Position</span></div><div id="rvbar"><span id="rvt"></span><span id="rvacc" style="flex:1 0 100%;display:none;font-size:13px;font-weight:600;color:#a7a6a2"></span><button class="rvbtn" id="rvfirst" title="First move"><svg viewBox="0 0 24 24"><path d="M6 5v14M19 6l-8 6 8 6"/></svg></button><button class="rvbtn" id="rvp" title="Previous move (Left arrow)"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><span id="rvn"></span><button class="rvbtn" id="rvnx" title="Next move (Right arrow)"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button><button class="rvbtn" id="rvlast" title="Last move"><svg viewBox="0 0 24 24"><path d="M18 5v14M5 6l8 6-8 6"/></svg></button></div><div id="mvl"><div class="mre">Make a move to begin.</div></div></div>
 <div id="promo"><div class="pcard"><div class="t">Promote pawn to</div><div class="popts" id="popts"></div></div></div>
 <script>
 /* privacy: nothing is written to localStorage unless the visitor accepted */
@@ -1344,7 +1345,7 @@ document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(setOpen)cl
 let drag=null;
 function dragXY(e){const r=boardEl.getBoundingClientRect(),s=r.width/8;drag.el.style.transform=`translate(${(e.clientX-r.left)/s*100-50}%,${(e.clientY-r.top)/s*100-50}%)`}
 boardEl.addEventListener('pointerdown',e=>{if(e.button!==0||drag)return;if(rvOn||over||(thinking?!cfg.premove:S.t!==pcol())||promoOpen||fakeBusy||setOpen)return;
-const i=sqAt(e);if(i<0||!S.b[i]||isW(S.b[i])!==meW||!els[i])return;
+const i=sqAt(e);if(i<0||!S.b[i]||isW(S.b[i])!==(simOpen?S.t==='w':meW)||!els[i])return;
 click(i);drag={i,el:els[i],x:e.clientX,y:e.clientY,on:false,id:e.pointerId}});
 window.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;
 if(!drag.on){if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)<5)return;drag.on=true;drag.el.style.transition='none';drag.el.style.zIndex=++z;document.body.classList.add('drag')}
@@ -1691,7 +1692,7 @@ const PNM={p:'Pawn',n:'Knight',b:'Bishop',r:'Rook',q:'Queen',k:'King'};
 function bestMovesAll(){const base=S,ml=legal(base);if(!ml.length)return[];const bud=Math.max(20,Math.min(90,Math.floor(1800/ml.length))),MV=1e6;
 const sc=(st,d)=>{if(!legal(st).length)return inCheck(st,st.t==='w')?-MV:0;S=st;hist.push(posKey(st));let r=null;try{bestMove.sc=null;const m=bestMove(bud);r=bestMove.sc;if(r==null&&m&&d<2)r=-sc(apply(st,m),d+1)}finally{hist.pop();S=base}return r==null?0:r};
 const R=ml.map(m=>({m,v:-sc(apply(base,m),0)})).sort((a,b)=>b.v-a.v);const F=R.filter(x=>x.v>=R[0].v-35).slice(0,6);bestMovesAll.top=R[0].v;bestMovesAll.vals={};F.forEach(x=>{bestMovesAll.vals[x.m.f+'-'+x.m.t]=x.v});return F.map(x=>x.m)}
-function speakBest(){const z=PZA();if(z){z.speak();return}if(over||thinking||S.t!==pcol()||!('speechSynthesis' in window))return;let m=bestMove(2000);if(!m)return;const t='Move '+PNM[S.b[m.f].toLowerCase()]+' from '+SQN(m.f).toUpperCase()+' to '+SQN(m.t).toUpperCase()+(m.p?' and promote to '+PNM[m.p.toLowerCase()]:'');const u=new SpeechSynthesisUtterance(t);u.lang='en-US';speechSynthesis.cancel();speechSynthesis.speak(u)}
+function speakBest(){const z=PZA();if(z){z.speak();return}if(over||thinking||S.t!==pcol()||!('speechSynthesis' in window))return;let m=bestMove(2000);if(!m)return;const t=m.castle?(m.castle===1?'Castle king side':'Castle queen side'):'Move '+PNM[S.b[m.f].toLowerCase()]+' from '+SQN(m.f).toUpperCase()+' to '+SQN(m.t).toUpperCase()+(m.p?' and promote to '+PNM[m.p.toLowerCase()]:'');const u=new SpeechSynthesisUtterance(t);u.lang='en-US';speechSynthesis.cancel();speechSynthesis.speak(u)}
 const PZA=()=>window.pzAdm&&window.pzAdm.on()?window.pzAdm:null;
 function forceEnd(win){const z=PZA();if(z){z.end(win);return}endGame(win?'win':'loss','by admin')}
 let fakeOn=true,fakeBusy=false,fmPos=null,fmLoop=false;
@@ -1845,7 +1846,7 @@ homeEl.addEventListener('mouseover',e=>{const mo=e.target.closest('.mo');if(!mo|
 function simShow(){try{if(location.hash!=='#simulation')location.hash='simulation'}catch(e){}navSync()}
 function openSim(){if(homeOpen)closeHome();if(profOpen)closeProfile();if(setOpen)closeSet();if(nfOpen)closeNF();if(simOpen){simShow();return}
 if(rvOn)rvExit(true);saveGame();simRaw=gameRaw(!document.body.classList.contains('lobby'));
-simOpen=true;document.body.classList.add('simon');start();simShow()}
+simOpen=true;document.body.classList.add('simon');start();document.body.classList.add('lobby');simShow()}
 function closeSim(){if(!simOpen)return;simOpen=false;document.body.classList.remove('simon');$('rs').textContent='Resign';$('nameP').textContent=myName;updOwn();showPic();
 try{if(location.hash==='#simulation')history.replaceState(null,'',location.pathname+location.search)}catch(e){}
 const raw=simRaw;simRaw=null;start();restoreGame(raw);if(!mvs.length&&!started)enterLobby();navSync()}
@@ -2494,5 +2495,14 @@ $('lbyVBack').onclick=()=>{pend=null;back()};
 $('lbyV960').onclick=()=>{const f=pend;pend=null;variant960=true;back();if(f)f()};
 $('lbyVStd').onclick=()=>{const f=pend;pend=null;variant960=false;back();if(f)f()};
 const _el=enterLobby;enterLobby=function(){pend=null;variant960=false;vp.style.display='none';return _el.apply(this,arguments)};
+})();
+(()=>{const vp=document.getElementById('lbyVar'),lby=document.getElementById('lby');
+const sv=vp.cloneNode(true);sv.id='lbySimV';sv.removeAttribute('style');
+const bk=sv.querySelector('#lbyVBack');if(bk)bk.remove();
+sv.querySelector('#lbyV960').id='simV960';sv.querySelector('#lbyVStd').id='simVStd';
+lby.appendChild(sv);
+const go=v=>{variant960=v;start()};
+sv.querySelector('#simV960').onclick=()=>go(true);
+sv.querySelector('#simVStd').onclick=()=>go(false);
 })();
 </script></body></html>
