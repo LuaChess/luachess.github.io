@@ -1846,7 +1846,7 @@ homeEl.addEventListener('mouseover',e=>{const mo=e.target.closest('.mo');if(!mo|
 function simShow(){try{if(location.hash!=='#simulation')location.hash='simulation'}catch(e){}navSync()}
 function openSim(){if(homeOpen)closeHome();if(profOpen)closeProfile();if(setOpen)closeSet();if(nfOpen)closeNF();if(simOpen){simShow();return}
 if(rvOn)rvExit(true);saveGame();simRaw=gameRaw(!document.body.classList.contains('lobby'));
-simOpen=true;document.body.classList.add('simon');start();document.body.classList.add('lobby');simShow()}
+simOpen=true;document.body.classList.add('simon');variant960=false;start();document.body.classList.add('lobby');simShow()}
 function closeSim(){if(!simOpen)return;simOpen=false;document.body.classList.remove('simon');$('rs').textContent='Resign';$('nameP').textContent=myName;updOwn();showPic();
 try{if(location.hash==='#simulation')history.replaceState(null,'',location.pathname+location.search)}catch(e){}
 const raw=simRaw;simRaw=null;start();restoreGame(raw);if(!mvs.length&&!started)enterLobby();navSync()}
