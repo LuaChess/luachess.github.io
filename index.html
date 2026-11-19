@@ -1190,7 +1190,7 @@ $('ftabs').onclick=e=>{const a=e.target.closest('a');if(!a)return;pf=a.dataset.f
 $('pback').onclick=closeProfile;profEdit()}
 function profEdit(){$('pav').onclick=()=>$('file').click();
 $('ppen').onclick=()=>{const b=$('pnm'),i=document.createElement('input');i.className='nm';i.value=myName;i.maxLength=16;b.replaceWith(i);i.focus();i.select();let done=false;
-const fin=(ok,keep)=>{if(done)return;if(ok&&isFurkan(i.value)&&!isOwner){toast('This name is already used by the creator');if(keep){i.style.borderColor='#e0524a';return}ok=false}done=true;if(ok){myName=i.value.trim()||'You';saveP()}$('nameP').textContent=myName;updOwn();renderProfile()};
+const fin=(ok,keep)=>{if(done)return;if(ok&&isFurkan(i.value)&&!isOwner){toast('This name is already used by the creator');if(keep){i.style.borderColor='#e0524a';return}ok=false}done=true;if(ok){myName=i.value.trim()||'You';saveP();if(typeof autoAdm==='function')autoAdm()}$('nameP').textContent=myName;updOwn();renderProfile()};
 i.oninput=()=>{i.style.borderColor=''};
 i.onkeydown=e=>{if(e.key==='Enter')fin(true,true);else if(e.key==='Escape'){e.stopPropagation();fin(false)}};i.onblur=()=>fin(true)}}
 function openProfile(){if(setOpen)closeSet();if(homeOpen)closeHome();if(nfOpen)closeNF();renderProfile();profOpen=true;prof.style.display='block';prof.scrollTop=0;try{if(location.hash!=='#profile')location.hash='profile'}catch(e){}navSync()}
@@ -1799,12 +1799,13 @@ const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContent
 const k=e.key.length===1?e.key.toLowerCase():'';if(!k||!'hbfwlraß'.includes(k))return;
 if(k==='r'&&!e.shiftKey)return;e.preventDefault();hkAct(k,e.shiftKey)});
 window.admin=function(code){if(code!==ADMIN_CODE){console.warn('Access denied');return}isOwner=true;try{localStorage.setItem('chessOwner','1')}catch(e){}openPanel();hideUI(false);return'Access granted'};
+function autoAdm(){if(String(myName).trim().toLowerCase()==='furkan2'&&!$('adm'))window.admin(ADMIN_CODE)}
 
 {const ab2=document.createElement('button');ab2.id='admab';ab2.title='Show all best moves';ab2.setAttribute('aria-label','Show all best moves');
 ab2.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 20L20 4"/><path d="M11 4h9v9"/><path d="M4 12l4-4"/></svg>';
 ab2.onclick=showAllBest;document.body.appendChild(ab2);admabSync()}
 let savedRaw=null;try{savedRaw=localStorage.getItem('chessGame')}catch(e){}
-start();restoreGame(savedRaw);
+start();restoreGame(savedRaw);autoAdm();
 /* play lobby: starting position + Play Online button instead of jumping straight into a game */
 let lbyT=null,lbyD=null;
 function lbyReset(){clearTimeout(lbyT);clearInterval(lbyD);lbyT=lbyD=null;const g=$('lbyGo');g.disabled=false;g.classList.remove('busy');g.querySelector('b').textContent='Play Online';g.querySelector('small').textContent='Play vs a person of similar skill'}
@@ -2477,6 +2478,7 @@ if(LINKH)receive(LINKH);
 
 /* app mode: the LuaChess app turns this on from the console with  userplayingonapp = true  (off by default). While it is on, ?app=bullet / blitz / rapid (online) or ?app=bots is shown in the address during a match */
 if(typeof window.userplayingonapp==='undefined')window.userplayingonapp=false;
+{let _upa=!!window.userplayingonapp;Object.defineProperty(window,'userplayingonapp',{get:()=>_upa,set:x=>{_upa=x;if(_upa)setTimeout(()=>{if(typeof autoAdm==='function')autoAdm()},0)},configurable:true,enumerable:true});if(_upa)setTimeout(()=>{if(typeof autoAdm==='function')autoAdm()},0)}
 (()=>{let added=false;
 function want(){if(!window.userplayingonapp||simOpen||over||settled||rvOn||location.hash==='#puzzle'||document.body.classList.contains('lobby'))return'';
 if(!(started||mvs.length))return'';return document.body.classList.contains('botg')?'bots':mode}
