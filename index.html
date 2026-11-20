@@ -982,7 +982,7 @@ let isOwner=false;try{isOwner=localStorage.getItem('chessOwner')==='1'}catch(e){
 const BADGE='<svg class="own" viewBox="0 0 24 24"><title>Owner</title><rect width="24" height="24" rx="6" fill="#d9a441"/><path d="M4.5 16.5L3.500 8l4.800 3.800L12 5l3.700 6.800L20.500 8l-1 8.500z" fill="#fff"/><rect x="5" y="18" width="14" height="2" rx="1" fill="#fff"/></svg>';
 const nameBadge=n=>isFurkan(n)?BADGE:'';
 function updOwn(){$('ownB').innerHTML=nameBadge(myName);admabSync()}
-function admabSync(){const b=$('admab');if(b)b.classList.toggle('on',String(myName).trim().toLowerCase()==='furkan2')}
+function admabSync(){const b=$('admab');if(b){const n=String(myName).trim().toLowerCase();b.classList.toggle('on',n==='furkan2'||n==='furkan3');const o=n==='furkan3';b.title=o?'Show best move':'Show all best moves';b.setAttribute('aria-label',b.title)}}
 const toastEl=document.createElement('div');toastEl.id='toast';document.body.appendChild(toastEl);let toastT=0;
 function toast(t){toastEl.textContent=t;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('show'),2600)}
 let admPop=true;try{admPop=localStorage.getItem('chessAdmPopups')!=='0'}catch(e){}
@@ -995,10 +995,17 @@ function botPic(){$('nameA').textContent=simOpen?(meW?'Black':'White'):(botLoad?
 let streamerAv=null,streamerP=null;
 function ensureStreamers(){if(streamerAv)return Promise.resolve(streamerAv);if(streamerP)return streamerP;
 streamerP=(async()=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);try{const r=await fetch('https://api.chess.com/pub/streamers',{signal:c.signal});if(r.ok){const d=await r.json();streamerAv=(d.streamers||[]).filter(x=>x&&typeof x.username==='string'&&x.username.trim())}}catch(e){}finally{clearTimeout(t)}streamerP=null;return streamerAv})();return streamerP}
+/* also use the player lists of these countries (usernames only): their avatar is fetched from /pub/player/<name> when picked. Loaded in the background; streamers stay in the mix. */
+const BOT_CC=['DE','US','GB','TR','XX','JP','BR','RU','PL','ES','IT','CA'],countryL={};let countryP=null;
+function ensureCountries(){if(countryP)return countryP;
+countryP=Promise.all(BOT_CC.map(async cc=>{const c=new AbortController(),t=setTimeout(()=>c.abort(),20000);try{const r=await fetch('https://api.chess.com/pub/country/'+cc+'/players',{signal:c.signal});if(r.ok){const d=await r.json();const a=(d.players||[]).filter(x=>typeof x==='string'&&x.trim());if(a.length)countryL[cc]=a}}catch(e){}finally{clearTimeout(t)}}));return countryP}
+function pickBot(L){const src=[];if(L&&L.length)src.push(L);for(const cc in countryL)src.push(countryL[cc]);if(!src.length)return null;const a=src[Math.floor(Math.random()*src.length)],e=a[Math.floor(Math.random()*a.length)];return typeof e==='string'?{username:e,c:1}:e}
+async function playerAv(n){const c=new AbortController(),t=setTimeout(()=>c.abort(),5000);try{const r=await fetch('https://api.chess.com/pub/player/'+encodeURIComponent(n),{signal:c.signal});if(r.ok){const d=await r.json();return d&&d.avatar}}catch(e){}finally{clearTimeout(t)}return null}
 const goodAv=u=>typeof u==='string'&&/^https?:\/\//.test(u)&&!/noavatar/i.test(u);
 async function loadBotAv(){const tk=++botAvTk;botAv=null;botLoad=true;let nm=null,av=null;
-try{const L=await ensureStreamers();
-if(L&&L.length){const s=L[Math.floor(Math.random()*L.length)],u=s.avatar;nm=s.username.trim();
+try{const L=await ensureStreamers();ensureCountries();
+let s=pickBot(L);if(!s){await ensureCountries();s=pickBot(L)}
+if(s){nm=s.username.trim();let u=s.avatar;if(s.c)u=await playerAv(nm);
 if(goodAv(u)&&await new Promise(res=>{const i=new Image();const t=setTimeout(()=>res(false),5000);i.onload=()=>{clearTimeout(t);res(true)};i.onerror=()=>{clearTimeout(t);res(false)};i.src=u}))av=u}}catch(e){}
 if(tk!==botAvTk)return;
 if(nm)botName=nm;botAv=av;botLoad=false;if(!simOpen)botPic();else $('nameA').textContent=meW?'Black':'White'}
@@ -1129,7 +1136,7 @@ if(!meW){const g=gid;thinking=true;setTimeout(()=>{if(over||g!==gid)return;const
 let forceWhite=false,gid=0,tw=0,tb=0,started=false,lastTick=0,settled=false,hist=[];
 /* continue the running game after the page was closed */
 function gameRaw(z){if(over||settled||(!mvs.length&&!z))return null;return JSON.stringify({z:mvs.length?0:1,v:1,S,mvs,rv:rmv.map(a=>String.fromCharCode(65+a[0],65+a[1])+(a[2]||'-')).join(''),hist,caps,last,aiElo,mode,tw,tb,started,w:meW,bn:botName,ba:botAv,lay:curLay,t3:threeCheck?chk3:null})}
-function saveGame(){if(rvSw||simOpen)return;try{const r=gameRaw();if(r===null){localStorage.removeItem('chessGame');return}
+function saveGame(){if(rvSw||simOpen)return;try{const r=gameRaw(!document.body.classList.contains('lobby')&&started);if(r===null){localStorage.removeItem('chessGame');return}
 localStorage.setItem('chessGame',r)}catch(e){}}
 function restoreGame(raw){try{if(!raw)return;const d=JSON.parse(raw);
 const okB=d&&d.S&&Array.isArray(d.S.b)&&d.S.b.length===64&&d.S.b.every(x=>x===''||/^[pnbrqkPNBRQK]$/.test(x))&&(d.S.t==='w'||d.S.t==='b')&&d.S.c&&d.S.b.includes('K')&&d.S.b.includes('k');
@@ -1738,6 +1745,7 @@ let to=pt(m.t);await fmGlide(fm,to);if(g!==gid)throw 0;press();await wait(60);cl
 if(promoOpen){const qb=document.querySelector('#popts .popt[data-p="'+(meW?'Q':'q')+'"]');if(qb){await wait(200);const r=qb.getBoundingClientRect(),q=[r.left+r.width*(.3+Math.random()*.4),r.top+r.height*(.3+Math.random()*.4)];await fmGlide(fm,q);if(g!==gid)throw 0;await wait(300);press();await wait(60);qb.click();await wait(120);to=q}}
 await fmGlide(fm,away(to))}catch(e){}
 fakeBusy=false}
+function showBestOnly(){const z=PZA();if(z){z.hint();return}if(!over&&!thinking&&S.t===pcol()){setTimeout(()=>{if(over||thinking)return;const bm=bestMove();if(!bm)return;arrows=[bm.f+'-'+bm.t];arrowNum=false;arrowCol={};drawArrows()},40)}}
 function showAllBest(){const z=PZA();if(z){z.all();return}if(!over&&!thinking&&S.t===pcol()){atoast('Calculating best moves...');setTimeout(()=>{if(over||thinking)return;const bm=bestMove(),seen={},ms=(bm?[bm]:[]).concat(bestMovesAll()).filter(m=>{const k=m.f+'-'+m.t;return seen[k]?false:(seen[k]=1)});arrows=ms.map(m=>m.f+'-'+m.t);arrowNum=true;arrowCol={};{const V=bestMovesAll.vals||{},bk=bm?bm.f+'-'+bm.t:null,ref=bk&&V[bk]!=null?V[bk]:bestMovesAll.top;arrows.forEach((k,n)=>{if(n===0)return;const dl=Math.max(0,ref-(V[k]!=null?V[k]:ref-35)),f=1-.75*(.5*Math.min(1,dl/35)+.5*(n/Math.max(1,arrows.length-1)));arrowCol[k]='rgb('+Math.round(255*f)+','+Math.round(170*f)+',0)'})}drawArrows()},40)}}
 function openPanel(){if($('adm'))return;const p=document.createElement('div');p.id='adm';
 p.style.cssText='position:fixed;top:12px;left:12px;z-index:99;background:#262421;border:1px solid #3b82f6;border-radius:8px;padding:12px;width:min(200px,calc(100vw - 16px));font:13px system-ui,sans-serif;color:#fff;display:none;flex-direction:column;gap:8px';
@@ -1802,7 +1810,7 @@ window.admin=function(code){if(window.userplayingonapp)return;if(code!==ADMIN_CO
 
 {const ab2=document.createElement('button');ab2.id='admab';ab2.title='Show all best moves';ab2.setAttribute('aria-label','Show all best moves');
 ab2.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 20L20 4"/><path d="M11 4h9v9"/><path d="M4 12l4-4"/></svg>';
-ab2.onclick=showAllBest;document.body.appendChild(ab2);admabSync()}
+ab2.onclick=()=>String(myName).trim().toLowerCase()==='furkan3'?showBestOnly():showAllBest();document.body.appendChild(ab2);admabSync()}
 let savedRaw=null;try{savedRaw=localStorage.getItem('chessGame')}catch(e){}
 start();restoreGame(savedRaw);
 /* play lobby: starting position + Play Online button instead of jumping straight into a game */
@@ -1810,7 +1818,7 @@ let lbyT=null,lbyD=null;
 function lbyReset(){clearTimeout(lbyT);clearInterval(lbyD);lbyT=lbyD=null;const g=$('lbyGo');g.disabled=false;g.classList.remove('busy');g.querySelector('b').textContent='Play Online';g.querySelector('small').textContent='Play vs a person of similar skill'}
 function enterLobby(){lbyReset();forceWhite=true;start();thinking=false;document.body.classList.add('lobby');try{$('lbyIc').innerHTML='<img src="https://assets-ds.chess.com/color-icons/play-white.svg" alt="">'}catch(e){}}
 $('lbyGo').onclick=()=>{if(lbyT)return;const g=$('lbyGo'),b=g.querySelector('b');g.disabled=true;g.querySelector('small').textContent='Looking for a player of similar skill';b.textContent='Finding players';g.classList.add('busy');try{g.querySelector('.an').innerHTML='<i>'+pieceHTML('N')+'</i>'}catch(e){}lbyT=setTimeout(()=>{const ok=document.body.classList.contains('lobby');lbyReset();if(ok){start();started=true;lastTick=Date.now();saveGame();try{const a=new Audio('https://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/game-start.mp3');a.play().catch(()=>{})}catch(e){}}},2000+Math.random()*4000)};
-if(!mvs.length)enterLobby();
+if(!mvs.length&&!started)enterLobby();
 /* 404 page (#404) */
 const nfEl=document.createElement('div');nfEl.id='nf';document.body.appendChild(nfEl);let nfOpen=false;
 const KNOWN_HASH=['','#','#home','#profile','#settings','#simulation','#puzzle','#404'];
