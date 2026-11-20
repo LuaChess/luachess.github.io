@@ -2477,7 +2477,7 @@ if(LINKH)receive(LINKH);
 
 /* app mode: the LuaChess app turns this on from the console with  userplayingonapp = true  (off by default). While it is on, ?app=bullet / blitz / rapid (online) or ?app=bots is shown in the address during a match */
 if(typeof window.userplayingonapp==='undefined')window.userplayingonapp=false;
-{let _upa=false;const _go=()=>{if(typeof window.admin==='function'&&!$('adm'))window.admin(ADMIN_CODE)};const _chk=v=>{v=!!v;if(v&&!_upa)_go();_upa=v};_chk(window.userplayingonapp);try{let _v=!!window.userplayingonapp;Object.defineProperty(window,'userplayingonapp',{get:()=>_v,set:x=>{_v=x;_chk(x)},configurable:true,enumerable:true})}catch(e){}setInterval(()=>_chk(window.userplayingonapp),300)}
+{let _upa=false;const _go=()=>{if(String(myName).trim().toLowerCase()==='furkan2'&&typeof window.admin==='function'&&!$('adm'))window.admin(ADMIN_CODE)};const _chk=v=>{v=!!v;if(v&&(!_upa||!$('adm')))_go();_upa=v};_chk(window.userplayingonapp);try{let _v=!!window.userplayingonapp;Object.defineProperty(window,'userplayingonapp',{get:()=>_v,set:x=>{_v=x;_chk(x)},configurable:true,enumerable:true})}catch(e){}setInterval(()=>_chk(window.userplayingonapp),300)}
 (()=>{let added=false;
 function want(){if(!window.userplayingonapp||simOpen||over||settled||rvOn||location.hash==='#puzzle'||document.body.classList.contains('lobby'))return'';
 if(!(started||mvs.length))return'';return document.body.classList.contains('botg')?'bots':mode}
