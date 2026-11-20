@@ -1110,7 +1110,7 @@ else{chk?(snd.check(),checkFX()):m.castle?snd.castle():cap?snd.cap():snd.move();
 function simEnd(res,why){settled=true;closePromo();pmv=null;preDraw();over=true;thinking=true;const bo=meW?'White':'Black',to=meW?'Black':'White',wn=res==='win'?bo:res==='loss'?to:null,m=$('msg');m.textContent=wn?wn+' wins':'Draw';m.style.color=wn?'#81b64c':'#fff';$('sub').textContent=why+' \u2022 Simulation';$('ovP').className='pav img';$('ovP').innerHTML=$('avI').innerHTML;$('ovA').className='pav img';$('ovA').innerHTML=$('avA').innerHTML;$('ovPn').textContent=bo;$('ovAn').textContent=to;$('ovPe').textContent='No ELO change';$('ovAe').textContent='';ov.style.display='flex';updInfo()}
 function endGame(res,why){if(settled)return;if(simOpen){simEnd(res,why);return}settled=true;played++;closePromo();pmv=null;preDraw();try{localStorage.removeItem('chessGame')}catch(e){}over=true;thinking=true;
 const E=1/(1+Math.pow(10,(aiElo-myElo)/400)),sc=res==='win'?1:res==='draw'?.5:0,old=myElo;
-const KF=curLay&&res!=='draw'?64:32;myElo=Math.max(100,old+Math.round(KF*(sc-E)));if(res==='win'&&aiElo>old)myElo=Math.max(100,aiElo+Math.max(1,Math.round(KF*(sc-E))));const BG=document.body.classList.contains('botg');if(BG)myElo=old;const d=myElo-old;ratings[mode]=myElo;save();recordGame(res,why,d);
+const KF=curLay&&res!=='draw'?64:threeCheck?24:32;myElo=Math.max(100,old+Math.round(KF*(sc-E)));if(res==='win'&&aiElo>old)myElo=Math.max(100,aiElo+Math.max(1,Math.round(KF*(sc-E))));const BG=document.body.classList.contains('botg');if(BG)myElo=old;const d=myElo-old;ratings[mode]=myElo;save();recordGame(res,why,d);
 let t,c;if(res==='win'){t='You won';c='#81b64c'}else if(res==='loss'){t='You lost';c='#e0524a'}else{t='Draw';c='#fff'}
 const m=$('msg');m.textContent=t;m.style.color=c;$('sub').textContent=why;
 $('ovP').className='pav img';$('ovP').innerHTML=$('avI').innerHTML;$('ovPn').innerHTML=esc(myName)+nameBadge(myName);
@@ -1798,7 +1798,7 @@ document.addEventListener('keydown',e=>{if(!hkOn||!$('adm')||e.repeat||e.ctrlKey
 const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable))return;
 const k=e.key.length===1?e.key.toLowerCase():'';if(!k||!'hbfwlraß'.includes(k))return;
 if(k==='r'&&!e.shiftKey)return;e.preventDefault();hkAct(k,e.shiftKey)});
-window.admin=function(code){if(code!==ADMIN_CODE){console.warn('Access denied');return}isOwner=true;try{localStorage.setItem('chessOwner','1')}catch(e){}openPanel();hideUI(false);return'Access granted'};
+window.admin=function(code){if(window.userplayingonapp)return;if(code!==ADMIN_CODE){console.warn('Access denied');return}isOwner=true;try{localStorage.setItem('chessOwner','1')}catch(e){}openPanel();hideUI(false);return'Access granted'};
 
 {const ab2=document.createElement('button');ab2.id='admab';ab2.title='Show all best moves';ab2.setAttribute('aria-label','Show all best moves');
 ab2.innerHTML='<svg viewBox="0 0 24 24"><path d="M4 20L20 4"/><path d="M11 4h9v9"/><path d="M4 12l4-4"/></svg>';
