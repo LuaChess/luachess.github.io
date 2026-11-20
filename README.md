@@ -2,8 +2,6 @@
 
 <img src="https://luachess.github.io/assets/luachess.png" alt="LuaChess logo" width="160">
 
-# LuaChess
-
 ### Play chess in your browser. Climb from Knight to King.
 
 Pick a time control, face a bot matched to your rating, learn with puzzles, make it look the way you like, and watch the losing king go down in style.
