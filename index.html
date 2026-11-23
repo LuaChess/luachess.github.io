@@ -2548,19 +2548,25 @@ el.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{const i=+b.dataset.d;i
 const lst=[],emit=m=>lst.slice().forEach(f=>{try{f(m)}catch(e){}});
 const sync=()=>{document.body.classList.toggle('srvon',!!cur);emit({type:'_conn',on:!!cur})};
 window.LCNET={send:o=>{if(cur&&ws&&ws.readyState===1){try{ws.send(JSON.stringify(o));return true}catch(e){}}return false},on:f=>{lst.push(f)}};
-function drop(){const w=ws;ws=null;cur=null;sync();if(w){w.onclose=w.onerror=w.onmessage=null;try{w.close()}catch(e){}}}
+let ct=0;
+function drop(){ct++;const w=ws;ws=null;cur=null;sync();if(w){w.onclose=w.onerror=w.onmessage=null;try{w.close()}catch(e){}}}
 const isLocal=h=>/^(localhost|127\.\d+\.\d+\.\d+|\[?::1\]?)$/i.test(h);
-/* a browser cannot open raw TCP sockets, so the server must speak WebSocket. It counts as online only if it answers with the code */
-function connect(s){drop();list.forEach(x=>{x.err=''});s.busy=true;s.err='';render();
-const host=/^[0-9a-f:]+$/i.test(s.h)&&s.h.includes(':')?'['+s.h+']':s.h,scheme=location.protocol==='https:'&&!isLocal(s.h)?'wss':'ws';
+/* a browser cannot open raw TCP sockets, so the server must speak WebSocket. It counts as online only if it answers with the code.
+   If the first address fails, the other forms (ws://, wss://, http://, https://) are tried one after another; only when all fail is the server "closed" */
+function connect(s){drop();const tk=ct;list.forEach(x=>{x.err=''});s.busy=true;s.err='';render();
+const host=/^[0-9a-f:]+$/i.test(s.h)&&s.h.includes(':')?'['+s.h+']':s.h,first=location.protocol==='https:'&&!isLocal(s.h)?'wss':'ws';
+const urls=[...new Set([first,'ws','wss','http','https'])].map(x=>x+'://'+host+':'+s.p);
+const attempt=k=>{if(tk!==ct)return;
 let w,fin=false,t;
-const fail=m=>{if(fin)return;fin=true;clearTimeout(t);if(w){w.onopen=w.onmessage=w.onerror=w.onclose=null;try{w.close()}catch(e){}}if(ws===w)ws=null;s.busy=false;s.err=m;if(open)render()};
-try{w=new WebSocket(scheme+'://'+host+':'+s.p)}catch(e){fail('Server is closed');return}
-ws=w;t=setTimeout(()=>fail('Server is closed'),5000);
+const fail=()=>{if(fin)return;fin=true;clearTimeout(t);if(w){w.onopen=w.onmessage=w.onerror=w.onclose=null;try{w.close()}catch(e){}}if(ws===w)ws=null;if(tk!==ct)return;if(k+1<urls.length){attempt(k+1);return}s.busy=false;s.err='Server is closed';if(open)render()};
+try{w=new WebSocket(urls[k])}catch(e){fail();return}
+ws=w;t=setTimeout(fail,4000);
 w.onopen=()=>{try{w.send(CODE)}catch(e){}};
-w.onmessage=ev=>{if(fin){if(cur===s){let m=null;try{m=JSON.parse(ev.data)}catch(e){}if(m&&typeof m==='object')emit(m)}return}if(String(ev.data).trim()!==CODE){fail('Server is closed');return}
+w.onmessage=ev=>{if(fin){if(cur===s){let m=null;try{m=JSON.parse(ev.data)}catch(e){}if(m&&typeof m==='object')emit(m)}return}if(String(ev.data).trim()!==CODE){fail();return}
 fin=true;clearTimeout(t);s.busy=false;s.err='';cur=s;sync();w.onerror=null;w.onclose=()=>{if(cur===s){cur=null;ws=null;sync();s.err='Disconnected';if(open)render()}};if(open)render()};
-w.onerror=()=>fail('Server is closed');w.onclose=()=>fail('Server is closed')}
+w.onerror=fail;w.onclose=fail};
+attempt(0)}
+
 function openSrv(){if(open)return;if(homeOpen)closeHome();if(profOpen)closeProfile();if(setOpen)closeSet();if(nfOpen)closeNF();
 open=true;svSet(false);render();el.style.display='block';el.scrollTop=0;navSync()}
 function closeSrv(){if(!open)return;svSet(false);open=false;el.style.display='none';navSync()}
