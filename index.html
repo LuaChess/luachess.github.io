@@ -110,6 +110,10 @@ body{display:flex;align-items:center;justify-content:center;padding:var(--sbt) c
 body.drag,body.drag *{cursor:grabbing!important}
 #pcs{position:absolute;inset:0;pointer-events:none;z-index:1}
 #arr{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2}
+#evb{display:none;position:absolute;left:-30px;top:-6px;bottom:-6px;width:20px;background:#403d39;border-radius:3px;overflow:hidden}
+body.rvon #evb{display:block}
+#evb i{position:absolute;left:0;right:0;background:#fff;transition:height .3s ease}
+#evb span{position:absolute;left:0;right:0;text-align:center;font-size:9px;font-weight:700;line-height:1;pointer-events:none}
 .sq{position:relative;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .sq.l{background-color:var(--light)}.sq.d{background-color:var(--dark)}
 .sq.last{background-image:linear-gradient(rgba(255,235,59,.4),rgba(255,235,59,.4))}
@@ -575,7 +579,7 @@ body.botg:not(.rvon) #mvh{margin-bottom:-8px}
 <div id="home"></div>
 <div id="col">
 <div class="bar"><div class="av" id="avA"></div><div class="who"><div class="line"><b id="nameA">Bot</b><span class="rk" id="rkA"></span><span class="elo" id="eloA"></span></div><div class="caps" id="capA"></div></div><div id="tabs"></div><div class="clk" id="clkA">0:00</div></div>
-<div id="wrap"><div id="board"></div><div id="pcs"></div><svg id="arr" viewBox="0 0 800 800"></svg></div>
+<div id="wrap"><div id="evb"><i></i><span></span></div><div id="board"></div><div id="pcs"></div><svg id="arr" viewBox="0 0 800 800"></svg></div>
 <div id="ov"><div class="card"><button id="ovx" title="Close"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button><div id="msg"></div><div id="sub"></div><div class="vs"><div class="pl"><div class="pav" id="ovP"></div><div class="pn" id="ovPn"></div><div class="pe" id="ovPe"></div></div><div class="vsx">vs</div><div class="pl"><div class="pav" id="ovA"></div><div class="pn" id="ovAn">Bot</div><div class="pe" id="ovAe"></div></div></div><button id="next">Next round</button></div></div>
 <div class="bar"><div class="av" id="avP"><div id="avI"></div></div><input type="file" id="file" accept="image/*" hidden><div class="who"><div class="line"><b id="nameP">You</b><span id="ownB"></span><span class="rk" id="rkP"></span><span class="elo" id="eloP"></span></div><div class="caps" id="capP"></div></div><button id="nxt" title="Next round"><svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8z"/><path d="M19 5v14"/></svg></button><a class="rnd simb" id="simU" title="Undo move" aria-label="Undo move"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></a><a class="rnd simb" id="simF" title="Flip board" aria-label="Flip board"><svg viewBox="0 0 24 24"><path d="M7 20V4"/><path d="M3 8l4-4 4 4"/><path d="M17 4v16"/><path d="M13 16l4 4 4-4"/></svg></a><a class="rnd simb" id="simR" title="Reset board" aria-label="Reset board"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg></a><a id="rs">Resign</a><div class="clk" id="clkP">0:00</div></div>
 </div>
@@ -1407,7 +1411,7 @@ return{L,M,C,N,V}}
 function rvDecor(){const R=rvSt,i=rvIdx,s=R.L[i];last=R.M[i];arrows=[];drawArrows();
 const ck=inCheck(s,s.t==='w')?kingSq(s.b,s.t==='w'):-1;
 sqs.forEach((d,k)=>{d.classList.toggle('last',!!last&&(k===last.f||k===last.t));d.classList.toggle('sel',false);d.classList.toggle('chk',k===ck);d.classList.remove('mv','cp')});
-const sv=caps;caps=R.C[i];updInfo();caps=sv;rvCur=i-1;renderMoves();$('rvn').textContent=i+' / '+(R.L.length-1)}
+const sv=caps;caps=R.C[i];updInfo();caps=sv;rvCur=i-1;renderMoves();$('rvn').textContent=i+' / '+(R.L.length-1);rvEval()}
 function rvRender(){const s=rvSt.L[rvIdx];rvUnmate();pcs.innerHTML='';els=[];
 for(let k=0;k<64;k++)if(s.b[k]){els[k]=mk(s.b[k],k);els[k].style.animation='none'}
 rvReady=true;rvDecor();rvMate(300)}
@@ -1443,6 +1447,13 @@ if(!rvOn){rvSv={mvs,meW,last};rvSv.lb=document.body.classList.contains('lobby');
 rvOn=true;rvRes=!!rs;rvAi=ai==null?null:ai;rvSw=true;rvH=!!fh;rvSt=R;preDraw();rvIdx=R.L.length-1;sel=null;legalSel=[];meW=w;applyFlip();mvs=R.N;
 if(ov.style.display!=='none')ov.style.display='none';if(settled){$('nxt').style.display='flex';$('rs').style.display='none'}
 $('rvt').textContent=lbl;$('rs').style.display='none';$('rvbar').style.display='flex';document.body.classList.add('rvon');rvRender();navSync();rvAcc(R)}
+/* evaluation bar next to the board in a review: white's advantage from the engine scores of rvAcc (centipawns, side to move) */
+function rvEval(){const b=$('evb');if(!b||!rvOn||!rvSt)return;const f=b.querySelector('i'),l=b.querySelector('span'),R=rvSt,s=R.L[rvIdx],v=R.sc&&R.sc[rvIdx]!=null?(s.t==='w'?R.sc[rvIdx]:-R.sc[rvIdx]):null;
+const w=v==null?50:50+50*(2/Math.PI)*Math.atan(v/400);
+f.style.height=w+'%';f.style.top=meW?'auto':'0';f.style.bottom=meW?'0':'auto';
+const a=v==null?'':Math.abs(v)>=1500?'M':(Math.abs(v)/100).toFixed(1);
+l.textContent=a;l.style.top=(v!=null&&(v<0)===!meW)?'auto':'3px';l.style.bottom=(v!=null&&(v<0)===!meW)?'3px':'auto';l.style.color=v!=null&&v<0?'#fff':'#262421';
+if(v==null||v<0){l.style.color='#fff'}else{l.style.color='#262421'}}
 /* estimated play rating of both players, guessed from the average centipawn loss of their moves (engine analysis) */
 function rvAcc(R){const el=$('rvacc');if(!el)return;el.style.display='block';el.textContent='Estimating play ratings...';
 const N=R.L.length,sc=[],bm=[],one=[],sS=S,sH=hist;let i=0;
@@ -1455,7 +1466,7 @@ if(i<N){setTimeout(run,0);return}
 const sum=[0,0],cnt=[0,0];
 for(let k=0;k<N-1;k++){const p=k%2;sum[p]+=Math.max(0,Math.min(500,sc[k]+sc[k+1]));cnt[p]++}
 const est=p=>cnt[p]?'~'+Math.round(Math.max(100,Math.min(3200,3200*Math.exp(-0.0125*sum[p]/cnt[p])))/10)*10:'n/a';
-const me=meW?0:1;el.innerHTML='<div>You played at '+est(me)+'</div><div>Opponent played at '+est(1-me)+'</div>';rvCls(R,sc,bm,one);rvIcons()};
+const me=meW?0:1;el.innerHTML='<div>You played at '+est(me)+'</div><div>Opponent played at '+est(1-me)+'</div>';R.sc=sc;rvEval();rvCls(R,sc,bm,one);rvIcons()};
 setTimeout(run,0)}
 /* move classification (brilliant, great, best, excellent, good, book, inaccuracy, mistake, miss, blunder).
    Every icon lives in CLS below: to use the real chess.com icons, add a  u:'https://...svg'  (image URL) to an entry and it is used instead of the drawn icon. */
